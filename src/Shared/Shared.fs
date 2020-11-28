@@ -4,9 +4,23 @@ open System
 
 type CalendarDoor =
     { day: int
-      distance: float
+      distance: int
       opened: bool
       finished: bool }
+
+type Calendar =
+    {
+        doors: CalendarDoor list
+        owner: string
+    }
+
+module Calendar =
+    let initDoors : CalendarDoor list =
+        let days = seq {1 .. 24} |> Seq.toList
+        let random = Random()
+        let distances = days |> List.sortBy (fun _ -> random.Next())
+        let doors = days |> List.map (fun d -> { day = d; distance = distances.Item (d - 1); opened = false; finished = false })
+        doors
 
 type Todo =
     { Id : Guid

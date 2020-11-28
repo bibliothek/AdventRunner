@@ -15,115 +15,19 @@ type Msg =
     | AddTodo
     | AddedTodo of Todo
     | MarkedDoorAsDone of CalendarDoor
+    | OpenDoor of CalendarDoor
 
 let todosApi =
     Remoting.createApi ()
     |> Remoting.withRouteBuilder Route.builder
     |> Remoting.buildProxy<ITodosApi>
 
-let doors =
-    [ { day = 1
-        distance = 2.0
-        opened = true
-        finished = true }
-      { day = 2
-        distance = 2.0
-        opened = true
-        finished = true }
-      { day = 3
-        distance = 2.0
-        opened = true
-        finished = true }
-      { day = 4
-        distance = 2.0
-        opened = true
-        finished = true }
-      { day = 5
-        distance = 2.0
-        opened = true
-        finished = true }
-      { day = 6
-        distance = 2.0
-        opened = true
-        finished = true }
-      { day = 7
-        distance = 2.0
-        opened = true
-        finished = false }
-      { day = 8
-        distance = 2.0
-        opened = true
-        finished = false }
-      { day = 9
-        distance = 2.0
-        opened = true
-        finished = false }
-      { day = 10
-        distance = 2.0
-        opened = false
-        finished = false }
-      { day = 11
-        distance = 2.0
-        opened = false
-        finished = false }
-      { day = 12
-        distance = 2.0
-        opened = false
-        finished = false }
-      { day = 13
-        distance = 2.0
-        opened = false
-        finished = false }
-      { day = 14
-        distance = 2.0
-        opened = false
-        finished = false }
-      { day = 15
-        distance = 2.0
-        opened = false
-        finished = false }
-      { day = 16
-        distance = 2.0
-        opened = false
-        finished = false }
-      { day = 17
-        distance = 2.0
-        opened = false
-        finished = false }
-      { day = 18
-        distance = 2.0
-        opened = false
-        finished = false }
-      { day = 19
-        distance = 2.0
-        opened = false
-        finished = false }
-      { day = 20
-        distance = 2.0
-        opened = false
-        finished = false }
-      { day = 21
-        distance = 2.0
-        opened = false
-        finished = false }
-      { day = 22
-        distance = 2.0
-        opened = false
-        finished = false }
-      { day = 23
-        distance = 2.0
-        opened = false
-        finished = false }
-      { day = 24
-        distance = 2.0
-        opened = false
-        finished = false } ]
 
 let init (): Model * Cmd<Msg> =
     let model =
         { Todos = []
           Input = ""
-          Doors = doors }
+          Doors = Calendar.initDoors }
 
     let cmd =
         Cmd.OfAsync.perform todosApi.getTodos () GotTodos
@@ -137,7 +41,14 @@ let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
               Doors =
                   model.Doors.GetSlice(None, Some(door.day - 2))
                   @ [ { door with finished = true } ]
-                  @ model.Doors.GetSlice(Some (door.day), None) },
+                  @ model.Doors.GetSlice(Some(door.day), None) },
+        Cmd.none
+    | OpenDoor door ->
+        { model with
+            Doors =
+                  model.Doors.GetSlice(None, Some(door.day - 2))
+                  @ [ { door with opened = true } ]
+                  @ model.Doors.GetSlice(Some(door.day), None) },
         Cmd.none
     | GotTodos todos -> { model with Todos = todos }, Cmd.none
     | SetInput value -> { model with Input = value }, Cmd.none
@@ -165,74 +76,49 @@ let navBrand =
         ]
     ]
 
-let containerBox (model: Model) (dispatch: Msg -> unit) =
-    Box.box' [] [
-        Content.content [] [
-            Content.Ol.ol [] [
-                for todo in model.Todos do
-                    li [] [ str todo.Description ]
-            ]
-        ]
-        Field.div [ Field.IsGrouped ] [
-            Control.p [ Control.IsExpanded ] [
-                Input.text [ Input.Value model.Input
-                             Input.Placeholder "What needs to be done?"
-                             Input.OnChange(fun x -> SetInput x.Value |> dispatch) ]
-            ]
-            Control.p [] [
-                Button.a [ Button.Color IsPrimary
-                           Button.Disabled(Todo.isValid model.Input |> not)
-                           Button.OnClick(fun _ -> dispatch AddTodo) ] [
-                    str "Add"
-                ]
-            ]
-        ]
-    ]
-
-
 let closedDoorView door dispatch =
-    Field.div [ Field.Props
-                    [ Style [ Height "100%"
-                              Display DisplayOptions.Flex
-                              FlexDirection "column"
-                              JustifyContent "center"
-                              AlignItems AlignItemsOptions.Center
-                              AlignContent AlignContentOptions.Center
-                              BackgroundColor "#082510"
-                              Border "5px solid #C6C6C6"
-                              BorderRadius "5px" ] ] ] [
+    div [
+            OnClick (fun _ -> OpenDoor door |> dispatch )
+            Style [   Height "100%"
+                      Display DisplayOptions.Flex
+                      FlexDirection "column"
+                      JustifyContent "center"
+                      AlignItems AlignItemsOptions.Center
+                      AlignContent AlignContentOptions.Center
+                      BackgroundColor "#082510"
+                      Border "5px solid #C6C6C6"
+                      BorderRadius "5px" ]
+            ] [
         p [ Style [ FontSize "2em" ] ] [
             str (sprintf "%i" door.day)
         ]
     ]
 
 let openedDoorView door dispatch =
-    Field.div [ Field.Props
-                    [ Style [ Height "100%"
-                              Color "black"
-                              Display DisplayOptions.Flex
-                              FlexDirection "column"
-                              Padding "5px 10px"
-                              BackgroundColor "#C6C6C6"
-                              Border "5px solid #082510"
-                              BorderRadius "5px" ] ] ] [
+    div [ Style [ Height "100%"
+                  Color "black"
+                  Display DisplayOptions.Flex
+                  FlexDirection "column"
+                  Padding "5px 10px"
+                  BackgroundColor "#C6C6C6"
+                  Border "5px solid #082510"
+                  BorderRadius "5px" ] ] [
         p [] [ str (sprintf "%i" door.day) ]
-        Field.div [ Field.Props [ Style [ FlexGrow "1" ] ] ] []
+        div [ Style [ FlexGrow "1" ] ] []
         p [ Style [ TextAlign TextAlignOptions.Center
                     FontSize "2em" ] ] [
-            str (sprintf "%.0f km" door.distance)
+            str (sprintf "%i km" door.distance)
         ]
-        Field.div [ Field.Props [ Style [ FlexGrow "1" ] ] ] []
-        Field.div [ Field.Props
-                        [ Style [ Display DisplayOptions.Flex
-                                  FlexDirection "row"
-                                  AlignItems AlignItemsOptions.Baseline ] ] ] [
-            Field.div [ Field.Props [ Style [ Color "#082510" ] ] ] [
+        div [ Style [ FlexGrow "1" ] ] []
+        div [ Style [ Display DisplayOptions.Flex
+                      FlexDirection "row"
+                      AlignItems AlignItemsOptions.Baseline ] ] [
+            div [ Style [ Color "#082510" ] ] [
                 match door.finished with
                 | true -> Icon.icon [ Icon.CustomClass "fas fa-check fa-2x" ] []
                 | false -> Icon.icon [ Icon.CustomClass "fas fa-running fa-2x" ] []
             ]
-            Field.div [ Field.Props [ Style [ FlexGrow "1" ] ] ] []
+            div [ Style [ FlexGrow "1" ] ] []
             if not door.finished then
                 Button.a [ Button.Color IsPrimary
                            Button.OnClick(fun _ -> MarkedDoorAsDone door |> dispatch) ] [
@@ -241,14 +127,11 @@ let openedDoorView door dispatch =
         ]
     ]
 
-
-
 let doorView door dispatch =
-    Field.div [ Field.Props
-                    [ Style [ Height "180px"
-                              Flex "0 0 180px"
-                              Margin "5px"
-                              Padding "10px" ] ] ] [
+    div [ Style [ Height "180px"
+                  Flex "0 0 180px"
+                  Margin "10px"
+                  Padding "2px" ] ] [
         match door.opened with
         | true -> openedDoorView door dispatch
         | false -> closedDoorView door dispatch
