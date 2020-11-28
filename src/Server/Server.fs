@@ -2,14 +2,12 @@ module Server
 
 open Fable.Remoting.Server
 open Fable.Remoting.Giraffe
-open Microsoft.AspNetCore.Mvc.TagHelpers.Cache
 open Saturn
 
 open Shared
 
 type Storage () =
     let calendars = ResizeArray<Calendar>()
-    let todos = ResizeArray<_>()
 
     member __.GetCalendar owner =
         calendars.Find (fun c -> c.owner = owner)
