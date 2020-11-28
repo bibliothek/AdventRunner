@@ -8,7 +8,7 @@ open Shared
 type Model =
     { Todos: Todo list
       Input: string
-      Calendar: Calendar }
+      Calendar: Calendar option }
 
 type Msg =
     | GotTodos of Todo list
@@ -17,6 +17,8 @@ type Msg =
     | AddedTodo of Todo
     | MarkedDoorAsDone of CalendarDoor
     | OpenDoor of CalendarDoor
+    | Updated of Calendar
+    | GotCalendar of Calendar
 
 let todosApi =
     Remoting.createApi ()
@@ -33,30 +35,36 @@ let init (): Model * Cmd<Msg> =
     let model =
         { Todos = []
           Input = ""
-          Calendar = Calendar.init { name = "matha" } }
+          Calendar = None }
 
     let cmd =
-        Cmd.OfAsync.perform todosApi.getTodos () GotTodos
+        Cmd.OfAsync.perform adventRunApi.getCalendar {name = "matha"} GotCalendar
 
     model, cmd
+
+let updateDoor model door =
+    match model.Calendar with
+        | Some cal ->
+            let newDoors =
+                cal.doors.GetSlice(None, Some(door.day - 2))
+                @ [ door ]
+                @ cal.doors.GetSlice(Some(door.day), None)
+            let newCalendar = { cal with doors = newDoors }
+            { model with Calendar = Some newCalendar }
+        | _ -> failwith "should not happen"
 
 let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
     match msg with
     | MarkedDoorAsDone door ->
-        let newDoors =
-            model.Calendar.doors.GetSlice(None, Some(door.day - 2))
-            @ [ { door with finished = true } ]
-            @ model.Calendar.doors.GetSlice(Some(door.day), None)
-        let newCalendar = { model.Calendar with doors = newDoors }
-        { model with Calendar = newCalendar }, Cmd.none
+        let updatedDoor = { door with finished = true }
+        let updatedModel = updateDoor model updatedDoor
+        let cmd = Cmd.OfAsync.perform adventRunApi.updateCalendar updatedModel.Calendar.Value Updated
+        updatedModel, cmd
     | OpenDoor door ->
-        let newDoors =
-            model.Calendar.doors.GetSlice(None, Some(door.day - 2))
-            @ [ { door with opened = true } ]
-            @ model.Calendar.doors.GetSlice(Some(door.day), None)
-        let newCalendar = { model.Calendar with doors = newDoors }
-        { model with Calendar = newCalendar }, Cmd.none
-    //        Cmd.OfAsync.perform adventRunApi.updateCalendar
+        let updatedDoor = { door with opened = true }
+        let updatedModel = updateDoor model updatedDoor
+        let cmd = Cmd.OfAsync.perform adventRunApi.updateCalendar updatedModel.Calendar.Value Updated
+        updatedModel, cmd
     | GotTodos todos -> { model with Todos = todos }, Cmd.none
     | SetInput value -> { model with Input = value }, Cmd.none
     | AddTodo ->
@@ -66,6 +74,10 @@ let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
             Cmd.OfAsync.perform todosApi.addTodo todo AddedTodo
 
         { model with Input = "" }, cmd
+    | Updated _ ->
+        model, Cmd.none
+    | GotCalendar calendar ->
+        {model with Calendar = Some calendar}, Cmd.none
     | AddedTodo todo ->
         { model with
               Todos = model.Todos @ [ todo ] },
@@ -170,8 +182,11 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                                     FlexDirection "row"
                                                     FlexWrap "wrap"
                                                     JustifyContent "center" ] ] ] [
-                    for door in model.Calendar.doors do
-                        doorView door dispatch
+                    match model.Calendar with
+                    | None -> str "Loading..."
+                    | Some cal ->
+                        for door in cal.doors do
+                            doorView door dispatch
                 ]
             ]
         ]
