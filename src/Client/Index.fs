@@ -14,6 +14,7 @@ type Msg =
     | SetInput of string
     | AddTodo
     | AddedTodo of Todo
+    | MarkedDoorAsDone of CalendarDoor
 
 let todosApi =
     Remoting.createApi ()
@@ -131,6 +132,13 @@ let init (): Model * Cmd<Msg> =
 
 let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
     match msg with
+    | MarkedDoorAsDone door ->
+        { model with
+              Doors =
+                  model.Doors.GetSlice(None, Some(door.day - 2))
+                  @ [ { door with finished = true } ]
+                  @ model.Doors.GetSlice(Some (door.day), None) },
+        Cmd.none
     | GotTodos todos -> { model with Todos = todos }, Cmd.none
     | SetInput value -> { model with Input = value }, Cmd.none
     | AddTodo ->
@@ -191,9 +199,11 @@ let closedDoorView door dispatch =
                               AlignItems AlignItemsOptions.Center
                               AlignContent AlignContentOptions.Center
                               BackgroundColor "#082510"
-                              Border "5px solid #3F3F06"
+                              Border "5px solid #C6C6C6"
                               BorderRadius "5px" ] ] ] [
-        p [] [ str (sprintf "%i" door.day) ]
+        p [ Style [ FontSize "2em" ] ] [
+            str (sprintf "%i" door.day)
+        ]
     ]
 
 let openedDoorView door dispatch =
@@ -204,7 +214,7 @@ let openedDoorView door dispatch =
                               FlexDirection "column"
                               Padding "5px 10px"
                               BackgroundColor "#C6C6C6"
-                              Border "5px solid #3F3F06"
+                              Border "5px solid #082510"
                               BorderRadius "5px" ] ] ] [
         p [] [ str (sprintf "%i" door.day) ]
         Field.div [ Field.Props [ Style [ FlexGrow "1" ] ] ] []
@@ -216,15 +226,18 @@ let openedDoorView door dispatch =
         Field.div [ Field.Props
                         [ Style [ Display DisplayOptions.Flex
                                   FlexDirection "row"
-                                  AlignItems AlignItemsOptions.Baseline] ] ] [
-            Field.div [ Field.Props [Style [Color "#082510"]] ] [
+                                  AlignItems AlignItemsOptions.Baseline ] ] ] [
+            Field.div [ Field.Props [ Style [ Color "#082510" ] ] ] [
                 match door.finished with
                 | true -> Icon.icon [ Icon.CustomClass "fas fa-check fa-2x" ] []
                 | false -> Icon.icon [ Icon.CustomClass "fas fa-running fa-2x" ] []
             ]
             Field.div [ Field.Props [ Style [ FlexGrow "1" ] ] ] []
             if not door.finished then
-                Button.a [Button.Color IsPrimary] [str "Done!"]
+                Button.a [ Button.Color IsPrimary
+                           Button.OnClick(fun _ -> MarkedDoorAsDone door |> dispatch) ] [
+                    str "Done!"
+                ]
         ]
     ]
 
@@ -259,7 +272,8 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                       [ Style [ Display DisplayOptions.Flex
                                                 FlexDirection "column"
                                                 JustifyContent "center" ] ] ] [
-                Heading.p [ Heading.Modifiers [ Modifier.TextAlignment(Screen.All, TextAlignment.Centered) ] ] [
+                Heading.p [ Heading.Modifiers [ Modifier.TextAlignment(Screen.All, TextAlignment.Centered)
+                                                Modifier.TextSize(Screen.All, TextSize.Is1) ] ] [
                     str "Advent Run Ninja"
                 ]
                 Container.container [ Container.Props
@@ -268,7 +282,6 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                                     FlexDirection "row"
                                                     FlexWrap "wrap"
                                                     JustifyContent "center" ] ] ] [
-
                     for door in model.Doors do
                         doorView door dispatch
                 ]
