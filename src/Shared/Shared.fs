@@ -8,10 +8,14 @@ type CalendarDoor =
       opened: bool
       finished: bool }
 
+type Owner = {
+    name: string
+}
+
 type Calendar =
     {
         doors: CalendarDoor list
-        owner: string
+        owner: Owner
     }
 
 module Calendar =
@@ -21,6 +25,12 @@ module Calendar =
         let distances = days |> List.sortBy (fun _ -> random.Next())
         let doors = days |> List.map (fun d -> { day = d; distance = distances.Item (d - 1); opened = false; finished = false })
         doors
+
+    let init owner : Calendar =
+        {
+            doors = initDoors
+            owner = owner
+        }
 
 type Todo =
     { Id : Guid
@@ -41,3 +51,10 @@ module Route =
 type ITodosApi =
     { getTodos : unit -> Async<Todo list>
       addTodo : Todo -> Async<Todo> }
+
+type IAdventRunApi =
+    {
+        createCalendar : Owner -> Async<Calendar>
+        getCalendar : Owner -> Async<Calendar>
+        updateCalendar : Calendar -> Async<Calendar>
+    }

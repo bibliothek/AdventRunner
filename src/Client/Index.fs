@@ -1,13 +1,14 @@
 module Index
 
 open Elmish
+open Elmish
 open Fable.Remoting.Client
 open Shared
 
 type Model =
     { Todos: Todo list
       Input: string
-      Doors: CalendarDoor list }
+      Calendar: Calendar }
 
 type Msg =
     | GotTodos of Todo list
@@ -22,12 +23,17 @@ let todosApi =
     |> Remoting.withRouteBuilder Route.builder
     |> Remoting.buildProxy<ITodosApi>
 
+let adventRunApi =
+    Remoting.createApi ()
+    |> Remoting.withRouteBuilder Route.builder
+    |> Remoting.buildProxy<IAdventRunApi>
+
 
 let init (): Model * Cmd<Msg> =
     let model =
         { Todos = []
           Input = ""
-          Doors = Calendar.initDoors }
+          Calendar = Calendar.init { name = "matha" } }
 
     let cmd =
         Cmd.OfAsync.perform todosApi.getTodos () GotTodos
@@ -37,19 +43,20 @@ let init (): Model * Cmd<Msg> =
 let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
     match msg with
     | MarkedDoorAsDone door ->
-        { model with
-              Doors =
-                  model.Doors.GetSlice(None, Some(door.day - 2))
-                  @ [ { door with finished = true } ]
-                  @ model.Doors.GetSlice(Some(door.day), None) },
-        Cmd.none
+        let newDoors =
+            model.Calendar.doors.GetSlice(None, Some(door.day - 2))
+            @ [ { door with finished = true } ]
+            @ model.Calendar.doors.GetSlice(Some(door.day), None)
+        let newCalendar = { model.Calendar with doors = newDoors }
+        { model with Calendar = newCalendar }, Cmd.none
     | OpenDoor door ->
-        { model with
-            Doors =
-                  model.Doors.GetSlice(None, Some(door.day - 2))
-                  @ [ { door with opened = true } ]
-                  @ model.Doors.GetSlice(Some(door.day), None) },
-        Cmd.none
+        let newDoors =
+            model.Calendar.doors.GetSlice(None, Some(door.day - 2))
+            @ [ { door with opened = true } ]
+            @ model.Calendar.doors.GetSlice(Some(door.day), None)
+        let newCalendar = { model.Calendar with doors = newDoors }
+        { model with Calendar = newCalendar }, Cmd.none
+    //        Cmd.OfAsync.perform adventRunApi.updateCalendar
     | GotTodos todos -> { model with Todos = todos }, Cmd.none
     | SetInput value -> { model with Input = value }, Cmd.none
     | AddTodo ->
@@ -77,18 +84,16 @@ let navBrand =
     ]
 
 let closedDoorView door dispatch =
-    div [
-            OnClick (fun _ -> OpenDoor door |> dispatch )
-            Style [   Height "100%"
-                      Display DisplayOptions.Flex
-                      FlexDirection "column"
-                      JustifyContent "center"
-                      AlignItems AlignItemsOptions.Center
-                      AlignContent AlignContentOptions.Center
-                      BackgroundColor "#082510"
-                      Border "5px solid #C6C6C6"
-                      BorderRadius "5px" ]
-            ] [
+    div [ OnClick(fun _ -> OpenDoor door |> dispatch)
+          Style [ Height "100%"
+                  Display DisplayOptions.Flex
+                  FlexDirection "column"
+                  JustifyContent "center"
+                  AlignItems AlignItemsOptions.Center
+                  AlignContent AlignContentOptions.Center
+                  BackgroundColor "#082510"
+                  Border "5px solid #C6C6C6"
+                  BorderRadius "5px" ] ] [
         p [ Style [ FontSize "2em" ] ] [
             str (sprintf "%i" door.day)
         ]
@@ -165,7 +170,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                                     FlexDirection "row"
                                                     FlexWrap "wrap"
                                                     JustifyContent "center" ] ] ] [
-                    for door in model.Doors do
+                    for door in model.Calendar.doors do
                         doorView door dispatch
                 ]
             ]
