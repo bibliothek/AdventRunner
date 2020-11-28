@@ -19,7 +19,7 @@ type Calendar =
     }
 
 module Calendar =
-    let initDoors : CalendarDoor list =
+    let private initDoors : CalendarDoor list =
         let days = seq {1 .. 24} |> Seq.toList
         let random = Random()
         let distances = days |> List.sortBy (fun _ -> random.Next())
@@ -32,25 +32,9 @@ module Calendar =
             owner = owner
         }
 
-type Todo =
-    { Id : Guid
-      Description : string }
-
-module Todo =
-    let isValid (description: string) =
-        String.IsNullOrWhiteSpace description |> not
-
-    let create (description: string) =
-        { Id = Guid.NewGuid()
-          Description = description }
-
 module Route =
     let builder typeName methodName =
         sprintf "/api/%s/%s" typeName methodName
-
-type ITodosApi =
-    { getTodos : unit -> Async<Todo list>
-      addTodo : Todo -> Async<Todo> }
 
 type IAdventRunApi =
     {

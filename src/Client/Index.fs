@@ -1,29 +1,18 @@
 module Index
 
 open Elmish
-open Elmish
 open Fable.Remoting.Client
 open Shared
 
 type Model =
-    { Todos: Todo list
-      Input: string
-      Calendar: Calendar option }
+    { Calendar: Calendar option }
 
 type Msg =
-    | GotTodos of Todo list
-    | SetInput of string
-    | AddTodo
-    | AddedTodo of Todo
     | MarkedDoorAsDone of CalendarDoor
     | OpenDoor of CalendarDoor
     | Updated of Calendar
     | GotCalendar of Calendar
 
-let todosApi =
-    Remoting.createApi ()
-    |> Remoting.withRouteBuilder Route.builder
-    |> Remoting.buildProxy<ITodosApi>
 
 let adventRunApi =
     Remoting.createApi ()
@@ -33,9 +22,7 @@ let adventRunApi =
 
 let init (): Model * Cmd<Msg> =
     let model =
-        { Todos = []
-          Input = ""
-          Calendar = None }
+        { Calendar = None }
 
     let cmd =
         Cmd.OfAsync.perform adventRunApi.getCalendar {name = "matha"} GotCalendar
@@ -65,23 +52,10 @@ let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
         let updatedModel = updateDoor model updatedDoor
         let cmd = Cmd.OfAsync.perform adventRunApi.updateCalendar updatedModel.Calendar.Value Updated
         updatedModel, cmd
-    | GotTodos todos -> { model with Todos = todos }, Cmd.none
-    | SetInput value -> { model with Input = value }, Cmd.none
-    | AddTodo ->
-        let todo = Todo.create model.Input
-
-        let cmd =
-            Cmd.OfAsync.perform todosApi.addTodo todo AddedTodo
-
-        { model with Input = "" }, cmd
     | Updated _ ->
         model, Cmd.none
     | GotCalendar calendar ->
         {model with Calendar = Some calendar}, Cmd.none
-    | AddedTodo todo ->
-        { model with
-              Todos = model.Todos @ [ todo ] },
-        Cmd.none
 
 open Fable.React
 open Fable.React.Props
