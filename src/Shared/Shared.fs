@@ -2,6 +2,12 @@ namespace Shared
 
 open System
 
+type CalendarDoor =
+    { day: int
+      distance: float
+      opened: bool
+      finished: bool }
+
 type Todo =
     { Id : Guid
       Description : string }
