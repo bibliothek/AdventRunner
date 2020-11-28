@@ -182,15 +182,71 @@ let containerBox (model: Model) (dispatch: Msg -> unit) =
     ]
 
 
+let closedDoorView door dispatch =
+    Field.div [ Field.Props
+                    [ Style [ Height "100%"
+                              Display DisplayOptions.Flex
+                              FlexDirection "column"
+                              JustifyContent "center"
+                              AlignItems AlignItemsOptions.Center
+                              AlignContent AlignContentOptions.Center
+                              BackgroundColor "#082510"
+                              Border "5px solid #3F3F06"
+                              BorderRadius "5px" ] ] ] [
+        p [] [ str (sprintf "%i" door.day) ]
+    ]
+
+let openedDoorView door dispatch =
+    Field.div [ Field.Props
+                    [ Style [ Height "100%"
+                              Color "black"
+                              Display DisplayOptions.Flex
+                              FlexDirection "column"
+                              Padding "5px 10px"
+                              BackgroundColor "#C6C6C6"
+                              Border "5px solid #3F3F06"
+                              BorderRadius "5px" ] ] ] [
+        p [] [ str (sprintf "%i" door.day) ]
+        Field.div [ Field.Props [ Style [ FlexGrow "1" ] ] ] []
+        p [ Style [ TextAlign TextAlignOptions.Center
+                    FontSize "2em" ] ] [
+            str (sprintf "%.0f km" door.distance)
+        ]
+        Field.div [ Field.Props [ Style [ FlexGrow "1" ] ] ] []
+        Field.div [ Field.Props
+                        [ Style [ Display DisplayOptions.Flex
+                                  FlexDirection "row"
+                                  AlignItems AlignItemsOptions.Baseline] ] ] [
+            Field.div [ Field.Props [Style [Color "#082510"]] ] [
+                match door.finished with
+                | true -> Icon.icon [ Icon.CustomClass "fas fa-check fa-2x" ] []
+                | false -> Icon.icon [ Icon.CustomClass "fas fa-running fa-2x" ] []
+            ]
+            Field.div [ Field.Props [ Style [ FlexGrow "1" ] ] ] []
+            if not door.finished then
+                Button.a [Button.Color IsPrimary] [str "Done!"]
+        ]
+    ]
 
 
+
+let doorView door dispatch =
+    Field.div [ Field.Props
+                    [ Style [ Height "180px"
+                              Flex "0 0 180px"
+                              Margin "5px"
+                              Padding "10px" ] ] ] [
+        match door.opened with
+        | true -> openedDoorView door dispatch
+        | false -> closedDoorView door dispatch
+    ]
 
 let view (model: Model) (dispatch: Msg -> unit) =
     Hero.hero [ Hero.Color IsPrimary
                 Hero.IsFullHeight
                 Hero.Props
                     [ Style [ Background
-                                  """linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("https://unsplash.it/1200/900?random") no-repeat center center fixed"""
+                                  """linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("https://picsum.photos/id/15/1200/900?random") no-repeat center center fixed"""
                               BackgroundSize "cover" ] ] ] [
         Hero.head [] [
             Navbar.navbar [] [
@@ -202,7 +258,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
             Container.container [ Container.Props
                                       [ Style [ Display DisplayOptions.Flex
                                                 FlexDirection "column"
-                                                JustifyContent "center"] ] ] [
+                                                JustifyContent "center" ] ] ] [
                 Heading.p [ Heading.Modifiers [ Modifier.TextAlignment(Screen.All, TextAlignment.Centered) ] ] [
                     str "Advent Run Ninja"
                 ]
@@ -214,17 +270,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                                     JustifyContent "center" ] ] ] [
 
                     for door in model.Doors do
-                        Field.div [ Field.Props
-                                        [ Style [ Height "150px"
-                                                  Flex "0 0 150px"
-                                                  Margin "20px"
-                                                  Padding "10px"
-                                                  BackgroundColor "grey" ] ] ] [
-                            match door.opened with
-                            | true -> str "true"
-                            | false -> str "false"
-//                            str (sprintf "%i" door.day)
-                        ]
+                        doorView door dispatch
                 ]
             ]
         ]
