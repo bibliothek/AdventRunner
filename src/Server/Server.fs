@@ -1,25 +1,44 @@
 module Server
 
+open System.IO
+open System.Text
 open Fable.Remoting.Server
 open Fable.Remoting.Giraffe
 open Saturn
-
+open Azure.Storage.Blobs
+open Newtonsoft.Json
 open Shared
 
 type Storage () =
-    let calendars = ResizeArray<Calendar>()
+    let getBlobClient owner =
+        let connectionString = System.Environment.GetEnvironmentVariable "AR_StorageAccount_ConnectionString"
+        let blobServiceClient = BlobServiceClient connectionString
+        let containerName = "calendars"
+        let containerClient = blobServiceClient.GetBlobContainerClient containerName
+        containerClient.GetBlobClient (sprintf "%s.txt" owner.name)
+
+    let uploadCalendar calendar =
+        let serializedCalendar = JsonConvert.SerializeObject calendar
+        let blobClient = getBlobClient calendar.owner
+        use stream = new MemoryStream (Encoding.UTF8.GetBytes serializedCalendar)
+        blobClient.Upload(stream, true) |> ignore
 
     member __.GetCalendar owner =
-        calendars.Find (fun c -> c.owner = owner)
+        let blobClient = getBlobClient owner
+        use stream = new MemoryStream()
+        blobClient.DownloadTo stream |> ignore
+        stream.Position <- 0L
+        use reader = new StreamReader(stream, Encoding.UTF8)
+        let serializedCalendar = reader.ReadToEnd()
+        let cal = JsonConvert.DeserializeObject<Calendar> serializedCalendar
+        cal
 
     member __.UpdateCalendar updatedCalendar =
-        let i = calendars.FindIndex (fun c -> c.owner = updatedCalendar.owner)
-        calendars.RemoveAt(i)
-        calendars.Add updatedCalendar
+        uploadCalendar updatedCalendar
         updatedCalendar
 
     member __.AddNewCalendar calendar =
-        calendars.Add calendar
+        uploadCalendar calendar
         calendar
 
 let storage = Storage()

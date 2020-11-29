@@ -2,6 +2,7 @@ source https://api.nuget.org/v3/index.json
 framework: netcoreapp3.1
 storage: none
 
+nuget Azure.Storage.Blobs
 nuget Fable.Remoting.Giraffe
 nuget Saturn
 nuget Expecto
