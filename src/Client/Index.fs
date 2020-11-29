@@ -65,7 +65,7 @@ let navBrand =
     Navbar.Brand.div [] [
         Navbar.Item.a [ Navbar.Item.Props [ Href "https://safe-stack.github.io/" ]
                         Navbar.Item.IsActive true ] [
-            img [ Src "/favicon.png"; Alt "Logo" ]
+            img [ Src "/safe.png"; Alt "Logo" ]
         ]
     ]
 
