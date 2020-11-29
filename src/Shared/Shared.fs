@@ -8,37 +8,36 @@ type CalendarDoor =
       opened: bool
       finished: bool }
 
-type Owner = {
-    name: string
-}
+type Owner = { name: string }
 
 type Calendar =
-    {
-        doors: CalendarDoor list
-        owner: Owner
-    }
+    { doors: CalendarDoor list
+      owner: Owner }
 
 module Calendar =
-    let private initDoors : CalendarDoor list =
-        let days = seq {1 .. 24} |> Seq.toList
+    let private initDoors: CalendarDoor list =
+        let days = seq { 1 .. 24 } |> Seq.toList
         let random = Random()
-        let distances = days |> List.sortBy (fun _ -> random.Next())
-        let doors = days |> List.map (fun d -> { day = d; distance = distances.Item (d - 1); opened = false; finished = false })
+
+        let distances =
+            days |> List.sortBy (fun _ -> random.Next())
+
+        let doors =
+            days
+            |> List.map (fun d ->
+                { day = d
+                  distance = distances.Item(d - 1)
+                  opened = false
+                  finished = false })
+
         doors
 
-    let init owner : Calendar =
-        {
-            doors = initDoors
-            owner = owner
-        }
+    let init owner: Calendar = { doors = initDoors; owner = owner }
 
 module Route =
-    let builder typeName methodName =
-        sprintf "/api/%s/%s" typeName methodName
+    let builder typeName methodName = sprintf "/api/%s/%s" typeName methodName
 
 type IAdventRunApi =
-    {
-        createCalendar : Owner -> Async<Calendar>
-        getCalendar : Owner -> Async<Calendar>
-        updateCalendar : Calendar -> Async<Calendar>
-    }
+    { createCalendar: Owner -> Async<Calendar>
+      getCalendar: Owner -> Async<Calendar>
+      updateCalendar: Calendar -> Async<Calendar> }
