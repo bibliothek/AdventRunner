@@ -148,7 +148,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                                 JustifyContent "center" ] ] ] [
                 Heading.p [ Heading.Modifiers [ Modifier.TextAlignment(Screen.All, TextAlignment.Centered)
                                                 Modifier.TextSize(Screen.All, TextSize.Is1) ] ] [
-                    str "Advent Run Ninja"
+                    str "Advent Runner"
                 ]
                 Container.container [ Container.Props
                                           [ Style [ Display DisplayOptions.Flex
