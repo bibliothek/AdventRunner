@@ -3,9 +3,13 @@ module Index
 open Elmish
 open Fable.Remoting.Client
 open Shared
+open Elmish.Navigation
+open Elmish.UrlParser
+type Page = Welcome | CalendarView of string
 
 type Model =
-    { Calendar: Calendar option }
+    { Calendar: Calendar option
+      Page : Page }
 
 type Msg =
     | MarkedDoorAsDone of CalendarDoor
@@ -13,6 +17,15 @@ type Msg =
     | Updated of Calendar
     | GotCalendar of Calendar
 
+let toHash =
+    function
+    | Welcome -> "#welcome"
+    | CalendarView ownerName -> "#calendar/" + ownerName
+
+let pageParser : UrlParser.Parser<(Page -> Page),Page> =
+  oneOf
+    [ map Welcome (s "home")
+      map CalendarView (s "calendar" </> str) ]
 
 let adventRunApi =
     Remoting.createApi ()
@@ -20,14 +33,18 @@ let adventRunApi =
     |> Remoting.buildProxy<IAdventRunApi>
 
 
-let init (): Model * Cmd<Msg> =
-    let model =
-        { Calendar = None }
+let urlUpdate (result:Option<Page>) model =
+  match result with
+  | Some Welcome -> {model with Page = Welcome}, []
+  | Some (CalendarView calView as page) ->
+      { model with Page = page},
+         Cmd.OfAsync.perform adventRunApi.getCalendar {name = calView} GotCalendar
 
-    let cmd =
-        Cmd.OfAsync.perform adventRunApi.getCalendar {name = "matha"} GotCalendar
+  | None ->
+      ( model, Navigation.modifyUrl (toHash Welcome) )
 
-    model, cmd
+let init result =
+  urlUpdate result { Page = Welcome; Calendar = None }
 
 let updateDoor model door =
     match model.Calendar with
@@ -128,6 +145,9 @@ let doorView door dispatch =
         | false -> closedDoorView door dispatch
     ]
 
+let welcomeView =
+    div [] [str "yellow"]
+
 let view (model: Model) (dispatch: Msg -> unit) =
     Hero.hero [ Hero.Color IsPrimary
                 Hero.IsFullHeight
@@ -156,11 +176,14 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                                     FlexDirection "row"
                                                     FlexWrap "wrap"
                                                     JustifyContent "center" ] ] ] [
-                    match model.Calendar with
-                    | None -> str "Loading..."
-                    | Some cal ->
-                        for door in cal.doors do
-                            doorView door dispatch
+                    match model.Page with
+                    | Welcome -> welcomeView
+                    | CalendarView _ ->
+                        match model.Calendar with
+                        | Some cal ->
+                            for door in cal.doors do
+                                doorView door dispatch
+                        | None -> str "Loading"
                 ]
             ]
         ]
