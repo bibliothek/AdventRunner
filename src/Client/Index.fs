@@ -2,6 +2,7 @@ module Index
 
 open Elmish
 open Fable.Remoting.Client
+open Fulma
 open Shared
 open Elmish.Navigation
 open Elmish.UrlParser
@@ -9,13 +10,16 @@ type Page = Welcome | CalendarView of string
 
 type Model =
     { Calendar: Calendar option
-      Page : Page }
+      Page : Page
+      OwnerName : string }
 
 type Msg =
     | MarkedDoorAsDone of CalendarDoor
     | OpenDoor of CalendarDoor
     | Updated of Calendar
     | GotCalendar of Calendar
+    | SetOwnerName of string
+    | NavigateToCalendar
 
 let toHash =
     function
@@ -32,19 +36,21 @@ let adventRunApi =
     |> Remoting.withRouteBuilder Route.builder
     |> Remoting.buildProxy<IAdventRunApi>
 
+let getCalendarCmd calendarView =
+    Cmd.OfAsync.perform adventRunApi.getCalendar {name = calendarView} GotCalendar
 
 let urlUpdate (result:Option<Page>) model =
   match result with
   | Some Welcome -> {model with Page = Welcome}, []
   | Some (CalendarView calView as page) ->
       { model with Page = page},
-         Cmd.OfAsync.perform adventRunApi.getCalendar {name = calView} GotCalendar
-
+        getCalendarCmd calView
   | None ->
       ( model, Navigation.modifyUrl (toHash Welcome) )
 
 let init result =
-  urlUpdate result { Page = Welcome; Calendar = None }
+  urlUpdate result { Page = Welcome; Calendar = None; OwnerName = ""}
+
 
 let updateDoor model door =
     match model.Calendar with
@@ -72,11 +78,36 @@ let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
     | Updated _ ->
         model, Cmd.none
     | GotCalendar calendar ->
-        {model with Calendar = Some calendar}, Cmd.none
+        {model with Calendar = Some calendar}, Navigation.modifyUrl (toHash (CalendarView calendar.owner.name))
+    | SetOwnerName ownerName ->
+        {model with OwnerName = ownerName}, Cmd.none
+    | NavigateToCalendar ->
+        {model with Page = CalendarView model.OwnerName}, getCalendarCmd model.OwnerName
 
 open Fable.React
 open Fable.React.Props
 open Fulma
+
+let welcomeView (model : Model) (dispatch : Msg -> unit) =
+    Box.box' [ ] [
+        Field.div [ Field.IsGrouped ] [
+            Control.p [ Control.IsExpanded ] [
+                Input.text [
+                  Input.Value model.OwnerName
+                  Input.Placeholder "Please enter a name"
+                  Input.OnChange (fun x -> SetOwnerName x.Value |> dispatch) ]
+            ]
+            Control.p [ ] [
+                Button.a [
+                    Button.Color IsPrimary
+                    Button.Disabled (model.OwnerName.Length <= 0)
+                    Button.OnClick (fun _ -> dispatch NavigateToCalendar)
+                ] [
+                    str "Get started!"
+                ]
+            ]
+        ]
+    ]
 
 let navBrand =
     Navbar.Brand.div [] [
@@ -145,9 +176,6 @@ let doorView door dispatch =
         | false -> closedDoorView door dispatch
     ]
 
-let welcomeView =
-    div [] [str "yellow"]
-
 let view (model: Model) (dispatch: Msg -> unit) =
     Hero.hero [ Hero.Color IsPrimary
                 Hero.IsFullHeight
@@ -177,7 +205,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                                     FlexWrap "wrap"
                                                     JustifyContent "center" ] ] ] [
                     match model.Page with
-                    | Welcome -> welcomeView
+                    | Welcome -> welcomeView model dispatch
                     | CalendarView _ ->
                         match model.Calendar with
                         | Some cal ->
