@@ -5,6 +5,7 @@ storage: none
 nuget Azure.Storage.Blobs
 nuget Fable.Remoting.Giraffe
 nuget Saturn
+nuget Microsoft.AspNetCore.Authentication.JwtBearer ~> 3.0.3
 nuget Expecto
 
 nuget Fable.Core

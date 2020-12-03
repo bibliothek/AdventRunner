@@ -10,11 +10,14 @@ open Newtonsoft.Json
 open Shared
 
 type Storage () =
-    let getBlobClient owner =
+    let getContainerClient =
         let connectionString = System.Environment.GetEnvironmentVariable "AR_StorageAccount_ConnectionString"
         let blobServiceClient = BlobServiceClient connectionString
         let containerName = "calendars"
-        let containerClient = blobServiceClient.GetBlobContainerClient containerName
+        blobServiceClient.GetBlobContainerClient containerName
+
+    let getBlobClient owner =
+        let containerClient = getContainerClient
         containerClient.GetBlobClient (sprintf "%s.txt" owner.name)
 
     let uploadCalendar calendar =
@@ -33,6 +36,10 @@ type Storage () =
         let cal = JsonConvert.DeserializeObject<Calendar> serializedCalendar
         cal
 
+    member __.CalendarExists owner =
+        let blobClient = getBlobClient owner
+        blobClient.Exists().Value
+
     member __.UpdateCalendar updatedCalendar =
         uploadCalendar updatedCalendar
         updatedCalendar
@@ -43,17 +50,17 @@ type Storage () =
 
 let storage = Storage()
 
-let cal = Calendar.init {name = "matha"}
-
-storage.AddNewCalendar cal |> ignore
-
 let adventRunApi : IAdventRunApi =
     { createCalendar = fun owner -> async {
         let cal = Calendar.init owner
         return storage.AddNewCalendar cal
         }
       getCalendar = fun owner -> async {
-          return storage.GetCalendar owner
+          match (storage.CalendarExists owner) with
+          | true -> return storage.GetCalendar owner
+          | false ->
+              let newCalendar = Calendar.init owner
+              return storage.AddNewCalendar newCalendar
       }
       updateCalendar = fun calendar -> async {
           return storage.UpdateCalendar calendar
