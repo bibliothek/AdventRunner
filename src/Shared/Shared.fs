@@ -15,7 +15,7 @@ type Calendar =
       owner: Owner }
 
 module Calendar =
-    let private initDoors: CalendarDoor list =
+    let private initDoors (): CalendarDoor list =
         let days = seq { 1 .. 24 } |> Seq.toList
         let random = Random()
 
@@ -32,7 +32,8 @@ module Calendar =
 
         doors
 
-    let init owner: Calendar = { doors = initDoors; owner = owner }
+    let init owner: Calendar =
+        { doors = initDoors(); owner = owner }
 
 module Route =
     let builder typeName methodName = sprintf "/api/%s/%s" typeName methodName
