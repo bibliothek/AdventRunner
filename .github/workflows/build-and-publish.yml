@@ -15,10 +15,17 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
-      - name: Push to Docker Hub
-        uses: docker/build-push-action@v1
+      - name: Login to Docker Hub
+        run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        env:
+          DOCKER_USERNAME: ${{secrets.DOCKERHUB_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKERHUB_PASSWORD}}
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag mthaller/adventrunner:${{ github.sha }}
+      - name: Publish image
+        run: docker push mthaller/adventrunner:${{ github.sha }}
+      - uses: azure/webapps-deploy@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: mthaller/adventrunner
-          tag_with_ref: true
+          app-name: 'adventrunner'
+          publish-profile: ${{ secrets.AZUREWEBAPPPUBLISHPROFILE }}
+          images: 'mthaller/adventrunner:${{ github.sha }}'
