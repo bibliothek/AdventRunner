@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Login to Docker Hub
         run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        if: github.ref == 'refs/heads/master'
         env:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
@@ -24,7 +25,9 @@ jobs:
         run: docker build . --file Dockerfile --tag mthaller/adventrunner:${{ github.sha }}
       - name: Publish image
         run: docker push mthaller/adventrunner:${{ github.sha }}
+        if: github.ref == 'refs/heads/master'
       - uses: azure/webapps-deploy@v2
+        if: github.ref == 'refs/heads/master'
         with:
           app-name: 'adventrunner'
           publish-profile: ${{ secrets.AZUREWEBAPPPUBLISHPROFILE }}
