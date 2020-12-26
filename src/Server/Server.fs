@@ -50,6 +50,13 @@ type Storage () =
 
 let storage = Storage()
 
+let migrate cal =
+    if cal.version = null then
+        let newCal = Calendar.init cal.owner
+        Some (storage.AddNewCalendar newCal)
+    else
+        None
+
 let adventRunApi : IAdventRunApi =
     { createCalendar = fun owner -> async {
         let cal = Calendar.init owner
@@ -57,7 +64,9 @@ let adventRunApi : IAdventRunApi =
         }
       getCalendar = fun owner -> async {
           match (storage.CalendarExists owner) with
-          | true -> return storage.GetCalendar owner
+          | true ->
+              let cal = storage.GetCalendar owner
+              return migrate cal |> Option.defaultValue cal
           | false ->
               let newCalendar = Calendar.init owner
               return storage.AddNewCalendar newCalendar

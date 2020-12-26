@@ -12,7 +12,8 @@ type CalendarDoor =
 type Owner = { name: string }
 
 type Calendar =
-    { doors: CalendarDoor list
+    { version: string
+      doors: CalendarDoor list
       owner: Owner }
 
 module Calendar =
@@ -33,7 +34,7 @@ module Calendar =
         doors
 
     let init owner: Calendar =
-        { doors = initDoors(); owner = owner }
+        { version = "1"; doors = initDoors(); owner = owner }
 
 module Route =
     let builder typeName methodName = sprintf "/api/%s/%s" typeName methodName

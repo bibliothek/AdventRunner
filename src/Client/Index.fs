@@ -96,7 +96,6 @@ let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
         updatedModel, cmd
 
 
-
 open Fable.React
 open Fable.React.Props
 
