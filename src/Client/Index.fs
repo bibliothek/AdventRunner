@@ -1,6 +1,7 @@
 module Index
 
 open Elmish
+open Fable.FontAwesome
 open Fable.Remoting.Client
 open Fulma
 open Shared
@@ -15,11 +16,13 @@ type Model =
 
 type Msg =
     | MarkedDoorAsDone of CalendarDoor
+    | MarkedDoorAsFailed of CalendarDoor
     | OpenDoor of CalendarDoor
     | Updated of Calendar
     | GotCalendar of Calendar
     | SetOwnerName of string
     | NavigateToCalendar
+    | Restart of string
 
 let toHash =
     function
@@ -51,7 +54,6 @@ let urlUpdate (result:Option<Page>) model =
 let init result =
   urlUpdate result { Page = Welcome; Calendar = None; OwnerName = ""}
 
-
 let updateDoor model door =
     match model.Calendar with
         | Some cal ->
@@ -66,12 +68,17 @@ let updateDoor model door =
 let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
     match msg with
     | MarkedDoorAsDone door ->
-        let updatedDoor = { door with finished = true }
+        let updatedDoor = { door with state = Done }
+        let updatedModel = updateDoor model updatedDoor
+        let cmd = Cmd.OfAsync.perform adventRunApi.updateCalendar updatedModel.Calendar.Value Updated
+        updatedModel, cmd
+    | MarkedDoorAsFailed door ->
+        let updatedDoor = { door with state = Failed }
         let updatedModel = updateDoor model updatedDoor
         let cmd = Cmd.OfAsync.perform adventRunApi.updateCalendar updatedModel.Calendar.Value Updated
         updatedModel, cmd
     | OpenDoor door ->
-        let updatedDoor = { door with opened = true }
+        let updatedDoor = { door with state = Open }
         let updatedModel = updateDoor model updatedDoor
         let cmd = Cmd.OfAsync.perform adventRunApi.updateCalendar updatedModel.Calendar.Value Updated
         updatedModel, cmd
@@ -83,10 +90,15 @@ let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
         {model with OwnerName = ownerName}, Cmd.none
     | NavigateToCalendar ->
         {model with Page = CalendarView model.OwnerName}, getCalendarCmd model.OwnerName
+    | Restart owner ->
+        let updatedModel = { model with Calendar = Some (Calendar.init { name = owner }) }
+        let cmd = Cmd.OfAsync.perform adventRunApi.updateCalendar updatedModel.Calendar.Value Updated
+        updatedModel, cmd
+
+
 
 open Fable.React
 open Fable.React.Props
-open Fulma
 
 let welcomeView (model : Model) (dispatch : Msg -> unit) =
     Box.box' [ ] [
@@ -117,53 +129,101 @@ let navBrand =
         ]
     ]
 
+let toLevelItem (caption: string, doors: CalendarDoor list) =
+    let cntDistanceFor doors = doors |> List.sumBy (fun x -> x.distance)
+    let title = sprintf "%i km" (cntDistanceFor doors)
+    Level.item [ Level.Item.HasTextCentered ]
+            [ div [ ]
+                [ Level.heading [ ]
+                    [ str caption ]
+                  Level.title [ ]
+                    [ str title ] ] ]
+
+let completionStatsView (calendar: Calendar) =
+    let filterFor state = calendar.doors |> List.filter (fun x -> x.state = state)
+    let dones = filterFor Done
+    let failed = filterFor Failed
+    let left = calendar.doors |> List.except dones |> List.except failed
+    let doors =
+        [ ("Left", left); ("Done", dones); ("Failed", failed) ]
+        |> List.filter (fun x -> snd x |> List.isEmpty |> not)
+    Level.level [ ] (doors |> List.map toLevelItem)
+
 let closedDoorView door dispatch =
-    div [ OnClick(fun _ -> OpenDoor door |> dispatch)
-          Style [ Height "100%"
-                  Display DisplayOptions.Flex
-                  FlexDirection "column"
-                  JustifyContent "center"
-                  AlignItems AlignItemsOptions.Center
-                  AlignContent AlignContentOptions.Center
-                  BackgroundColor "#082510"
-                  Border "5px solid #C6C6C6"
-                  BorderRadius "5px" ] ] [
-        p [ Style [ FontSize "2em" ] ] [
-            str (sprintf "%i" door.day)
-        ]
-    ]
+    Button.button [ Button.OnClick(fun _ -> OpenDoor door |> dispatch)
+                    Button.Color IsPrimary
+                    Button.Props [
+                        Style [   Height "100%"
+                                  Width "100%"
+                                  Display DisplayOptions.Flex
+                                  FlexDirection "column"
+                                  JustifyContent "center"
+                                  AlignItems AlignItemsOptions.Center
+                                  AlignContent AlignContentOptions.Center
+                                  Border "5px solid #C6C6C6"
+                                  BorderRadius "5px"
+                                   ] ] ]
+                    [ Heading.h2 [ ]
+                        [ str (sprintf "%i" door.day) ] ]
+
+let doorActionsView door dispatch =
+    match door.state with
+    | DoorState.Open ->
+        [   div [ Style [ FlexGrow "1" ] ] []
+            Button.button [
+            Button.Color IsSuccess
+            Button.IsOutlined
+            Button.Size IsSmall
+            Button.OnClick(fun _ -> MarkedDoorAsDone door |> dispatch) ]
+                [ Icon.icon [ ]
+                    [ Fa.i [ Fa.Solid.Check ]
+                    [ ] ] ]
+            Button.button [
+                Button.Modifiers [ Modifier.Spacing (Spacing.MarginLeft, Spacing.Is2) ]
+                Button.Color IsDanger
+                Button.IsOutlined
+                Button.Size IsSmall
+                Button.OnClick(fun _ -> MarkedDoorAsFailed door |> dispatch) ]
+                    [ Icon.icon [ ]
+                        [ Fa.i [ Fa.Solid.Times ] [ ] ] ]
+                    ]
+    | Done ->
+        [ div [ Style [ FlexGrow "1" ] ] []
+          Tag.tag [ Tag.Color IsSuccess ] [ str "done" ] ]
+    | Failed ->
+        [ div [ Style [ FlexGrow "1" ] ] []
+          Tag.tag [ Tag.Color IsDanger ] [ str "failed" ] ]
+    | Closed -> failwith "how dare you"
+
+let classNameFor (door: CalendarDoor) =
+    match door.state with
+    | Done -> "door done"
+    | Failed -> "door failed"
+    | _ -> "door"
 
 let openedDoorView door dispatch =
-    div [ Style [ Height "100%"
+    div [ ClassName (classNameFor door)
+          Style [ Height "100%"
                   Color "black"
                   Display DisplayOptions.Flex
                   FlexDirection "column"
                   Padding "5px 10px"
-                  BackgroundColor "#C6C6C6"
-                  Border "5px solid #082510"
-                  BorderRadius "5px" ] ] [
+                  BackgroundColor "#C6C6C6" ] ] [
         p [] [ str (sprintf "%i" door.day) ]
         div [ Style [ FlexGrow "1" ] ] []
-        p [ Style [ TextAlign TextAlignOptions.Center
-                    FontSize "2em" ] ] [
-            str (sprintf "%i km" door.distance)
-        ]
+        Heading.h2 [
+            Heading.Modifiers [ Modifier.TextColor IsPrimary ]
+            Heading.Option.Props [
+                Style [
+                    TextAlign TextAlignOptions.Center
+                    MarginBottom 0
+        ] ] ]
+            [ str (sprintf "%i km" door.distance) ]
         div [ Style [ FlexGrow "1" ] ] []
         div [ Style [ Display DisplayOptions.Flex
                       FlexDirection "row"
-                      AlignItems AlignItemsOptions.Baseline ] ] [
-            div [ Style [ Color "#082510" ] ] [
-                match door.finished with
-                | true -> Icon.icon [ Icon.CustomClass "fas fa-check fa-2x" ] []
-                | false -> Icon.icon [ Icon.CustomClass "fas fa-running fa-2x" ] []
-            ]
-            div [ Style [ FlexGrow "1" ] ] []
-            if not door.finished then
-                Button.a [ Button.Color IsPrimary
-                           Button.OnClick(fun _ -> MarkedDoorAsDone door |> dispatch) ] [
-                    str "Done!"
-                ]
-        ]
+                      AlignItems AlignItemsOptions.Baseline ] ]
+            (doorActionsView door dispatch)
     ]
 
 let doorView door dispatch =
@@ -171,9 +231,9 @@ let doorView door dispatch =
                   Flex "0 0 180px"
                   Margin "10px"
                   Padding "2px" ] ] [
-        match door.opened with
-        | true -> openedDoorView door dispatch
-        | false -> closedDoorView door dispatch
+        match door.state with
+        | Closed -> closedDoorView door dispatch
+        | _ -> openedDoorView door dispatch
     ]
 
 let view (model: Model) (dispatch: Msg -> unit) =
@@ -194,10 +254,14 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                       [ Style [ Display DisplayOptions.Flex
                                                 FlexDirection "column"
                                                 JustifyContent "center" ] ] ] [
-                Heading.p [ Heading.Modifiers [ Modifier.TextAlignment(Screen.All, TextAlignment.Centered)
-                                                Modifier.TextSize(Screen.All, TextSize.Is1) ] ] [
+                Heading.h1 [ Heading.Modifiers [ Modifier.TextAlignment(Screen.All, TextAlignment.Centered)
+                                                 Modifier.TextSize(Screen.All, TextSize.Is1) ] ] [
                     str "Advent Runner"
                 ]
+                match model.Calendar with
+                | Some c -> completionStatsView c
+                | _ -> div [] []
+
                 Container.container [ Container.Props
                                           [ Style [ Display DisplayOptions.Flex
                                                     MaxWidth "1300px"

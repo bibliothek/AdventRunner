@@ -2,11 +2,12 @@ namespace Shared
 
 open System
 
+type DoorState = Closed | Open | Done | Failed
+
 type CalendarDoor =
     { day: int
       distance: int
-      opened: bool
-      finished: bool }
+      state: DoorState }
 
 type Owner = { name: string }
 
@@ -27,8 +28,7 @@ module Calendar =
             |> List.map (fun d ->
                 { day = d
                   distance = distances.Item(d - 1)
-                  opened = false
-                  finished = false })
+                  state = Closed })
 
         doors
 
