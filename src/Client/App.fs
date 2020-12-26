@@ -10,6 +10,8 @@ open Elmish.HMR
 
 #endif
 
+Stylesheet.apply "./styles/main.scss"
+
 Program.mkProgram Index.init Index.update Index.view
 
 |> Program.toNavigable (parseHash Index.pageParser) Index.urlUpdate

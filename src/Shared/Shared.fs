@@ -2,16 +2,18 @@ namespace Shared
 
 open System
 
+type DoorState = Closed | Open | Done | Failed
+
 type CalendarDoor =
     { day: int
       distance: int
-      opened: bool
-      finished: bool }
+      state: DoorState }
 
 type Owner = { name: string }
 
 type Calendar =
-    { doors: CalendarDoor list
+    { version: string
+      doors: CalendarDoor list
       owner: Owner }
 
 module Calendar =
@@ -27,13 +29,12 @@ module Calendar =
             |> List.map (fun d ->
                 { day = d
                   distance = distances.Item(d - 1)
-                  opened = false
-                  finished = false })
+                  state = Closed })
 
         doors
 
     let init owner: Calendar =
-        { doors = initDoors(); owner = owner }
+        { version = "1"; doors = initDoors(); owner = owner }
 
 module Route =
     let builder typeName methodName = sprintf "/api/%s/%s" typeName methodName

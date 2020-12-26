@@ -137,21 +137,16 @@ module.exports = {
                 },
             },
             {
-                test: /\.(sass|scss|css)$/,
-                use: [
-                    isProduction
-                        ? MiniCssExtractPlugin.loader
-                        : 'style-loader',
-                    'css-loader',
-                    {
-                        loader: 'sass-loader',
-                        options: { implementation: require('sass') }
-                    }
-                ],
-            },
-            {
                 test: /\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)(\?.*)?$/,
                 use: ['file-loader']
+            },
+            {
+                test: /\.(css|sass|scss)$/i,
+                use: [
+                    "style-loader",
+                    "css-loader",
+                    "sass-loader"
+                ]
             }
         ]
     }
