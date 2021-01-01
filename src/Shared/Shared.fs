@@ -37,7 +37,6 @@ module Calendar =
                 { day = d
                   distance = distances.Item(d - 1) * settings.distanceFactor
                   state = Closed })
-
         doors
 
     let init owner settings: Calendar =

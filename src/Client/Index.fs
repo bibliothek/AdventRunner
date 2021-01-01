@@ -123,7 +123,7 @@ let welcomePageView (model : Model) (dispatch : Msg -> unit) =
                   Input.Value model.UserName
                   Input.Placeholder "Please enter a name"
                   Input.OnChange (fun x -> SetUserName x.Value |> dispatch) ] ]
-            Control.p [ ] [
+            Control.p [] [
                 Button.a [
                     Button.Color IsPrimary
                     Button.Disabled (model.UserName.Length <= 0)
@@ -140,11 +140,11 @@ let settingsPageView (model : Model) (dispatch : Msg -> unit) =
             br []
             Tag.tag [ Tag.Color IsDanger ]
                 [ str "Any change will clear the progress!" ] ]
-        Box.box'[ ] [
-            Field.div [ ]
-                [ Label.label [ ]
+        Box.box'[] [
+            Field.div []
+                [ Label.label []
                     [ str "Distance" ]
-                  Control.div [ ]
+                  Control.div []
                     [ Radio.radio
                         [ Props [ OnClick (fun _ -> SetDistanceFactor 0.5 |> dispatch) ] ]
                         [ Radio.input [
@@ -166,14 +166,13 @@ let settingsPageView (model : Model) (dispatch : Msg -> unit) =
                                 Radio.Input.Name "distance"
                                 Radio.Input.Props [ DefaultChecked (factor = 2.0) ] ]
                             str "Double" ] ] ]
-            Field.div [ ]
-                [ Label.label [ ]
+            Field.div []
+                [ Label.label []
                     [ str "As if you've done nothing" ]
                   Button.button
                     [   Button.OnClick (fun _ -> Reset model.UserName |> dispatch)
                         Button.Color IsDanger ]
-                    [ str "Reset" ]
-            ]
+                    [ str "Reset" ] ]
         ]
     ]
 
@@ -194,9 +193,9 @@ let toLevelItem (caption: string, doors: CalendarDoor list) =
     let cntDistanceFor doors = doors |> List.sumBy (fun x -> x.distance)
     let title = sprintf "%.1f km" (cntDistanceFor doors)
     Level.item [ Level.Item.HasTextCentered ]
-            [ div [ ]
-                [ Level.heading [ ] [ str caption ]
-                  Level.title [ ] [ str title ] ] ]
+            [ div []
+                [ Level.heading [] [ str caption ]
+                  Level.title [] [ str title ] ] ]
 
 let completionStatsView (calendar: Calendar) =
     let filterFor state = calendar.doors |> List.filter (fun x -> x.state = state)
@@ -206,7 +205,7 @@ let completionStatsView (calendar: Calendar) =
     let doors =
         [ ("Left", left); ("Done", dones); ("Failed", failed) ]
         |> List.filter (fun x -> snd x |> List.isEmpty |> not)
-    Level.level [ ] (doors |> List.map toLevelItem)
+    Level.level [] (doors |> List.map toLevelItem)
 
 let closedDoorView door dispatch =
     Button.button [ Button.OnClick(fun _ -> OpenDoor door |> dispatch)
@@ -222,7 +221,7 @@ let closedDoorView door dispatch =
                                   Border "5px solid #C6C6C6"
                                   BorderRadius "5px"
                                    ] ] ]
-                    [ Heading.h2 [ ]
+                    [ Heading.h2 []
                         [ str (sprintf "%i" door.day) ] ]
 
 let doorActionsView door dispatch =
@@ -235,16 +234,16 @@ let doorActionsView door dispatch =
                 Button.IsOutlined
                 Button.Size IsSmall
                 Button.OnClick(fun _ -> MarkedDoorAsDone door |> dispatch) ]
-                    [ Icon.icon [ ]
+                    [ Icon.icon []
                         [ Fa.i [ Fa.Solid.Check ]
-                        [ ] ] ]
+                        [] ] ]
                 Button.button [
                     Button.Color IsDanger
                     Button.IsOutlined
                     Button.Size IsSmall
                     Button.OnClick(fun _ -> MarkedDoorAsFailed door |> dispatch) ]
-                        [ Icon.icon [ ]
-                            [ Fa.i [ Fa.Solid.Times ] [ ] ] ]
+                        [ Icon.icon []
+                            [ Fa.i [ Fa.Solid.Times ] [] ] ]
                         ]
             ]
     | Done ->
