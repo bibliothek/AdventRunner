@@ -7,12 +7,15 @@ open Fulma
 open Shared
 open Elmish.Navigation
 open Elmish.UrlParser
-type Page = Welcome | CalendarView of string
+type Page =
+    | Welcome
+    | CalendarView of string
+    | SettingsView of string
 
 type Model =
     { Calendar: Calendar option
       Page : Page
-      OwnerName : string }
+      UserName : string }
 
 type Msg =
     | MarkedDoorAsDone of CalendarDoor
@@ -20,19 +23,24 @@ type Msg =
     | OpenDoor of CalendarDoor
     | Updated of Calendar
     | GotCalendar of Calendar
-    | SetOwnerName of string
+    | SetUserName of string
     | NavigateToCalendar
-    | Restart of string
+    | NavigateToSettings
+    | SetDistanceFactor of double
+    | Reset of string
 
 let toHash =
     function
     | Welcome -> "#welcome"
     | CalendarView ownerName -> "#calendar/" + ownerName
+    | SettingsView ownerName -> "#settings/" + ownerName
 
 let pageParser : UrlParser.Parser<(Page -> Page),Page> =
   oneOf
     [ map Welcome (s "home")
-      map CalendarView (s "calendar" </> str) ]
+      map CalendarView (s "calendar" </> str)
+      map SettingsView (s "settings" </> str)
+       ]
 
 let adventRunApi =
     Remoting.createApi ()
@@ -45,14 +53,15 @@ let getCalendarCmd calendarView =
 let urlUpdate (result:Option<Page>) model =
   match result with
   | Some Welcome -> {model with Page = Welcome}, []
-  | Some (CalendarView calView as page) ->
-      { model with Page = page},
-        getCalendarCmd calView
+  | Some (CalendarView owner as page) ->
+      { model with Page = page; UserName = owner }, getCalendarCmd owner
+  | Some (SettingsView owner as page) ->
+      { model with Page = page; UserName = owner }, getCalendarCmd owner
   | None ->
       ( model, Navigation.modifyUrl (toHash Welcome) )
 
 let init result =
-  urlUpdate result { Page = Welcome; Calendar = None; OwnerName = ""}
+  urlUpdate result { Page = Welcome; Calendar = None; UserName = ""}
 
 let updateDoor model door =
     match model.Calendar with
@@ -86,12 +95,19 @@ let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
         model, Cmd.none
     | GotCalendar calendar ->
         {model with Calendar = Some calendar}, Navigation.modifyUrl (toHash (CalendarView calendar.owner.name))
-    | SetOwnerName ownerName ->
-        {model with OwnerName = ownerName}, Cmd.none
+    | SetUserName ownerName ->
+        { model with UserName = ownerName }, Cmd.none
+    | SetDistanceFactor factor ->
+        let newCalendar = Calendar.init { name = model.UserName } (Settings.init factor)
+        let updatedModel = { model with Calendar = Some newCalendar }
+        let cmd = Cmd.OfAsync.perform adventRunApi.updateCalendar updatedModel.Calendar.Value Updated
+        updatedModel, cmd
     | NavigateToCalendar ->
-        {model with Page = CalendarView model.OwnerName}, getCalendarCmd model.OwnerName
-    | Restart owner ->
-        let updatedModel = { model with Calendar = Some (Calendar.init { name = owner }) }
+        {model with Page = CalendarView model.UserName}, getCalendarCmd model.UserName
+    | NavigateToSettings ->
+        {model with Page = SettingsView model.UserName}, Navigation.modifyUrl (toHash (SettingsView model.UserName))
+    | Reset owner ->
+        let updatedModel = { model with Calendar = Some (Calendar.init { name = owner } Settings.initDefault) }
         let cmd = Cmd.OfAsync.perform adventRunApi.updateCalendar updatedModel.Calendar.Value Updated
         updatedModel, cmd
 
@@ -99,19 +115,19 @@ let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
 open Fable.React
 open Fable.React.Props
 
-let welcomeView (model : Model) (dispatch : Msg -> unit) =
-    Box.box' [ ] [
+let welcomePageView (model : Model) (dispatch : Msg -> unit) =
+    Box.box' [ Props [ Style [ MaxWidth "500px" ] ] ] [
         Field.div [ Field.IsGrouped ] [
             Control.p [ Control.IsExpanded ] [
                 Input.text [
-                  Input.Value model.OwnerName
+                  Input.Value model.UserName
                   Input.Placeholder "Please enter a name"
-                  Input.OnChange (fun x -> SetOwnerName x.Value |> dispatch) ]
+                  Input.OnChange (fun x -> SetUserName x.Value |> dispatch) ]
             ]
             Control.p [ ] [
                 Button.a [
                     Button.Color IsPrimary
-                    Button.Disabled (model.OwnerName.Length <= 0)
+                    Button.Disabled (model.UserName.Length <= 0)
                     Button.OnClick (fun _ -> dispatch NavigateToCalendar)
                 ] [
                     str "Get started!"
@@ -120,23 +136,73 @@ let welcomeView (model : Model) (dispatch : Msg -> unit) =
         ]
     ]
 
-let navBrand =
-    Navbar.Brand.div [] [
-        Navbar.Item.a [ Navbar.Item.Props [ Href "https://safe-stack.github.io/" ]
-                        Navbar.Item.IsActive true ] [
-            img [ Src "/safe.png"; Alt "Logo" ]
+let settingsPageView (model : Model) (dispatch : Msg -> unit) =
+    let factor = model.Calendar.Value.settings.distanceFactor
+    div[] [
+        Heading.h4 [ Heading.IsSubtitle ] [
+            str "Settings"
+            br []
+            Tag.tag [ Tag.Color IsDanger ]
+                [ str "Any change will clear the progress!" ]
         ]
+        Box.box'[ ] [
+            Field.div [ ]
+                [ Label.label [ ]
+                    [ str "Distance" ]
+                  Control.div [ ]
+                    [ Radio.radio
+                        [ Props [ OnClick (fun _ -> SetDistanceFactor 0.5 |> dispatch) ] ]
+                        [ Radio.input [
+                            Radio.Input.Modifiers [ Modifier.Spacing (Spacing.MarginRight, Spacing.Is1) ]
+                            Radio.Input.Name "distance"
+                            Radio.Input.Props [ DefaultChecked (factor = 0.5) ] ]
+                          str "Half" ]
+                      Radio.radio
+                        [ Props [ OnClick (fun _ -> SetDistanceFactor 1.0 |> dispatch) ] ]
+                        [ Radio.input [
+                            Radio.Input.Modifiers [ Modifier.Spacing (Spacing.MarginRight, Spacing.Is1) ]
+                            Radio.Input.Name "distance"
+                            Radio.Input.Props [ DefaultChecked (factor = 1.0) ] ]
+                          str "Full" ]
+                      Radio.radio
+                        [ Props [ OnClick (fun _ -> SetDistanceFactor 2.0 |> dispatch) ] ]
+                        [   Radio.input [
+                                Radio.Input.Modifiers [ Modifier.Spacing (Spacing.MarginRight, Spacing.Is1) ]
+                                Radio.Input.Name "distance"
+                                Radio.Input.Props [ DefaultChecked (factor = 2.0) ] ]
+                            str "Double" ] ] ]
+            Field.div [ ]
+                [ Label.label [ ]
+                    [ str "As if you've done nothing" ]
+                  Button.button
+                    [   Button.OnClick (fun _ -> Reset model.UserName |> dispatch)
+                        Button.Color IsDanger ]
+                    [ str "Reset" ]
+            ]
+        ]
+    ]
+
+
+let navBrand model dispatch =
+    Navbar.Brand.div [] [
+        Navbar.Item.a [ Navbar.Item.Props [OnClick(fun _ -> NavigateToCalendar |> dispatch) ]] [
+                Icon.icon [ ]
+                    [ Fa.i [ Fa.Solid.Home ] [] ]
+            ]
+        if model.UserName <> "" then
+            Navbar.Item.a [ Navbar.Item.Props [OnClick(fun _ -> NavigateToSettings |> dispatch) ]] [
+                Icon.icon [ ]
+                    [ Fa.i [ Fa.Solid.Cog ] [] ]
+            ]
     ]
 
 let toLevelItem (caption: string, doors: CalendarDoor list) =
     let cntDistanceFor doors = doors |> List.sumBy (fun x -> x.distance)
-    let title = sprintf "%i km" (cntDistanceFor doors)
+    let title = sprintf "%.1f km" (cntDistanceFor doors)
     Level.item [ Level.Item.HasTextCentered ]
             [ div [ ]
-                [ Level.heading [ ]
-                    [ str caption ]
-                  Level.title [ ]
-                    [ str title ] ] ]
+                [ Level.heading [ ] [ str caption ]
+                  Level.title [ ] [ str title ] ] ]
 
 let completionStatsView (calendar: Calendar) =
     let filterFor state = calendar.doors |> List.filter (fun x -> x.state = state)
@@ -169,23 +235,24 @@ let doorActionsView door dispatch =
     match door.state with
     | DoorState.Open ->
         [   div [ Style [ FlexGrow "1" ] ] []
-            Button.button [
-            Button.Color IsSuccess
-            Button.IsOutlined
-            Button.Size IsSmall
-            Button.OnClick(fun _ -> MarkedDoorAsDone door |> dispatch) ]
-                [ Icon.icon [ ]
-                    [ Fa.i [ Fa.Solid.Check ]
-                    [ ] ] ]
-            Button.button [
-                Button.Modifiers [ Modifier.Spacing (Spacing.MarginLeft, Spacing.Is2) ]
-                Button.Color IsDanger
+            Button.list [] [
+                Button.button [
+                Button.Color IsSuccess
                 Button.IsOutlined
                 Button.Size IsSmall
-                Button.OnClick(fun _ -> MarkedDoorAsFailed door |> dispatch) ]
+                Button.OnClick(fun _ -> MarkedDoorAsDone door |> dispatch) ]
                     [ Icon.icon [ ]
-                        [ Fa.i [ Fa.Solid.Times ] [ ] ] ]
-                    ]
+                        [ Fa.i [ Fa.Solid.Check ]
+                        [ ] ] ]
+                Button.button [
+                    Button.Color IsDanger
+                    Button.IsOutlined
+                    Button.Size IsSmall
+                    Button.OnClick(fun _ -> MarkedDoorAsFailed door |> dispatch) ]
+                        [ Icon.icon [ ]
+                            [ Fa.i [ Fa.Solid.Times ] [ ] ] ]
+                        ]
+            ]
     | Done ->
         [ div [ Style [ FlexGrow "1" ] ] []
           Tag.tag [ Tag.Color IsSuccess ] [ str "done" ] ]
@@ -217,7 +284,7 @@ let openedDoorView door dispatch =
                     TextAlign TextAlignOptions.Center
                     MarginBottom 0
         ] ] ]
-            [ str (sprintf "%i km" door.distance) ]
+            [ str (sprintf "%.1f km" door.distance) ]
         div [ Style [ FlexGrow "1" ] ] []
         div [ Style [ Display DisplayOptions.Flex
                       FlexDirection "row"
@@ -235,6 +302,32 @@ let doorView door dispatch =
         | _ -> openedDoorView door dispatch
     ]
 
+let titleView =
+    Heading.h1
+        [ Heading.Modifiers [
+            Modifier.TextAlignment(Screen.All, TextAlignment.Centered)
+            Modifier.TextSize(Screen.All, TextSize.Is1) ] ]
+        [ str "Advent Runner" ]
+
+let calendarPageView model dispatch =
+    div [] [
+        match model.Calendar with
+            | Some c -> completionStatsView c
+            | _ -> div [] []
+        Container.container [ Container.Props
+                                  [ Style [ Display DisplayOptions.Flex
+                                            MaxWidth "1300px"
+                                            FlexDirection "row"
+                                            FlexWrap "wrap"
+                                            JustifyContent "center" ] ] ] [
+            match model.Calendar with
+            | Some cal ->
+                for door in cal.doors do
+                    doorView door dispatch
+            | None -> str "Loading"
+        ]
+    ]
+
 let view (model: Model) (dispatch: Msg -> unit) =
     Hero.hero [ Hero.Color IsPrimary
                 Hero.IsFullHeight
@@ -244,38 +337,25 @@ let view (model: Model) (dispatch: Msg -> unit) =
                               BackgroundSize "cover" ] ] ] [
         Hero.head [] [
             Navbar.navbar [] [
-                Container.container [] [ navBrand ]
+                Container.container [] [ navBrand model dispatch ]
             ]
         ]
-
         Hero.body [] [
             Container.container [ Container.Props
                                       [ Style [ Display DisplayOptions.Flex
                                                 FlexDirection "column"
-                                                JustifyContent "center" ] ] ] [
-                Heading.h1 [ Heading.Modifiers [ Modifier.TextAlignment(Screen.All, TextAlignment.Centered)
-                                                 Modifier.TextSize(Screen.All, TextSize.Is1) ] ] [
-                    str "Advent Runner"
-                ]
-                match model.Calendar with
-                | Some c -> completionStatsView c
-                | _ -> div [] []
+                                                JustifyContent "center"
+                                                AlignItems AlignItemsOptions.Center ] ] ] [
 
-                Container.container [ Container.Props
-                                          [ Style [ Display DisplayOptions.Flex
-                                                    MaxWidth "1300px"
-                                                    FlexDirection "row"
-                                                    FlexWrap "wrap"
-                                                    JustifyContent "center" ] ] ] [
-                    match model.Page with
-                    | Welcome -> welcomeView model dispatch
-                    | CalendarView _ ->
-                        match model.Calendar with
-                        | Some cal ->
-                            for door in cal.doors do
-                                doorView door dispatch
-                        | None -> str "Loading"
-                ]
+                match model.Page with
+                | Welcome ->
+                    titleView
+                    welcomePageView model dispatch
+                | SettingsView _ ->
+                    settingsPageView model dispatch
+                | CalendarView _ ->
+                    titleView
+                    calendarPageView model dispatch
             ]
         ]
     ]

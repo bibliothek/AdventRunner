@@ -51,15 +51,15 @@ type Storage () =
 let storage = Storage()
 
 let migrate cal =
-    if cal.version = null then
-        let newCal = Calendar.init cal.owner
+    if cal.version <> "1.1" then
+        let newCal = Calendar.init cal.owner Settings.initDefault
         Some (storage.AddNewCalendar newCal)
     else
         None
 
 let adventRunApi : IAdventRunApi =
     { createCalendar = fun owner -> async {
-        let cal = Calendar.init owner
+        let cal = Calendar.init owner Settings.initDefault
         return storage.AddNewCalendar cal
         }
       getCalendar = fun owner -> async {
@@ -68,7 +68,7 @@ let adventRunApi : IAdventRunApi =
               let cal = storage.GetCalendar owner
               return migrate cal |> Option.defaultValue cal
           | false ->
-              let newCalendar = Calendar.init owner
+              let newCalendar = Calendar.init owner Settings.initDefault
               return storage.AddNewCalendar newCalendar
       }
       updateCalendar = fun calendar -> async {
