@@ -122,17 +122,13 @@ let welcomePageView (model : Model) (dispatch : Msg -> unit) =
                 Input.text [
                   Input.Value model.UserName
                   Input.Placeholder "Please enter a name"
-                  Input.OnChange (fun x -> SetUserName x.Value |> dispatch) ]
-            ]
+                  Input.OnChange (fun x -> SetUserName x.Value |> dispatch) ] ]
             Control.p [ ] [
                 Button.a [
                     Button.Color IsPrimary
                     Button.Disabled (model.UserName.Length <= 0)
-                    Button.OnClick (fun _ -> dispatch NavigateToCalendar)
-                ] [
-                    str "Get started!"
-                ]
-            ]
+                    Button.OnClick (fun _ -> dispatch NavigateToCalendar) ]
+                    [ str "Get started!" ] ]
         ]
     ]
 
@@ -143,8 +139,7 @@ let settingsPageView (model : Model) (dispatch : Msg -> unit) =
             str "Settings"
             br []
             Tag.tag [ Tag.Color IsDanger ]
-                [ str "Any change will clear the progress!" ]
-        ]
+                [ str "Any change will clear the progress!" ] ]
         Box.box'[ ] [
             Field.div [ ]
                 [ Label.label [ ]
@@ -183,18 +178,17 @@ let settingsPageView (model : Model) (dispatch : Msg -> unit) =
     ]
 
 
-let navBrand model dispatch =
-    Navbar.Brand.div [] [
-        Navbar.Item.a [ Navbar.Item.Props [OnClick(fun _ -> NavigateToCalendar |> dispatch) ]] [
-                Icon.icon [ ]
-                    [ Fa.i [ Fa.Solid.Home ] [] ]
-            ]
-        if model.UserName <> "" then
-            Navbar.Item.a [ Navbar.Item.Props [OnClick(fun _ -> NavigateToSettings |> dispatch) ]] [
-                Icon.icon [ ]
-                    [ Fa.i [ Fa.Solid.Cog ] [] ]
-            ]
-    ]
+let navbar dispatch =
+    Navbar.menu [ Navbar.Menu.IsActive true ] [
+        Navbar.Start.div [] [
+            Navbar.Link.div [
+                Navbar.Link.IsArrowless
+                Navbar.Link.Props [ OnClick(fun _ -> NavigateToCalendar |> dispatch) ]
+            ] [ str "Home" ]
+            Navbar.Link.div [
+                Navbar.Link.IsArrowless
+                Navbar.Link.Props [ OnClick(fun _ -> NavigateToSettings |> dispatch) ]
+            ] [ str "Settings" ] ] ]
 
 let toLevelItem (caption: string, doors: CalendarDoor list) =
     let cntDistanceFor doors = doors |> List.sumBy (fun x -> x.distance)
@@ -337,7 +331,8 @@ let view (model: Model) (dispatch: Msg -> unit) =
                               BackgroundSize "cover" ] ] ] [
         Hero.head [] [
             Navbar.navbar [] [
-                Container.container [] [ navBrand model dispatch ]
+                if model.UserName <> "" then
+                    Container.container [] [ navbar dispatch ]
             ]
         ]
         Hero.body [] [
