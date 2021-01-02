@@ -178,16 +178,18 @@ let settingsPageView (model : Model) (dispatch : Msg -> unit) =
 
 
 let navbar dispatch =
-    Navbar.menu [ Navbar.Menu.IsActive true ] [
-        Navbar.Start.div [] [
-            Navbar.Link.div [
-                Navbar.Link.IsArrowless
-                Navbar.Link.Props [ OnClick(fun _ -> NavigateToCalendar |> dispatch) ]
-            ] [ str "Home" ]
-            Navbar.Link.div [
-                Navbar.Link.IsArrowless
-                Navbar.Link.Props [ OnClick(fun _ -> NavigateToSettings |> dispatch) ]
-            ] [ str "Settings" ] ] ]
+    Navbar.navbar [] [
+        Navbar.menu [ Navbar.Menu.IsActive true ] [
+            Navbar.Start.div [] [
+                Navbar.Link.div [
+                    Navbar.Link.IsArrowless
+                    Navbar.Link.Props [ OnClick(fun _ -> NavigateToCalendar |> dispatch) ]
+                ] [ str "Home" ]
+                Navbar.Link.div [
+                    Navbar.Link.IsArrowless
+                    Navbar.Link.Props [ OnClick(fun _ -> NavigateToSettings |> dispatch) ]
+                ] [ str "Settings" ] ] ]
+             ]
 
 let toLevelItem (caption: string, doors: CalendarDoor list) =
     let cntDistanceFor doors = doors |> List.sumBy (fun x -> x.distance)
@@ -232,7 +234,6 @@ let doorActionsView door dispatch =
                 Button.button [
                 Button.Color IsSuccess
                 Button.IsOutlined
-                Button.Size IsSmall
                 Button.OnClick(fun _ -> MarkedDoorAsDone door |> dispatch) ]
                     [ Icon.icon []
                         [ Fa.i [ Fa.Solid.Check ]
@@ -240,7 +241,6 @@ let doorActionsView door dispatch =
                 Button.button [
                     Button.Color IsDanger
                     Button.IsOutlined
-                    Button.Size IsSmall
                     Button.OnClick(fun _ -> MarkedDoorAsFailed door |> dispatch) ]
                         [ Icon.icon []
                             [ Fa.i [ Fa.Solid.Times ] [] ] ]
@@ -286,10 +286,9 @@ let openedDoorView door dispatch =
     ]
 
 let doorView door dispatch =
-    div [ Style [ Height "180px"
-                  Flex "0 0 180px"
-                  Margin "10px"
-                  Padding "2px" ] ] [
+    div [ Style [ Height "15rem"
+                  Width "15rem"
+                  Margin "auto" ] ] [
         match door.state with
         | Closed -> closedDoorView door dispatch
         | _ -> openedDoorView door dispatch
@@ -297,28 +296,24 @@ let doorView door dispatch =
 
 let titleView =
     Heading.h1
-        [ Heading.Modifiers [
-            Modifier.TextAlignment(Screen.All, TextAlignment.Centered)
-            Modifier.TextSize(Screen.All, TextSize.Is1) ] ]
-        [ str "Advent Runner" ]
+      [ Heading.Modifiers [] ]
+      [ str "Advent Runner" ]
 
 let calendarPageView model dispatch =
     div [] [
         match model.Calendar with
             | Some c -> completionStatsView c
             | _ -> div [] []
-        Container.container [ Container.Props
-                                  [ Style [ Display DisplayOptions.Flex
-                                            MaxWidth "1300px"
-                                            FlexDirection "row"
-                                            FlexWrap "wrap"
-                                            JustifyContent "center" ] ] ] [
-            match model.Calendar with
-            | Some cal ->
-                for door in cal.doors do
-                    doorView door dispatch
-            | None -> str "Loading"
-        ]
+        match model.Calendar with
+        | Some cal ->
+            Container.container [] [
+                Columns.columns [ Columns.IsMultiline ] [
+                    for door in cal.doors do
+                        Column.column
+                            [ Column.Width (Screen.Touch, Column.IsOneThird) ]
+                            [ doorView door dispatch ] ]
+                    ]
+        | None -> str "Loading"
     ]
 
 let view (model: Model) (dispatch: Msg -> unit) =
@@ -335,12 +330,13 @@ let view (model: Model) (dispatch: Msg -> unit) =
             ]
         ]
         Hero.body [] [
-            Container.container [ Container.Props
-                                      [ Style [ Display DisplayOptions.Flex
-                                                FlexDirection "column"
-                                                JustifyContent "center"
-                                                AlignItems AlignItemsOptions.Center ] ] ] [
-
+            Container.container
+                [ Container.Props
+                      [ Style [ Display DisplayOptions.Flex
+                                FlexDirection "column"
+                                JustifyContent "center"
+                                AlignItems AlignItemsOptions.Center ] ] ]
+                [
                 match model.Page with
                 | Welcome ->
                     titleView
