@@ -15,7 +15,8 @@ type Page =
 type Model =
     { Calendar: Calendar option
       Page : Page
-      UserName : string }
+      UserName : string
+      IsBurgerOpen: bool }
 
 type Msg =
     | MarkedDoorAsDone of CalendarDoor
@@ -28,6 +29,7 @@ type Msg =
     | NavigateToSettings
     | SetDistanceFactor of double
     | Reset of string
+    | ToggleBurger
 
 let toHash =
     function
@@ -39,8 +41,7 @@ let pageParser : UrlParser.Parser<(Page -> Page),Page> =
   oneOf
     [ map Welcome (s "home")
       map CalendarView (s "calendar" </> str)
-      map SettingsView (s "settings" </> str)
-       ]
+      map SettingsView (s "settings" </> str) ]
 
 let adventRunApi =
     Remoting.createApi ()
@@ -61,7 +62,7 @@ let urlUpdate (result:Option<Page>) model =
       ( model, Navigation.modifyUrl (toHash Welcome) )
 
 let init result =
-  urlUpdate result { Page = Welcome; Calendar = None; UserName = ""}
+  urlUpdate result { Page = Welcome; Calendar = None; UserName = ""; IsBurgerOpen = false}
 
 let updateDoor model door =
     match model.Calendar with
@@ -103,13 +104,14 @@ let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
         let cmd = Cmd.OfAsync.perform adventRunApi.updateCalendar updatedModel.Calendar.Value Updated
         updatedModel, cmd
     | NavigateToCalendar ->
-        {model with Page = CalendarView model.UserName}, getCalendarCmd model.UserName
+        { model with Page = CalendarView model.UserName; IsBurgerOpen = false }, getCalendarCmd model.UserName
     | NavigateToSettings ->
-        {model with Page = SettingsView model.UserName}, Navigation.modifyUrl (toHash (SettingsView model.UserName))
+        { model with Page = SettingsView model.UserName; IsBurgerOpen = false }, Navigation.modifyUrl (toHash (SettingsView model.UserName))
     | Reset owner ->
         let updatedModel = { model with Calendar = Some (Calendar.init { name = owner } Settings.initDefault) }
         let cmd = Cmd.OfAsync.perform adventRunApi.updateCalendar updatedModel.Calendar.Value Updated
         updatedModel, cmd
+    | ToggleBurger -> {model with IsBurgerOpen = not model.IsBurgerOpen}, Cmd.none
 
 
 open Fable.React
@@ -135,7 +137,7 @@ let welcomePageView (model : Model) (dispatch : Msg -> unit) =
 let settingsPageView (model : Model) (dispatch : Msg -> unit) =
     let factor = model.Calendar.Value.settings.distanceFactor
     div[] [
-        Heading.h4 [ Heading.IsSubtitle ] [
+        Heading.h1 [ Heading.IsSubtitle ] [
             str "Settings"
             br []
             Tag.tag [ Tag.Color IsDanger ]
@@ -177,9 +179,14 @@ let settingsPageView (model : Model) (dispatch : Msg -> unit) =
     ]
 
 
-let navbar dispatch =
+let navbar isBurgerOpen dispatch =
     Navbar.navbar [] [
-        Navbar.menu [ Navbar.Menu.IsActive true ] [
+        Navbar.Brand.div [] [
+            Navbar.burger [ Navbar.Burger.OnClick (fun _ -> ToggleBurger |> dispatch) ] [
+                span[][]
+                span[][]
+                span[][] ] ]
+        Navbar.menu [ Navbar.Menu.IsActive isBurgerOpen ] [
             Navbar.Start.div [] [
                 Navbar.Link.div [
                     Navbar.Link.IsArrowless
@@ -188,8 +195,7 @@ let navbar dispatch =
                 Navbar.Link.div [
                     Navbar.Link.IsArrowless
                     Navbar.Link.Props [ OnClick(fun _ -> NavigateToSettings |> dispatch) ]
-                ] [ str "Settings" ] ] ]
-             ]
+                ] [ str "Settings" ] ] ] ]
 
 let toLevelItem (caption: string, doors: CalendarDoor list) =
     let cntDistanceFor doors = doors |> List.sumBy (fun x -> x.distance)
@@ -316,6 +322,17 @@ let calendarPageView model dispatch =
         | None -> str "Loading"
     ]
 
+let viewForPage model dispatch =
+    match model.Page with
+    | Welcome ->
+        [   titleView
+            welcomePageView model dispatch ]
+    | SettingsView _ ->
+        [ settingsPageView model dispatch ]
+    | CalendarView _ ->
+        [   titleView
+            calendarPageView model dispatch ]
+
 let view (model: Model) (dispatch: Msg -> unit) =
     Hero.hero [ Hero.Color IsPrimary
                 Hero.IsFullHeight
@@ -324,10 +341,8 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                   """linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("https://picsum.photos/id/15/1200/900?random") no-repeat center center fixed"""
                               BackgroundSize "cover" ] ] ] [
         Hero.head [] [
-            Navbar.navbar [] [
-                if model.UserName <> "" then
-                    Container.container [] [ navbar dispatch ]
-            ]
+            if model.UserName <> "" then
+                (navbar model.IsBurgerOpen dispatch)
         ]
         Hero.body [] [
             Container.container
@@ -336,16 +351,6 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                 FlexDirection "column"
                                 JustifyContent "center"
                                 AlignItems AlignItemsOptions.Center ] ] ]
-                [
-                match model.Page with
-                | Welcome ->
-                    titleView
-                    welcomePageView model dispatch
-                | SettingsView _ ->
-                    settingsPageView model dispatch
-                | CalendarView _ ->
-                    titleView
-                    calendarPageView model dispatch
-            ]
+                (viewForPage model dispatch)
         ]
     ]
