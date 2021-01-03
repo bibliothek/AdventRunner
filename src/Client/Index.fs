@@ -15,7 +15,8 @@ type Page =
 type Model =
     { Calendar: Calendar option
       Page : Page
-      UserName : string }
+      UserName : string
+      IsBurgerOpen: bool }
 
 type Msg =
     | MarkedDoorAsDone of CalendarDoor
@@ -28,6 +29,7 @@ type Msg =
     | NavigateToSettings
     | SetDistanceFactor of double
     | Reset of string
+    | ToggleBurger
 
 let toHash =
     function
@@ -39,8 +41,7 @@ let pageParser : UrlParser.Parser<(Page -> Page),Page> =
   oneOf
     [ map Welcome (s "home")
       map CalendarView (s "calendar" </> str)
-      map SettingsView (s "settings" </> str)
-       ]
+      map SettingsView (s "settings" </> str) ]
 
 let adventRunApi =
     Remoting.createApi ()
@@ -61,7 +62,7 @@ let urlUpdate (result:Option<Page>) model =
       ( model, Navigation.modifyUrl (toHash Welcome) )
 
 let init result =
-  urlUpdate result { Page = Welcome; Calendar = None; UserName = ""}
+  urlUpdate result { Page = Welcome; Calendar = None; UserName = ""; IsBurgerOpen = false}
 
 let updateDoor model door =
     match model.Calendar with
@@ -103,13 +104,14 @@ let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
         let cmd = Cmd.OfAsync.perform adventRunApi.updateCalendar updatedModel.Calendar.Value Updated
         updatedModel, cmd
     | NavigateToCalendar ->
-        {model with Page = CalendarView model.UserName}, getCalendarCmd model.UserName
+        { model with Page = CalendarView model.UserName; IsBurgerOpen = false }, getCalendarCmd model.UserName
     | NavigateToSettings ->
-        {model with Page = SettingsView model.UserName}, Navigation.modifyUrl (toHash (SettingsView model.UserName))
+        { model with Page = SettingsView model.UserName; IsBurgerOpen = false }, Navigation.modifyUrl (toHash (SettingsView model.UserName))
     | Reset owner ->
         let updatedModel = { model with Calendar = Some (Calendar.init { name = owner } Settings.initDefault) }
         let cmd = Cmd.OfAsync.perform adventRunApi.updateCalendar updatedModel.Calendar.Value Updated
         updatedModel, cmd
+    | ToggleBurger -> {model with IsBurgerOpen = not model.IsBurgerOpen}, Cmd.none
 
 
 open Fable.React
@@ -135,7 +137,7 @@ let welcomePageView (model : Model) (dispatch : Msg -> unit) =
 let settingsPageView (model : Model) (dispatch : Msg -> unit) =
     let factor = model.Calendar.Value.settings.distanceFactor
     div[] [
-        Heading.h4 [ Heading.IsSubtitle ] [
+        Heading.h1 [ Heading.IsSubtitle ] [
             str "Settings"
             br []
             Tag.tag [ Tag.Color IsDanger ]
@@ -177,17 +179,23 @@ let settingsPageView (model : Model) (dispatch : Msg -> unit) =
     ]
 
 
-let navbar dispatch =
-    Navbar.menu [ Navbar.Menu.IsActive true ] [
-        Navbar.Start.div [] [
-            Navbar.Link.div [
-                Navbar.Link.IsArrowless
-                Navbar.Link.Props [ OnClick(fun _ -> NavigateToCalendar |> dispatch) ]
-            ] [ str "Home" ]
-            Navbar.Link.div [
-                Navbar.Link.IsArrowless
-                Navbar.Link.Props [ OnClick(fun _ -> NavigateToSettings |> dispatch) ]
-            ] [ str "Settings" ] ] ]
+let navbar isBurgerOpen dispatch =
+    Navbar.navbar [] [
+        Navbar.Brand.div [] [
+            Navbar.burger [ Navbar.Burger.OnClick (fun _ -> ToggleBurger |> dispatch) ] [
+                span[][]
+                span[][]
+                span[][] ] ]
+        Navbar.menu [ Navbar.Menu.IsActive isBurgerOpen ] [
+            Navbar.Start.div [] [
+                Navbar.Link.div [
+                    Navbar.Link.IsArrowless
+                    Navbar.Link.Props [ OnClick(fun _ -> NavigateToCalendar |> dispatch) ]
+                ] [ str "Home" ]
+                Navbar.Link.div [
+                    Navbar.Link.IsArrowless
+                    Navbar.Link.Props [ OnClick(fun _ -> NavigateToSettings |> dispatch) ]
+                ] [ str "Settings" ] ] ] ]
 
 let toLevelItem (caption: string, doors: CalendarDoor list) =
     let cntDistanceFor doors = doors |> List.sumBy (fun x -> x.distance)
@@ -232,7 +240,6 @@ let doorActionsView door dispatch =
                 Button.button [
                 Button.Color IsSuccess
                 Button.IsOutlined
-                Button.Size IsSmall
                 Button.OnClick(fun _ -> MarkedDoorAsDone door |> dispatch) ]
                     [ Icon.icon []
                         [ Fa.i [ Fa.Solid.Check ]
@@ -240,7 +247,6 @@ let doorActionsView door dispatch =
                 Button.button [
                     Button.Color IsDanger
                     Button.IsOutlined
-                    Button.Size IsSmall
                     Button.OnClick(fun _ -> MarkedDoorAsFailed door |> dispatch) ]
                         [ Icon.icon []
                             [ Fa.i [ Fa.Solid.Times ] [] ] ]
@@ -286,10 +292,9 @@ let openedDoorView door dispatch =
     ]
 
 let doorView door dispatch =
-    div [ Style [ Height "180px"
-                  Flex "0 0 180px"
-                  Margin "10px"
-                  Padding "2px" ] ] [
+    div [ Style [ Height "15rem"
+                  Width "15rem"
+                  Margin "auto" ] ] [
         match door.state with
         | Closed -> closedDoorView door dispatch
         | _ -> openedDoorView door dispatch
@@ -297,29 +302,36 @@ let doorView door dispatch =
 
 let titleView =
     Heading.h1
-        [ Heading.Modifiers [
-            Modifier.TextAlignment(Screen.All, TextAlignment.Centered)
-            Modifier.TextSize(Screen.All, TextSize.Is1) ] ]
-        [ str "Advent Runner" ]
+      [ Heading.Modifiers [] ]
+      [ str "Advent Runner" ]
 
 let calendarPageView model dispatch =
     div [] [
         match model.Calendar with
             | Some c -> completionStatsView c
             | _ -> div [] []
-        Container.container [ Container.Props
-                                  [ Style [ Display DisplayOptions.Flex
-                                            MaxWidth "1300px"
-                                            FlexDirection "row"
-                                            FlexWrap "wrap"
-                                            JustifyContent "center" ] ] ] [
-            match model.Calendar with
-            | Some cal ->
-                for door in cal.doors do
-                    doorView door dispatch
-            | None -> str "Loading"
-        ]
+        match model.Calendar with
+        | Some cal ->
+            Container.container [] [
+                Columns.columns [ Columns.IsMultiline ] [
+                    for door in cal.doors do
+                        Column.column
+                            [ Column.Width (Screen.Touch, Column.IsOneThird) ]
+                            [ doorView door dispatch ] ]
+                    ]
+        | None -> str "Loading"
     ]
+
+let viewForPage model dispatch =
+    match model.Page with
+    | Welcome ->
+        [   titleView
+            welcomePageView model dispatch ]
+    | SettingsView _ ->
+        [ settingsPageView model dispatch ]
+    | CalendarView _ ->
+        [   titleView
+            calendarPageView model dispatch ]
 
 let view (model: Model) (dispatch: Msg -> unit) =
     Hero.hero [ Hero.Color IsPrimary
@@ -329,27 +341,16 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                   """linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("https://picsum.photos/id/15/1200/900?random") no-repeat center center fixed"""
                               BackgroundSize "cover" ] ] ] [
         Hero.head [] [
-            Navbar.navbar [] [
-                if model.UserName <> "" then
-                    Container.container [] [ navbar dispatch ]
-            ]
+            if model.UserName <> "" then
+                (navbar model.IsBurgerOpen dispatch)
         ]
         Hero.body [] [
-            Container.container [ Container.Props
-                                      [ Style [ Display DisplayOptions.Flex
-                                                FlexDirection "column"
-                                                JustifyContent "center"
-                                                AlignItems AlignItemsOptions.Center ] ] ] [
-
-                match model.Page with
-                | Welcome ->
-                    titleView
-                    welcomePageView model dispatch
-                | SettingsView _ ->
-                    settingsPageView model dispatch
-                | CalendarView _ ->
-                    titleView
-                    calendarPageView model dispatch
-            ]
+            Container.container
+                [ Container.Props
+                      [ Style [ Display DisplayOptions.Flex
+                                FlexDirection "column"
+                                JustifyContent "center"
+                                AlignItems AlignItemsOptions.Center ] ] ]
+                (viewForPage model dispatch)
         ]
     ]
