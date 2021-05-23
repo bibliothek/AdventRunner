@@ -7,6 +7,8 @@ nuget Fable.Remoting.Giraffe
 nuget Saturn
 nuget Microsoft.AspNetCore.Authentication.JwtBearer ~> 3.0.3
 nuget Expecto
+nuget Microsoft.IdentityModel.Protocols.OpenIdConnect
+nuget Microsoft.Extensions.DependencyInjection.Abstractions
 
 nuget Fable.Core
 nuget Fable.Elmish

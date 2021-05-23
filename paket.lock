@@ -123,6 +123,7 @@ NUGET
       Microsoft.IdentityModel.Protocols.OpenIdConnect (>= 5.5)
     Microsoft.Bcl.AsyncInterfaces (5.0)
     Microsoft.CSharp (4.7)
+    Microsoft.Extensions.DependencyInjection.Abstractions (5.0)
     Microsoft.IdentityModel.JsonWebTokens (6.8)
       Microsoft.IdentityModel.Tokens (>= 6.8)
     Microsoft.IdentityModel.Logging (6.8)
