@@ -37,7 +37,8 @@ export default {
   inject: ["Auth"],
   methods: {
       logout() {
-        this.Auth.logout();
+        const options = {returnTo: window.location.origin}
+        this.Auth.logout(options);
       }
   },
   setup() {

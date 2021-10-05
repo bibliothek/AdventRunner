@@ -10,7 +10,8 @@ export default {
       this.Auth.loginWithRedirect();
     },
     logout() {
-      this.Auth.logout();
+        const options = {returnTo: window.location.origin}
+        this.Auth.logout(options);
     },
     goToCalendar() {
       this.$router.push("calendar")

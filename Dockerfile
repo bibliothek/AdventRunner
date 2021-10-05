@@ -3,6 +3,7 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1 as build
 # Install node
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash
 RUN apt-get update && apt-get install -y nodejs
+RUN npm install --global yarn
 
 WORKDIR /workspace
 COPY . .

@@ -17,7 +17,7 @@ async function init() {
         clientId: 'mQrnkRPrBYmNqKy84eHjWu8od7orUR9F',
         domain: 'adventrunner.eu.auth0.com',
         audience: 'AdventRunner',
-        redirectUri: 'http://localhost:3000/#/calendar',
+        redirectUri: window.location.origin + '/#/calendar',
     });
     const app = createApp(App);
     app
