@@ -18,9 +18,9 @@
       </div>
       <ul
         tabindex="0"
-        class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-36 "
+        class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-36"
       >
-        <li >
+        <li>
           <a @click="logout">Log out</a>
         </li>
       </ul>
@@ -37,7 +37,7 @@ export default {
   inject: ["Auth"],
   methods: {
       logout() {
-        const options = {returnTo: window.location.origin}
+        const options = {returnTo: window.location.origin};
         this.Auth.logout(options);
       }
   },

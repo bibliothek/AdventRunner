@@ -3,8 +3,6 @@ module Server
 open System.IO
 open System.Security.Claims
 open System.Text
-open Fable.Remoting.Server
-open Fable.Remoting.Giraffe
 open Microsoft.AspNetCore.Authentication.JwtBearer
 open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.DependencyInjection

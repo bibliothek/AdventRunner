@@ -3,30 +3,21 @@ framework: netcoreapp3.1
 storage: none
 
 nuget Azure.Storage.Blobs
-nuget Fable.Remoting.Giraffe
+nuget Giraffe 4.1
+nuget FSharp.Core 5.0
 nuget Saturn
 nuget Microsoft.AspNetCore.Authentication.JwtBearer ~> 3.0.3
 nuget Expecto
+nuget Newtonsoft.Json
 nuget Microsoft.IdentityModel.Protocols.OpenIdConnect
 nuget Microsoft.Extensions.DependencyInjection.Abstractions
-
-nuget Fable.Core
-nuget Fable.Elmish
-nuget Fable.Elmish.React
-nuget Fable.Elmish.Debugger
-nuget Fable.Elmish.HMR
-nuget Fable.FontAwesome.Free
-nuget Fable.Mocha
-nuget Fable.React
-nuget Fable.Remoting.Client
-nuget Fulma
 
 group Build
     source https://api.nuget.org/v3/index.json
     framework: netstandard2.0
     storage: none
 
-    nuget FSharp.Core
+    nuget FSharp.Core 5.0
     nuget Fake.Core.ReleaseNotes
     nuget Fake.Core.Target
     nuget Fake.DotNet.Cli
