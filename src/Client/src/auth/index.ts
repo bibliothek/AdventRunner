@@ -58,8 +58,9 @@ function getTokenWithPopup(o: GetTokenWithPopupOptions) {
     return client.getTokenWithPopup(o);
 }
 
-function logout(o: LogoutOptions) {
-    return client.logout(o);
+function logout() {
+    const options = {returnTo: window.location.origin} as LogoutOptions;
+    return client.logout(options);
 }
 
 const authPlugin = {
