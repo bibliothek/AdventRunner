@@ -9,7 +9,7 @@
             rounded-full
             w-auto
             h-10
-            border-transparent
+            border-white
             hover:border-gray-300
             border-4
           "
