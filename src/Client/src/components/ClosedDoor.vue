@@ -2,18 +2,21 @@
   <button @click="$emit('opened')">
     <div
       class="
-        m-4
+        m-2
+        md:m-4
+        w-24
+        h-24
+        md:w-40
+        md:h-40
         rounded-box
         text-center
         shadow-xl
         bg-primary
         text-primary-content
-        w-40
-        h-40
       "
     >
-      <div class="text-4xl pt-8">{{ day }}</div>
-      <div class="font-bold pt-10">
+      <div class="text-4xl pt-5 md:pt-8">{{ day }}</div>
+      <div class="invisible md:visible font-bold pt-10">
         Open
         <svg
           xmlns="http://www.w3.org/2000/svg"

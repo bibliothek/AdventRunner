@@ -1,6 +1,6 @@
 <template>
   <div class="flex-row flex items-baseline mb-4">
-    <h1 class="text-5xl text-primary">Adventrunner</h1>
+    <h1 class="text-4xl md:text-5xl text-primary">Adventrunner</h1>
     <div class="flex-grow"></div>
     <div class="dropdown dropdown-end mr-3" v-if="isAuthenticated">
       <div tabindex="0" class="cursor-pointer">
