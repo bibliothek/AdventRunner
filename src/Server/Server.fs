@@ -1,94 +1,40 @@
 module Server
 
 open System.IO
+open System.Security.Claims
 open System.Text
-open Fable.Remoting.Server
-open Fable.Remoting.Giraffe
+open Microsoft.AspNetCore.Authentication.JwtBearer
+open Microsoft.AspNetCore.Http
+open Microsoft.Extensions.DependencyInjection
 open Saturn
+open Giraffe
 open Azure.Storage.Blobs
 open Newtonsoft.Json
 open Shared
+open TokenAuthenticationExtensions
 
-type Storage () =
-    let getContainerClient =
-        let connectionString = System.Environment.GetEnvironmentVariable "AR_StorageAccount_ConnectionString"
-        let blobServiceClient = BlobServiceClient connectionString
-        let containerName = "calendars"
-        blobServiceClient.GetBlobContainerClient containerName
+open Storage
 
-    let getBlobClient owner =
-        let containerClient = getContainerClient
-        containerClient.GetBlobClient (sprintf "%s.txt" owner.name)
+let notLoggedIn =
+    setStatusCode 403 >=> text "Forbidden"
 
-    let uploadCalendar calendar =
-        let serializedCalendar = JsonConvert.SerializeObject calendar
-        let blobClient = getBlobClient calendar.owner
-        use stream = new MemoryStream (Encoding.UTF8.GetBytes serializedCalendar)
-        blobClient.Upload(stream, true) |> ignore
+let mustBeLoggedIn = requiresAuthentication notLoggedIn
 
-    member __.GetCalendar owner =
-        let blobClient = getBlobClient owner
-        use stream = new MemoryStream()
-        blobClient.DownloadTo stream |> ignore
-        stream.Position <- 0L
-        use reader = new StreamReader(stream, Encoding.UTF8)
-        let serializedCalendar = reader.ReadToEnd()
-        let cal = JsonConvert.DeserializeObject<Calendar> serializedCalendar
-        cal
-
-    member __.CalendarExists owner =
-        let blobClient = getBlobClient owner
-        blobClient.Exists().Value
-
-    member __.UpdateCalendar updatedCalendar =
-        uploadCalendar updatedCalendar
-        updatedCalendar
-
-    member __.AddNewCalendar calendar =
-        uploadCalendar calendar
-        calendar
-
-let storage = Storage()
-
-let migrate cal =
-    if cal.version <> "1.1" then
-        let newCal = Calendar.init cal.owner Settings.initDefault
-        Some (storage.AddNewCalendar newCal)
-    else
-        None
-
-let adventRunApi : IAdventRunApi =
-    { createCalendar = fun owner -> async {
-        let cal = Calendar.init owner Settings.initDefault
-        return storage.AddNewCalendar cal
-        }
-      getCalendar = fun owner -> async {
-          match (storage.CalendarExists owner) with
-          | true ->
-              let cal = storage.GetCalendar owner
-              return migrate cal |> Option.defaultValue cal
-          | false ->
-              let newCalendar = Calendar.init owner Settings.initDefault
-              return storage.AddNewCalendar newCalendar
-      }
-      updateCalendar = fun calendar -> async {
-          return storage.UpdateCalendar calendar
-      }
-    }
+let serviceConfig (serviceCollection: IServiceCollection) =
+    serviceCollection.AddSingleton<Storage>(fun provider -> Storage())
 
 let webApp =
-    Remoting.createApi()
-    |> Remoting.withRouteBuilder Route.builder
-    |> Remoting.fromValue adventRunApi
-    |> Remoting.buildHttpHandler
+    mustBeLoggedIn >=> CalendarController.handlers
 
 let app =
     application {
         url "http://0.0.0.0:8085"
+        use_token_authentication
         use_router webApp
         memory_cache
         use_static "public"
         use_gzip
+        service_config serviceConfig
     }
 
 run app

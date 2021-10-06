@@ -1,4 +1,5 @@
 Saturn
-Fable.Remoting.Giraffe
 Azure.Storage.Blobs
 Newtonsoft.Json
+Microsoft.IdentityModel.Protocols.OpenIdConnect
+Microsoft.Extensions.DependencyInjection.Abstractions
