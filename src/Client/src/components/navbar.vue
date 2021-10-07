@@ -7,7 +7,7 @@
         <img
           class="
             rounded-full
-            w-auto
+            w-10
             h-10
             border-white
             hover:border-gray-300
