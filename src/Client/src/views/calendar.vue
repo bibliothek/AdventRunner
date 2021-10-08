@@ -11,7 +11,7 @@
         <button v-if="door.state.case === 'Open'" @click="markDone(door.day)">
           <OpenDoor :day="door.day" :isDone="false" :distance="door.distance" />
         </button>
-        <button class="cursor-default">
+        <button @click="markOpen(door.day)">
           <OpenDoor
             v-if="door.state.case === 'Done'"
             :day="door.day"
