@@ -19,7 +19,7 @@
     <div class="md:hidden pt-1" v-if="isDone">🎉</div>
     <div class="md:hidden pt-1 flex flex-row" v-else>
       <div class="flex-grow"></div>
-      <img class="w-6" src="../../public/favicon.png" alt="Done" />
+      <img class="w-6" src="../../public/runner.png" alt="Done" />
       <div class="flex-grow"></div>
     </div>
     <div class="hidden md:block">
