@@ -9,14 +9,14 @@
           @opened="markOpen(door.day)"
         />
         <button v-if="door.state.case === 'Open'" @click="markDone(door.day)">
-          <OpenDoor :day="door.day" :isDone="false" :distance="door.distance" />
+          <OpenDoor :day="door.day" :isDone="false" :distance="distanceFor(door)" />
         </button>
         <button class="cursor-default">
           <OpenDoor
             v-if="door.state.case === 'Done'"
             :day="door.day"
             :isDone="true"
-            :distance="door.distance"
+            :distance="distanceFor(door)"
           />
         </button>
       </div>
@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import axios from "axios";
-import { Calendar, emptyCalendar } from "../models/calendar";
+import { Calendar, Door, emptyCalendar } from "../models/calendar";
 
 import { Options, Vue } from "vue-class-component";
 import { inject } from "@vue/runtime-core";
@@ -51,6 +51,10 @@ export default class CalendarComponent extends Vue {
         Authorization: `Bearer ${token}`,
       },
     };
+  }
+
+  distanceFor(door: Door) {
+    return door.distance * this.calendar.settings.distanceFactor;
   }
 
   async markDone(day: number) {

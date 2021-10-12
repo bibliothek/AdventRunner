@@ -1,8 +1,8 @@
 <template>
   <div class="flex-row flex items-baseline mb-4">
-    <h1 class="text-4xl md:text-5xl text-primary">Adventrunner</h1>
+    <h1 class="text-4xl md:text-5xl text-primary" @click="goToCalendar">Adventrunner</h1>
     <div class="flex-grow"></div>
-    <div class="dropdown dropdown-end mr-3" v-if="isAuthenticated">
+      <div class="dropdown dropdown-end mr-3" v-if="isAuthenticated">
       <div tabindex="0" class="cursor-pointer">
         <img
           class="
@@ -23,6 +23,9 @@
         <li>
           <a @click="logout">Log out</a>
         </li>
+        <li>
+            <a @click="goToSettings">Settings</a>
+        </li>
       </ul>
     </div>
   </div>
@@ -38,6 +41,12 @@ export default {
   methods: {
       logout() {
         this.Auth.logout();
+      },
+      goToCalendar() {
+        this.$router.push({ path: 'calendar' });
+      },
+      goToSettings() {
+        this.$router.push({ path: 'settings' });
       }
   },
   setup() {
