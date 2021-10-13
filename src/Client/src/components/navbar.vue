@@ -21,10 +21,10 @@
         class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-36"
       >
         <li>
-          <a @click="logout">Log out</a>
+          <a @click="goToSettings">Settings</a>
         </li>
         <li>
-            <a @click="goToSettings">Settings</a>
+          <a @click="logout">Log out</a>
         </li>
       </ul>
     </div>

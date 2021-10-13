@@ -7,7 +7,7 @@
           <span class="label-text">Distance</span>
         </label>
         <select class="select select-bordered w-full max-w-xs" v-model="selectedFactor">
-          <option disabled="disabled" selected="selected">Chose you preferred dinstance</option>
+          <option>Chose you preferred dinstance</option>
           <option value="1">Normal</option>
           <option value="0.5">Half it</option>
           <option value="2">Double it</option>
@@ -90,6 +90,7 @@ export default class SettingsComponent extends Vue {
         this.calendar,
         config
     );
+    this.selectedFactor = '1';
     return response.data;
   }
 }
