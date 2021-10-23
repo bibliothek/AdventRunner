@@ -4,8 +4,13 @@ import App from "./App.vue";
 import "./index.css";
 import router from "./router/router";
 import {Auth0} from "./auth";
+import {
+    store
+} from "./store";
 
 async function init() {
+
+
     const AuthPlugin = await Auth0.init({
         onRedirectCallback: (appState) => {
             router.push(
@@ -23,6 +28,7 @@ async function init() {
     app
         .use(AuthPlugin)
         .use(router)
+        .use(store)
         .mount('#app');
 }
 
