@@ -6,12 +6,12 @@
         <ClosedDoor
           v-if="door.state.case === 'Closed'"
           :day="door.day"
-          @opened="markOpen(door.day)"
+          @opened="markOpen(door)"
         />
-        <button v-if="door.state.case === 'Open'" @click="markDone(door.day)">
+        <button v-if="door.state.case === 'Open'" @click="markDone(door)">
           <OpenDoor :day="door.day" :isDone="false" :distance="distanceFor(door)" />
         </button>
-        <button @click="markOpen(door.day)">
+        <button @click="markOpen(door)">
           <OpenDoor
             v-if="door.state.case === 'Done'"
             :day="door.day"
@@ -30,71 +30,44 @@ import axios from "axios";
 import { Calendar, Door, emptyCalendar } from "../models/calendar";
 
 import { Options, Vue } from "vue-class-component";
-import { inject } from "@vue/runtime-core";
+import { defineComponent, inject } from "@vue/runtime-core";
 import ClosedDoor from "../components/ClosedDoor.vue";
 import OpenDoor from "../components/OpenDoor.vue";
-@Options({
-  components: {
-    ClosedDoor,
-    OpenDoor,
-  },
+import * as actionTypes from '../store/action-types';
+export default defineComponent({
+    name: "CalendarComponent",
+    computed: {
+        calendar () {
+            return this.$store.state.calendar;
+        }
+    },
+    components: {ClosedDoor, OpenDoor},
+    methods: {
+        distanceFor(door: Door) {
+            return door.distance * this.$store.state.calendar.settings.distanceFactor;
+        },
+        markDone(door: Door) {
+            this.$store.dispatch(actionTypes.MARK_DOOR_DONE, door.day)
+        },
+        markOpen(door: Door) {
+            this.$store.dispatch(actionTypes.OPEN_DOOR, door.day)
+        }
+    },
+    mounted() {
+        this.$store.dispatch(actionTypes.GET_CALENDAR)
+    }
+
 })
-export default class CalendarComponent extends Vue {
-  calendar = emptyCalendar();
 
-  private Auth = inject("Auth") as any;
 
-  private async getAxiosConfig(): Promise<any> {
-    const token = await this.Auth.getTokenSilently();
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-  }
+//   async putCalendar(): Promise<Calendar> {
+//     const config = await this.getAxiosConfig();
+//     const response = await axios.put<Calendar>(
+//       "/api/calendars",
+//       this.calendar,
+//       config
+//     );
+//     return response.data;
+//   }
 
-  distanceFor(door: Door) {
-    return door.distance * this.calendar.settings.distanceFactor;
-  }
-
-  async markDone(day: number) {
-    this.calendar = {
-      ...this.calendar,
-      doors: this.calendar.doors.map((door) =>
-        door.day === day ? { ...door, state: { case: "Done" } } : door
-      ),
-    };
-    await this.putCalendar();
-  }
-
-  async markOpen(day: number) {
-    this.calendar = {
-      ...this.calendar,
-      doors: this.calendar.doors.map((door) =>
-        door.day === day ? { ...door, state: { case: "Open" } } : door
-      ),
-    };
-    await this.putCalendar();
-  }
-
-  async getCalendar(): Promise<Calendar> {
-    const config = await this.getAxiosConfig();
-    const response = await axios.get<Calendar>("/api/calendars", config);
-    return response.data;
-  }
-
-  async putCalendar(): Promise<Calendar> {
-    const config = await this.getAxiosConfig();
-    const response = await axios.put<Calendar>(
-      "/api/calendars",
-      this.calendar,
-      config
-    );
-    return response.data;
-  }
-
-  async mounted(): Promise<any> {
-    this.calendar = await this.getCalendar();
-  }
-}
 </script>
