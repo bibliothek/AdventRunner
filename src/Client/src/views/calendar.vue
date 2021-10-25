@@ -2,7 +2,7 @@
     <div class="flex flex-row">
         <div class="flex-grow"></div>
         <div class="flex flex-row flex-wrap max-w-6xl justify-center">
-            <div class="w-auto" v-for="door in calendar.doors" :key="door.day">
+            <div class="w-auto" v-for="door in cal.doors" :key="door.day">
                 <ClosedDoor
                     v-if="door.state.case === 'Closed'"
                     :day="door.day"
@@ -32,14 +32,14 @@ import { defineComponent } from "@vue/runtime-core";
 import ClosedDoor from "../components/ClosedDoor.vue";
 import OpenDoor from "../components/OpenDoor.vue";
 import * as actionTypes from '../store/action-types';
+import { mapState } from "vuex";
+
 export default defineComponent({
     name: "CalendarComponent",
-    computed: {
-        calendar() {
-            return this.$store.state.calendar;
-        }
-    },
     components: { ClosedDoor, OpenDoor },
+    computed: mapState({
+        cal: (state: any) => state.calendar
+    }),
     methods: {
         distanceFor(door: Door) {
             return door.distance * this.$store.state.calendar.settings.distanceFactor;
