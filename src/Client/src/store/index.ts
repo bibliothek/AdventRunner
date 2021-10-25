@@ -54,6 +54,9 @@ const actions = {
         commit(mutationTypes.SET_AUTH_HEADERS, await getAxiosConfig())
     },
     async [actionTypes.GET_CALENDAR]({ commit, state, dispatch }) {
+        if(state.calendar.doors.length > 0) {
+            return;
+        }
         await dispatch(actionTypes.GET_AUTH_HEADERS);
         const response = await axios.get<Calendar>("/api/calendars", state.axiosConfig);
         commit(mutationTypes.SET_CALENDAR, response.data);

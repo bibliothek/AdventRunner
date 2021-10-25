@@ -1,47 +1,45 @@
 <template>
-  <div class="flex flex-row">
-    <div class="flex-grow"></div>
-    <div class="flex flex-row flex-wrap max-w-6xl justify-center">
-      <div class="w-auto" v-for="door in calendar.doors" :key="door.day">
-        <ClosedDoor
-          v-if="door.state.case === 'Closed'"
-          :day="door.day"
-          @opened="markOpen(door)"
-        />
-        <button v-if="door.state.case === 'Open'" @click="markDone(door)">
-          <OpenDoor :day="door.day" :isDone="false" :distance="distanceFor(door)" />
-        </button>
-        <button @click="markOpen(door)">
-          <OpenDoor
-            v-if="door.state.case === 'Done'"
-            :day="door.day"
-            :isDone="true"
-            :distance="distanceFor(door)"
-          />
-        </button>
-      </div>
+    <div class="flex flex-row">
+        <div class="flex-grow"></div>
+        <div class="flex flex-row flex-wrap max-w-6xl justify-center">
+            <div class="w-auto" v-for="door in calendar.doors" :key="door.day">
+                <ClosedDoor
+                    v-if="door.state.case === 'Closed'"
+                    :day="door.day"
+                    @opened="markOpen(door)"
+                />
+                <button v-if="door.state.case === 'Open'" @click="markDone(door)">
+                    <OpenDoor :day="door.day" :isDone="false" :distance="distanceFor(door)" />
+                </button>
+                <button @click="markOpen(door)">
+                    <OpenDoor
+                        v-if="door.state.case === 'Done'"
+                        :day="door.day"
+                        :isDone="true"
+                        :distance="distanceFor(door)"
+                    />
+                </button>
+            </div>
+        </div>
+        <div class="flex-grow"></div>
     </div>
-    <div class="flex-grow"></div>
-  </div>
 </template>
 
 <script lang="ts">
-import axios from "axios";
-import { Calendar, Door, emptyCalendar } from "../models/calendar";
+import { Door } from "../models/calendar";
 
-import { Options, Vue } from "vue-class-component";
-import { defineComponent, inject } from "@vue/runtime-core";
+import { defineComponent } from "@vue/runtime-core";
 import ClosedDoor from "../components/ClosedDoor.vue";
 import OpenDoor from "../components/OpenDoor.vue";
 import * as actionTypes from '../store/action-types';
 export default defineComponent({
     name: "CalendarComponent",
     computed: {
-        calendar () {
+        calendar() {
             return this.$store.state.calendar;
         }
     },
-    components: {ClosedDoor, OpenDoor},
+    components: { ClosedDoor, OpenDoor },
     methods: {
         distanceFor(door: Door) {
             return door.distance * this.$store.state.calendar.settings.distanceFactor;
@@ -56,18 +54,6 @@ export default defineComponent({
     mounted() {
         this.$store.dispatch(actionTypes.GET_CALENDAR)
     }
-
 })
-
-
-//   async putCalendar(): Promise<Calendar> {
-//     const config = await this.getAxiosConfig();
-//     const response = await axios.put<Calendar>(
-//       "/api/calendars",
-//       this.calendar,
-//       config
-//     );
-//     return response.data;
-//   }
 
 </script>
