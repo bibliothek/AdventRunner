@@ -1,7 +1,7 @@
 import { Auth0Client } from "@auth0/auth0-spa-js";
 import axios from "axios";
 import { inject } from "vue";
-import { createLogger, createStore, MutationTree } from "vuex";
+import { ActionContext, createLogger, createStore, MutationTree } from "vuex";
 import { Calendar, emptyCalendar } from "../models/calendar";
 import * as actionTypes from "./action-types";
 import * as mutationTypes from "./mutation-types.";
@@ -45,43 +45,43 @@ async function getAxiosConfig(): Promise<any> {
 }
 
 const actions = {
-    async [actionTypes.OPEN_DOOR]({ commit, dispatch }, day: number) {
-        commit(mutationTypes.OPEN_DOOR, day);
-        await dispatch(actionTypes.SET_CALENDAR);
+    async [actionTypes.OPEN_DOOR](context: ActionContext<State,State>, day: number) {
+        context.commit(mutationTypes.OPEN_DOOR, day);
+        await context.dispatch(actionTypes.SET_CALENDAR);
     },
-    async [actionTypes.MARK_DOOR_DONE]({ commit, dispatch }, day: number) {
-        commit(mutationTypes.MARK_DOOR_DONE, day);
-        await dispatch(actionTypes.SET_CALENDAR);
+    async [actionTypes.MARK_DOOR_DONE](context: ActionContext<State,State>, day: number) {
+        context.commit(mutationTypes.MARK_DOOR_DONE, day);
+        await context.dispatch(actionTypes.SET_CALENDAR);
     },
-    async [actionTypes.SET_SCALE_FACTOR]({ commit, dispatch }, scaleFactor: number) {
-        commit(mutationTypes.SET_SCALE_FACTOR, scaleFactor);
-        await dispatch(actionTypes.SET_CALENDAR);
+    async [actionTypes.SET_SCALE_FACTOR](context: ActionContext<State,State>, scaleFactor: number) {
+        context.commit(mutationTypes.SET_SCALE_FACTOR, scaleFactor);
+        await context.dispatch(actionTypes.SET_CALENDAR);
     },
-    async [actionTypes.GET_AUTH_HEADERS]({ commit }) {
-        commit(mutationTypes.SET_AUTH_HEADERS, await getAxiosConfig())
+    async [actionTypes.GET_AUTH_HEADERS](context: ActionContext<State,State>) {
+        context.commit(mutationTypes.SET_AUTH_HEADERS, await getAxiosConfig())
     },
-    async [actionTypes.GET_CALENDAR]({ commit, state, dispatch }) {
+    async [actionTypes.GET_CALENDAR](context: ActionContext<State,State>) {
         if(state.calendar.doors.length > 0) {
             return;
         }
-        await dispatch(actionTypes.GET_AUTH_HEADERS);
-        const response = await axios.get<Calendar>("/api/calendars", state.axiosConfig);
-        commit(mutationTypes.SET_CALENDAR, response.data);
+        await context.dispatch(actionTypes.GET_AUTH_HEADERS);
+        const response = await axios.get<Calendar>("/api/calendars", context.state.axiosConfig);
+        context.commit(mutationTypes.SET_CALENDAR, response.data);
     },
-    async [actionTypes.SET_CALENDAR]({ state }) {
+    async [actionTypes.SET_CALENDAR](context: ActionContext<State,State>) {
         await axios.put<Calendar>(
             "/api/calendars",
-            state.calendar,
-            state.axiosConfig
+            context.state.calendar,
+            context.state.axiosConfig
         );
     },
-    async [actionTypes.RESET_CALENDAR]({ commit, state }) {
+    async [actionTypes.RESET_CALENDAR](context: ActionContext<State,State>) {
         const response = await axios.post<Calendar>(
             "/api/calendars",
-            state.calendar,
-            state.axiosConfig
+            context.state.calendar,
+            context.state.axiosConfig
         );
-        commit(mutationTypes.SET_CALENDAR, response.data);
+        context.commit(mutationTypes.SET_CALENDAR, response.data);
     },
 };
 
