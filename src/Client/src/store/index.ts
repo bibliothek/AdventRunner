@@ -3,16 +3,17 @@ import axios from "axios";
 import { inject } from "vue";
 import { createLogger, createStore, MutationTree } from "vuex";
 import { Calendar, emptyCalendar } from "../models/calendar";
-import calendar from "../views/calendar.vue";
 import * as actionTypes from "./action-types";
 import * as mutationTypes from "./mutation-types.";
 
 export interface State {
     calendar: Calendar;
+    axiosConfig: any;
 }
 
 const state: State = {
     calendar: emptyCalendar(),
+    axiosConfig: null
 };
 
 const mutations = {
@@ -24,6 +25,9 @@ const mutations = {
     },
     [mutationTypes.SET_CALENDAR](state: State, calendar: Calendar) {
         state.calendar = calendar;
+    },
+    [mutationTypes.SET_AUTH_HEADERS](state: State, config: any) {
+        state.axiosConfig = config;
     },
 };
 
@@ -46,17 +50,19 @@ const actions = {
         commit(mutationTypes.MARK_DOOR_DONE, day);
         await dispatch(actionTypes.SET_CALENDAR);
     },
-    async [actionTypes.GET_CALENDAR]({ commit, state }) {
-        const config = await getAxiosConfig();
-        const response = await axios.get<Calendar>("/api/calendars", config);
+    async [actionTypes.GET_AUTH_HEADERS]({ commit }) {
+        commit(mutationTypes.SET_AUTH_HEADERS, await getAxiosConfig())
+    },
+    async [actionTypes.GET_CALENDAR]({ commit, state, dispatch }) {
+        await dispatch(actionTypes.GET_AUTH_HEADERS);
+        const response = await axios.get<Calendar>("/api/calendars", state.axiosConfig);
         commit(mutationTypes.SET_CALENDAR, response.data);
     },
     async [actionTypes.SET_CALENDAR]({ state }) {
-        const config = await getAxiosConfig();
         await axios.put<Calendar>(
             "/api/calendars",
             state.calendar,
-            config
+            state.axiosConfig
         );
     },
 };
@@ -67,14 +73,3 @@ export const store = createStore({
     actions,
     plugins: [createLogger()],
 });
-
-// export type Mutations<S = State> = {
-//     ["OPEN_DOOR"](state: S, payload: number): void,
-//     ["MARK_DOOR_COMPLETED"](state: S, payload: number): void,
-// }
-
-// export const mutations: MutationTree<State> & Mutations = {
-//     ["OPEN_DOOR"](state, payload) {
-//         state = {...state, calendar: {...state.calendar, doors: state.calendar.doors.map(x=>x.day === payload ? )}}
-//     }
-// }
