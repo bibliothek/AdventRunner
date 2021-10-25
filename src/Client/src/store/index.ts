@@ -26,6 +26,9 @@ const mutations = {
     [mutationTypes.SET_CALENDAR](state: State, calendar: Calendar) {
         state.calendar = calendar;
     },
+    [mutationTypes.SET_SCALE_FACTOR](state: State, scaleFactor: number) {
+        state.calendar.settings.distanceFactor = Number(scaleFactor);
+    },
     [mutationTypes.SET_AUTH_HEADERS](state: State, config: any) {
         state.axiosConfig = config;
     },
@@ -50,6 +53,10 @@ const actions = {
         commit(mutationTypes.MARK_DOOR_DONE, day);
         await dispatch(actionTypes.SET_CALENDAR);
     },
+    async [actionTypes.SET_SCALE_FACTOR]({ commit, dispatch }, scaleFactor: number) {
+        commit(mutationTypes.SET_SCALE_FACTOR, scaleFactor);
+        await dispatch(actionTypes.SET_CALENDAR);
+    },
     async [actionTypes.GET_AUTH_HEADERS]({ commit }) {
         commit(mutationTypes.SET_AUTH_HEADERS, await getAxiosConfig())
     },
@@ -67,6 +74,14 @@ const actions = {
             state.calendar,
             state.axiosConfig
         );
+    },
+    async [actionTypes.RESET_CALENDAR]({ commit, state }) {
+        const response = await axios.post<Calendar>(
+            "/api/calendars",
+            state.calendar,
+            state.axiosConfig
+        );
+        commit(mutationTypes.SET_CALENDAR, response.data);
     },
 };
 
