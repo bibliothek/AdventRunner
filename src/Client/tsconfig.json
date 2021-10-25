@@ -11,8 +11,9 @@
     "esModuleInterop": true,
     "lib": ["esnext", "dom"],
     "allowJs": true,
-    "experimentalDecorators": true, 
-    "noImplicitThis": true
+    "experimentalDecorators": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
 }
