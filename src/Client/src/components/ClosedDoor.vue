@@ -4,18 +4,18 @@
       class="
         m-2
         md:m-4
-        w-24
-        h-24
+        w-12
+        h-12
         md:w-40
         md:h-40
         rounded-box
         text-center
         shadow-xl
-        bg-primary
-        text-primary-content
+        bg-neutral
+        text-neutral-content
       "
     >
-      <div class="text-4xl pt-5 md:pt-8">{{ day }}</div>
+      <div class="text-2xl md:text-4xl pt-2 md:pt-8">{{ day }}</div>
       <div class="invisible md:visible font-bold pt-10">
         Open
         <svg

@@ -3,8 +3,8 @@
     class="
       m-2
       md:m-4
-      w-24
-      h-24
+      w-12
+      h-12
       md:w-40
       md:h-40
       rounded-box
@@ -12,14 +12,14 @@
     "
     :class="getCardStyle()"
   >
-    <div class="text-md md:text-4xl pt-1 md:pt-8">{{ day }}</div>
-    <div class="text-xl md:text-2xl pt-1 font-bold text-primary md:pt-2">
+    <div class="hidden md:block md:text-4xl md:pt-8" :class="getTextStyle()">{{ day }}</div>
+    <div class="text-sm md:text-2xl pt-2 font-bold md:pt-2" :class="getTextStyle()">
       {{ distance }} km
     </div>
-    <div class="md:hidden pt-1" v-if="isDone">🎉</div>
-    <div class="md:hidden pt-1 flex flex-row" v-else>
+    <div class="md:hidden pt-0 text-xs" v-if="isDone">🎉</div>
+    <div class="md:hidden pt-0.5 text-xs flex flex-row" v-else>
       <div class="flex-grow"></div>
-      <img class="w-6" src="../../public/runner.png" alt="Done" />
+      <img class="w-3" src="../../public/runner.png" alt="Done" />
       <div class="flex-grow"></div>
     </div>
     <div class="hidden md:block">
@@ -39,7 +39,7 @@
           ></path>
         </svg>
       </div>
-      <div class="font pt-2" v-else>Done🎉</div>
+      <div class="font text-primary-content pt-2" v-else>Done🎉</div>
     </div>
   </div>
 </template>
@@ -59,9 +59,16 @@ export default class ClosedDoor extends Vue {
 
   getCardStyle(): string {
     if (this.isDone!) {
-      return "bg-gray-200 shadow-md";
+      return "bg-primary shadow-md";
     }
     return "bg-gray-100 shadow-xl";
+  }
+
+  getTextStyle(): string {
+      if(this.isDone) {
+        return "text-neutral-content";
+      }
+      return "text-primary";
   }
 }
 </script>
