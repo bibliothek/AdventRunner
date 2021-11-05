@@ -16,7 +16,7 @@
       "
     >
       <div class="text-2xl md:text-4xl pt-2 md:pt-8">{{ day }}</div>
-      <div class="invisible md:visible font-bold pt-10">
+      <div class="hidden md:block font-bold pt-10">
         Open
         <svg
           xmlns="http://www.w3.org/2000/svg"
