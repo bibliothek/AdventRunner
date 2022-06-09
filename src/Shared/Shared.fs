@@ -14,10 +14,16 @@ type Owner = { name: string }
 type Settings = { distanceFactor: double }
 
 type Calendar =
-    { version: string
-      settings: Settings
+    { settings: Settings
       doors: CalendarDoor list
-      owner: Owner }
+    }
+
+type UserData =
+    {
+       version: string
+       owner: Owner
+       calendars: Map<int, Calendar>
+    }
 
 module Settings =
     let init factor = { distanceFactor = factor }
@@ -39,11 +45,17 @@ module Calendar =
                   state = Closed })
         doors
 
-    let init owner settings: Calendar =
-        { version = "1.1"
-          doors = initDoors settings
-          owner = owner
+    let currentPeriod =
+        DateTime.UtcNow.Year
+
+    let private initCalendar settings: Calendar =
+        { doors = initDoors settings
           settings = settings }
+
+    let initUserData owner settings: UserData =
+        { owner = owner
+          version = "2.0"
+          calendars = Map [(currentPeriod, (initCalendar settings))] }
 
 module Route =
     let builder typeName methodName = sprintf "/api/%s/%s" typeName methodName

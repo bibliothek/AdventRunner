@@ -12,40 +12,40 @@ type Storage () =
     let getContainerClient =
         let connectionString = System.Environment.GetEnvironmentVariable "AR_StorageAccount_ConnectionString"
         let blobServiceClient = BlobServiceClient connectionString
-        let containerName = "calendars"
+        let containerName = "users"
         blobServiceClient.GetBlobContainerClient containerName
 
     let getBlobClient owner =
         let containerClient = getContainerClient
-        containerClient.GetBlobClient (sprintf "%s.txt" owner.name)
+        containerClient.GetBlobClient (sprintf "%s.json" owner.name)
 
-    let uploadCalendar calendar =
-        let serializedCalendar = JsonConvert.SerializeObject calendar
-        let blobClient = getBlobClient calendar.owner
+    let uploadUserData userData =
+        let serializedCalendar = JsonConvert.SerializeObject userData
+        let blobClient = getBlobClient userData.owner
         use stream = new MemoryStream (Encoding.UTF8.GetBytes serializedCalendar)
         blobClient.Upload(stream, true) |> ignore
 
-    member __.GetCalendar owner =
+    member __.GetUserData owner =
         let blobClient = getBlobClient owner
         use stream = new MemoryStream()
         blobClient.DownloadTo stream |> ignore
         stream.Position <- 0L
         use reader = new StreamReader(stream, Encoding.UTF8)
         let serializedCalendar = reader.ReadToEnd()
-        let cal = JsonConvert.DeserializeObject<Calendar> serializedCalendar
-        cal
+        let userData = JsonConvert.DeserializeObject<UserData> serializedCalendar
+        userData
 
-    member __.CalendarExists owner =
+    member __.UserExists owner =
         let blobClient = getBlobClient owner
         blobClient.Exists().Value
 
-    member __.UpdateCalendar updatedCalendar =
-        uploadCalendar updatedCalendar
-        updatedCalendar
+    member __.UpdateUserData updatedUserData =
+        uploadUserData updatedUserData
+        updatedUserData
 
-    member __.AddNewCalendar calendar =
-        uploadCalendar calendar
-        calendar
+    member __.AddNewUser userData =
+        uploadUserData userData
+        userData
 
 
 
