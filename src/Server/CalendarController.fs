@@ -7,10 +7,14 @@ open Shared
 open Storage
 open FSharp.Control.Tasks
 
-let migrate (storage: Storage) cal =
-    if cal.version <> "2.0" then
-        let newCal = Calendar.initUserData cal.owner Settings.initDefault
-        Some (storage.AddNewUser newCal)
+let migrate (storage: Storage) (userData: UserData) =
+    if userData.version <> "2.0" then
+        let userData = Calendar.initUserData userData.owner Settings.initDefault
+        Some (storage.AddNewUser userData)
+    elif userData.calendars.ContainsKey(Calendar.currentPeriod) <> true then
+        let (_,previousCalendar) = userData.calendars |> Map.toList |> List.last
+        let userDataWithNewPeriod = {userData with calendars = userData.calendars.Add (Calendar.currentPeriod, Calendar.initCalendar previousCalendar.settings)}
+        Some (storage.UpdateUserData userDataWithNewPeriod)
     else
         None
 

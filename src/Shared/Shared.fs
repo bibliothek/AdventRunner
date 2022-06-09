@@ -48,7 +48,7 @@ module Calendar =
     let currentPeriod =
         DateTime.UtcNow.Year
 
-    let private initCalendar settings: Calendar =
+    let initCalendar settings: Calendar =
         { doors = initDoors settings
           settings = settings }
 
