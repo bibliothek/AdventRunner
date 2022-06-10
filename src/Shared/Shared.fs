@@ -23,6 +23,7 @@ type UserData =
        version: string
        owner: Owner
        calendars: Map<int, Calendar>
+       latestPeriod: int
     }
 
 module Settings =
@@ -45,7 +46,7 @@ module Calendar =
                   state = Closed })
         doors
 
-    let currentPeriod =
+    let currentPeriod () =
         DateTime.UtcNow.Year
 
     let initCalendar settings: Calendar =
@@ -53,9 +54,12 @@ module Calendar =
           settings = settings }
 
     let initUserData owner settings: UserData =
+        let period = currentPeriod()
         { owner = owner
           version = "2.0"
-          calendars = Map [(currentPeriod, (initCalendar settings))] }
+          calendars = Map [(period, (initCalendar settings))]
+          latestPeriod = period}
+
 
 module Route =
     let builder typeName methodName = sprintf "/api/%s/%s" typeName methodName

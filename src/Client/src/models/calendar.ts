@@ -9,6 +9,7 @@ export type UserData = {
     version: string;
     calendars: Map<number, Calendar>;
     owner: Owner;
+    latestPeriod: number;
 }
 
 export function emptyCalendar(): Calendar {
@@ -24,7 +25,8 @@ export function emptyUserData(): UserData {
     return {
         version: "",
         owner: { name: ""},
-        calendars: new Map( [[2021, emptyCalendar()]])
+        calendars: new Map( [[0, emptyCalendar()]]),
+        latestPeriod: 0,
     }
 }
 

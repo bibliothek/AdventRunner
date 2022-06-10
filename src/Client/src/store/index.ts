@@ -1,37 +1,42 @@
-import { Auth0Client } from "@auth0/auth0-spa-js";
+import { Auth0Client, User } from "@auth0/auth0-spa-js";
 import axios from "axios";
 import { inject } from "vue";
 import { ActionContext, createLogger, createStore, MutationTree } from "vuex";
-import { Calendar, emptyCalendar } from "../models/calendar";
+import { Calendar, emptyCalendar, emptyUserData, UserData } from "../models/calendar";
 import * as actionTypes from "./action-types";
 import * as mutationTypes from "./mutation-types.";
 
 export interface State {
-    calendar: Calendar;
+    userData: UserData;
+    currentPeriod: number;
     axiosConfig: any;
 }
 
 const state: State = {
-    calendar: emptyCalendar(),
+    userData: emptyUserData(),
+    currentPeriod: 0,
     axiosConfig: null
 };
 
 const mutations = {
     [mutationTypes.OPEN_DOOR](state: State, day: number) {
-        state.calendar.doors[day - 1].state.case = "Open";
+        state.userData.calendars.get(state.currentPeriod)!.doors[day - 1].state.case = "Open";
     },
     [mutationTypes.MARK_DOOR_DONE](state: State, day: number) {
-        state.calendar.doors[day - 1].state.case = "Done";
+        state.userData.calendars.get(state.currentPeriod)!.doors[day - 1].state.case = "Done";
     },
     [mutationTypes.SET_CALENDAR](state: State, calendar: Calendar) {
-        state.calendar = calendar;
+        state.userData.calendars.set(state.currentPeriod, calendar);
     },
     [mutationTypes.SET_SCALE_FACTOR](state: State, scaleFactor: number) {
-        state.calendar.settings.distanceFactor = Number(scaleFactor);
+        state.userData.calendars.get(state.currentPeriod)!.settings.distanceFactor = Number(scaleFactor);
     },
     [mutationTypes.SET_AUTH_HEADERS](state: State, config: any) {
         state.axiosConfig = config;
     },
+    [mutationTypes.SET_CURRENT_PERIOD](state: State, period: number) {
+        state.currentPeriod = period;
+    }
 };
 
 async function getAxiosConfig(): Promise<any> {
@@ -61,27 +66,29 @@ const actions = {
         context.commit(mutationTypes.SET_AUTH_HEADERS, await getAxiosConfig())
     },
     async [actionTypes.GET_CALENDAR](context: ActionContext<State,State>) {
-        if(state.calendar.doors.length > 0) {
+        if(state.currentPeriod > 0) {
             return;
         }
         await context.dispatch(actionTypes.GET_AUTH_HEADERS);
-        const response = await axios.get<Calendar>("/api/calendars", context.state.axiosConfig);
+        const response = await axios.get<UserData>("/api/calendars", context.state.axiosConfig);
         context.commit(mutationTypes.SET_CALENDAR, response.data);
+        context.commit(mutationTypes.SET_CURRENT_PERIOD, response.data.latestPeriod);
     },
     async [actionTypes.SET_CALENDAR](context: ActionContext<State,State>) {
-        await axios.put<Calendar>(
+        await axios.put<UserData>(
             "/api/calendars",
-            context.state.calendar,
+            context.state.userData,
             context.state.axiosConfig
         );
     },
     async [actionTypes.RESET_CALENDAR](context: ActionContext<State,State>) {
-        const response = await axios.post<Calendar>(
+        const response = await axios.post<UserData>(
             "/api/calendars",
-            context.state.calendar,
+            context.state.userData,
             context.state.axiosConfig
         );
         context.commit(mutationTypes.SET_CALENDAR, response.data);
+        context.commit(mutationTypes.SET_CURRENT_PERIOD, response.data.latestPeriod);
     },
 };
 

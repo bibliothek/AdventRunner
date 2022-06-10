@@ -42,7 +42,7 @@ export default defineComponent({
     }),
     methods: {
         distanceFor(door: Door) {
-            return door.distance * this.$store.state.calendar.settings.distanceFactor;
+            return door.distance * this.$store.state.userData.calendars.get(this.$store.state.currentPeriod)!.settings.distanceFactor;
         },
         markDone(door: Door) {
             this.$store.dispatch(actionTypes.MARK_DOOR_DONE, door.day)

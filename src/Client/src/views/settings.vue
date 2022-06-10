@@ -38,7 +38,7 @@ export default defineComponent({
     computed: {
         selectedFactor: {
             get() {
-                return this.$store.state.calendar.settings.distanceFactor;
+                return this.$store.state.userData.calendars.get(this.$store.state.currentPeriod)!.settings.distanceFactor;
             },
             set(value: string) {
                 const number = Number(value);
