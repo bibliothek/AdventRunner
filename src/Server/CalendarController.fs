@@ -12,7 +12,7 @@ let migrate (storage: Storage) (userData: UserData) =
         let userData = Calendar.initUserData userData.owner Settings.initDefault
         Some (storage.AddNewUser userData)
     elif userData.calendars.ContainsKey(Calendar.currentPeriod) <> true then
-        let (_,previousCalendar) = userData.calendars |> Map.toList |> List.last
+        let _,previousCalendar = userData.calendars |> Map.toList |> List.sortByDescending fst |> List.head
         let userDataWithNewPeriod = {userData with calendars = userData.calendars.Add (Calendar.currentPeriod, Calendar.initCalendar previousCalendar.settings)}
         Some (storage.UpdateUserData userDataWithNewPeriod)
     else
