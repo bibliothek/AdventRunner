@@ -5,6 +5,12 @@ export type Calendar = {
     owner: Owner;
 };
 
+export type UserData = {
+    version: string;
+    calendars: Map<number, Calendar>;
+    owner: Owner;
+}
+
 export function emptyCalendar(): Calendar {
     return {
         version: "",
@@ -12,6 +18,14 @@ export function emptyCalendar(): Calendar {
         doors: [],
         owner: { name: "" },
     };
+}
+
+export function emptyUserData(): UserData {
+    return {
+        version: "",
+        owner: { name: ""},
+        calendars: new Map( [[2021, emptyCalendar()]])
+    }
 }
 
 export type Owner = {
