@@ -39,11 +39,11 @@ export default defineComponent({
     name: "CalendarComponent",
     components: { ClosedDoor, OpenDoor },
     computed: mapState({
-        cal: (state: any) => state.userData.calendars[state.currentPeriod]
+        cal: (state: any) => state.userData.calendars[state.displayPeriod]
     }),
     methods: {
         distanceFor(door: Door) {
-            return door.distance * this.$store.state.userData.calendars[this.$store.state.currentPeriod]!.settings.distanceFactor;
+            return door.distance * this.$store.state.userData.calendars[this.$store.state.displayPeriod]!.settings.distanceFactor;
         },
         markDone(door: Door) {
             this.$store.dispatch(actionTypes.MARK_DOOR_DONE, door.day)

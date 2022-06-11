@@ -16,34 +16,34 @@ import * as mutationTypes from "./mutation-types.";
 
 export interface State {
     userData: UserData;
-    currentPeriod: number;
+    displayPeriod: number;
     axiosConfig: any;
 }
 
 const state: State = {
     userData: emptyUserData(),
-    currentPeriod: 0,
+    displayPeriod: 0,
     axiosConfig: null
 };
 
 const mutations = {
     [mutationTypes.OPEN_DOOR](state: State, day: number) {
-        state.userData.calendars[state.currentPeriod]!.doors[day - 1].state.case = "Open";
+        state.userData.calendars[state.displayPeriod]!.doors[day - 1].state.case = "Open";
     },
     [mutationTypes.MARK_DOOR_DONE](state: State, day: number) {
-        state.userData.calendars[state.currentPeriod]!.doors[day - 1].state.case = "Done";
+        state.userData.calendars[state.displayPeriod]!.doors[day - 1].state.case = "Done";
     },
     [mutationTypes.SET_CALENDAR](state: State, calendar: Calendar) {
-        state.userData.calendars[state.currentPeriod] = calendar;
+        state.userData.calendars[state.displayPeriod] = calendar;
     },
     [mutationTypes.SET_SCALE_FACTOR](state: State, scaleFactor: number) {
-        state.userData.calendars[state.currentPeriod]!.settings.distanceFactor = Number(scaleFactor);
+        state.userData.calendars[state.displayPeriod]!.settings.distanceFactor = Number(scaleFactor);
     },
     [mutationTypes.SET_AUTH_HEADERS](state: State, config: any) {
         state.axiosConfig = config;
     },
-    [mutationTypes.SET_CURRENT_PERIOD](state: State, period: number) {
-        state.currentPeriod = period;
+    [mutationTypes.SET_DISPLAY_PERIOD](state: State, period: number) {
+        state.displayPeriod = period;
     },
     [mutationTypes.SET_USER_DATA](state: State, userData: UserData) {
         state.userData = userData;
@@ -77,13 +77,13 @@ const actions = {
         context.commit(mutationTypes.SET_AUTH_HEADERS, await getAxiosConfig())
     },
     async [actionTypes.GET_CALENDAR](context: ActionContext<State, State>) {
-        if (state.currentPeriod > 0) {
+        if (state.displayPeriod > 0) {
             return;
         }
         await context.dispatch(actionTypes.GET_AUTH_HEADERS);
         const response = await axios.get<UserData>("/api/calendars", context.state.axiosConfig);
         context.commit(mutationTypes.SET_USER_DATA, response.data);
-        context.commit(mutationTypes.SET_CURRENT_PERIOD, response.data.latestPeriod);
+        context.commit(mutationTypes.SET_DISPLAY_PERIOD, response.data.latestPeriod);
     },
     async [actionTypes.SET_CALENDAR](context: ActionContext<State, State>) {
         await axios.put<UserData>(
@@ -99,7 +99,7 @@ const actions = {
             context.state.axiosConfig
         );
         context.commit(mutationTypes.SET_USER_DATA, response.data);
-        context.commit(mutationTypes.SET_CURRENT_PERIOD, response.data.latestPeriod);
+        context.commit(mutationTypes.SET_DISPLAY_PERIOD, response.data.latestPeriod);
     },
 };
 
