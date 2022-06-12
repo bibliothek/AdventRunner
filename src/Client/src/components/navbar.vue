@@ -1,42 +1,41 @@
 <template>
-  <div class="flex-row flex items-baseline mb-4">
-    <h1 class="text-4xl md:text-5xl cursor-pointer text-primary" @click="goToCalendar">Adventrunner</h1>
-    <div class="flex-grow"></div>
-      <div class="dropdown dropdown-end mr-3" v-if="isAuthenticated">
-      <div tabindex="0" class="cursor-pointer">
-        <img
-          class="
-            rounded-full
-            w-10
-            h-10
-            border-white
-            hover:border-gray-300
-            border-4
-          "
-          :src="user.picture"
-        />
-      </div>
-      <ul
-        tabindex="0"
-        class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-36"
-      >
-        <li>
-          <a @click="goToSettings">Settings</a>
-        </li>
-        <li>
-          <a @click="logout">Log out</a>
-        </li>
+<div class="navbar bg-base-100">
+  <div class="flex-1">
+    <a class="btn btn-ghost normal-case text-primary text-2xl" @click="goToCalendar">Adventrunner</a>
+  </div>
+  <div class="flex-none">
+    <div class="dropdown dropdown-end" v-if="isAuthenticated">
+      <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+        <div class="w-10 rounded-full">
+          <img :src="user.picture" />
+        </div>
+      </label>
+      <ul tabindex="0" class="menu  dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
+        <li tabindex="0"><a>Year</a>
+         <ul class="p-2 bg-base-100">
+          <li v-for="period in periods"><a @click="setDisplayPeriod(period)">{{ period }}</a></li>
+        </ul></li>
+        <li><a @click="goToSettings">Settings</a></li>
+        <li><a @click="logout">Logout</a></li>
       </ul>
     </div>
   </div>
+</div>
 </template>
 
 <script lang="js">
 import {inject} from 'vue';
+import * as actionTypes from '../store/action-types';
+import { mapGetters } from "vuex";
 export default {
   data() {
     return { };
   },
+    computed: {
+        ...mapGetters({
+            periods: "periods",
+        }),
+    },
   inject: ["Auth"],
   methods: {
       logout() {
@@ -47,6 +46,9 @@ export default {
       },
       goToSettings() {
         this.$router.push({ path: 'settings' });
+      },
+      setDisplayPeriod(period) {
+        this.$store.dispatch(actionTypes.SET_DISPLAY_PERIOD, period);
       }
   },
   setup() {

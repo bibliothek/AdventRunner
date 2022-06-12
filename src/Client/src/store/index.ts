@@ -101,6 +101,9 @@ const actions = {
         context.commit(mutationTypes.SET_USER_DATA, response.data);
         context.commit(mutationTypes.SET_DISPLAY_PERIOD, response.data.latestPeriod);
     },
+    [actionTypes.SET_DISPLAY_PERIOD](context: ActionContext<State, State>, period: number) {
+        context.commit(mutationTypes.SET_DISPLAY_PERIOD, period);
+    }
 };
 
 export const store = createStore({
@@ -111,6 +114,9 @@ export const store = createStore({
     getters: {
         displayCalendar: (state: State) => {
             return state.userData.calendars[state.displayPeriod];
+        },
+        periods: (state: State) => {
+            return Object.keys(state.userData.calendars)
         }
     }
 });

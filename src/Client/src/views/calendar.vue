@@ -23,9 +23,8 @@ import { Door } from "../models/calendar";
 import { defineComponent } from "@vue/runtime-core";
 import ClosedDoor from "../components/ClosedDoor.vue";
 import OpenDoor from "../components/OpenDoor.vue";
-import { State } from '../store';
 import * as actionTypes from '../store/action-types';
-import { mapGetters, mapState } from "vuex";
+import { mapGetters } from "vuex";
 
 export default defineComponent({
     name: "CalendarComponent",
