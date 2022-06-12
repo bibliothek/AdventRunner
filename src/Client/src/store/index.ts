@@ -108,4 +108,9 @@ export const store = createStore({
     mutations,
     actions,
     plugins: [createLogger()],
+    getters: {
+        displayCalendar: (state: State) => {
+            return state.userData.calendars[state.displayPeriod];
+        }
+    }
 });

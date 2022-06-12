@@ -3,21 +3,13 @@
         <div class="flex-grow"></div>
         <div class="flex flex-row flex-wrap max-w-6xl justify-center">
             <div class="w-auto" v-for="door in cal.doors" :key="door.day">
-                <ClosedDoor
-                    v-if="door.state.case === 'Closed'"
-                    :day="door.day"
-                    @opened="markOpen(door)"
-                />
+                <ClosedDoor v-if="door.state.case === 'Closed'" :day="door.day" @opened="markOpen(door)" />
                 <button v-if="door.state.case === 'Open'" @click="markDone(door)">
                     <OpenDoor :day="door.day" :isDone="false" :distance="distanceFor(door)" />
                 </button>
                 <button @click="markOpen(door)">
-                    <OpenDoor
-                        v-if="door.state.case === 'Done'"
-                        :day="door.day"
-                        :isDone="true"
-                        :distance="distanceFor(door)"
-                    />
+                    <OpenDoor v-if="door.state.case === 'Done'" :day="door.day" :isDone="true"
+                        :distance="distanceFor(door)" />
                 </button>
             </div>
         </div>
@@ -33,17 +25,19 @@ import ClosedDoor from "../components/ClosedDoor.vue";
 import OpenDoor from "../components/OpenDoor.vue";
 import { State } from '../store';
 import * as actionTypes from '../store/action-types';
-import { mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 
 export default defineComponent({
     name: "CalendarComponent",
     components: { ClosedDoor, OpenDoor },
-    computed: mapState({
-        cal: (state: any) => state.userData.calendars[state.displayPeriod]
-    }),
+    computed: {
+        ...mapGetters({
+            cal: "displayCalendar",
+        }),
+    },
     methods: {
         distanceFor(door: Door) {
-            return door.distance * this.$store.state.userData.calendars[this.$store.state.displayPeriod]!.settings.distanceFactor;
+            return door.distance * this.$store.getters.displayCalendar.settings.distanceFactor;
         },
         markDone(door: Door) {
             this.$store.dispatch(actionTypes.MARK_DOOR_DONE, door.day)
