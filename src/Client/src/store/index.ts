@@ -121,6 +121,8 @@ export const store = createStore({
         displayPeriod: (state: State) => {
             return state.displayPeriod;
         },
-
+        latestPeriod: (state: State) => {
+            return state.userData.latestPeriod;
+        }
     }
 });

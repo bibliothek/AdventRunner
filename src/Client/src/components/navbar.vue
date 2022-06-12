@@ -8,7 +8,7 @@
                 <label tabindex="0" class="btn btn-ghost normal-case">{{ displayPeriod }}</label>
                 <ul tabindex="0" class="menu  dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box">
                     <li v-for="period in periods"><a @click="setDisplayPeriod(period)">{{ period }}<span
-                                v-if="period == displayPeriod" class="text-xs text-neutral">&nbsp;(current)</span></a></li>
+                                v-if="period == latestPeriod" class="text-xs text-neutral">&nbsp;(current)</span></a></li>
                 </ul>
             </div>
             <div class="dropdown dropdown-end">
@@ -35,7 +35,7 @@ export default {
         return {};
     },
     computed: {
-        ...mapGetters(['periods', 'displayPeriod']
+        ...mapGetters(['periods', 'displayPeriod', 'latestPeriod']
         ),
     },
     inject: ["Auth"],
