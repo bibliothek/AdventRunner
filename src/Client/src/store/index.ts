@@ -116,7 +116,11 @@ export const store = createStore({
             return state.userData.calendars[state.displayPeriod];
         },
         periods: (state: State) => {
-            return Object.keys(state.userData.calendars)
-        }
+            return Object.keys(state.userData.calendars).map(key => Number(key)).sort().reverse();
+        },
+        displayPeriod: (state: State) => {
+            return state.displayPeriod;
+        },
+
     }
 });
