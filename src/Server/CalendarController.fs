@@ -21,11 +21,13 @@ let migrate (storage: Storage) (userData: UserData) =
             |> List.sortByDescending fst
             |> List.head
 
+        let newCalendar = Calendar.initCalendar Settings.initDefault
+
         let userDataWithNewPeriod =
             { userData with
                   latestPeriod = period
                   calendars =
-                      userData.calendars.Add(period, Calendar.initCalendar previousCalendar.settings) }
+                      userData.calendars.Add(period, {newCalendar with settings = previousCalendar.settings}) }
 
         Some(storage.UpdateUserData userDataWithNewPeriod)
     else
