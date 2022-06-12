@@ -41,15 +41,18 @@ export default {
     inject: ["Auth"],
     methods: {
         logout() {
+            document.activeElement.blur();
             this.Auth.logout();
         },
         goToCalendar() {
             this.$router.push({ path: 'calendar' });
         },
         goToSettings() {
+            document.activeElement.blur();
             this.$router.push({ path: 'settings' });
         },
         setDisplayPeriod(period) {
+            document.activeElement.blur();
             this.$store.dispatch(actionTypes.SET_DISPLAY_PERIOD, period);
         }
     },
