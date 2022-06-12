@@ -31,6 +31,7 @@ import { Door } from "../models/calendar";
 import { defineComponent } from "@vue/runtime-core";
 import ClosedDoor from "../components/ClosedDoor.vue";
 import OpenDoor from "../components/OpenDoor.vue";
+import { State } from '../store';
 import * as actionTypes from '../store/action-types';
 import { mapState } from "vuex";
 
@@ -38,11 +39,11 @@ export default defineComponent({
     name: "CalendarComponent",
     components: { ClosedDoor, OpenDoor },
     computed: mapState({
-        cal: (state: any) => state.calendar
+        cal: (state: any) => state.userData.calendars[state.displayPeriod]
     }),
     methods: {
         distanceFor(door: Door) {
-            return door.distance * this.$store.state.calendar.settings.distanceFactor;
+            return door.distance * this.$store.state.userData.calendars[this.$store.state.displayPeriod]!.settings.distanceFactor;
         },
         markDone(door: Door) {
             this.$store.dispatch(actionTypes.MARK_DOOR_DONE, door.day)

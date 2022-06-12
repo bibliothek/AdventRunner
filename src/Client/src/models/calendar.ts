@@ -5,6 +5,13 @@ export type Calendar = {
     owner: Owner;
 };
 
+export type UserData = {
+    version: string;
+    calendars: {[key: number]: Calendar};
+    owner: Owner;
+    latestPeriod: number;
+}
+
 export function emptyCalendar(): Calendar {
     return {
         version: "",
@@ -12,6 +19,15 @@ export function emptyCalendar(): Calendar {
         doors: [],
         owner: { name: "" },
     };
+}
+
+export function emptyUserData(): UserData {
+    return {
+        version: "",
+        owner: { name: ""},
+        calendars: { 0 : emptyCalendar()},
+        latestPeriod: 0,
+    }
 }
 
 export type Owner = {
