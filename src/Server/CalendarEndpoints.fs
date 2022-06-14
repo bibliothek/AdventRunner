@@ -1,4 +1,4 @@
-﻿module CalendarController
+﻿module CalendarEndpoints
 
 open System.Security.Claims
 open Microsoft.AspNetCore.Http
@@ -6,9 +6,11 @@ open Giraffe
 open Shared
 open Storage
 open FSharp.Control.Tasks
+open EndpointsHelpers
 
 let migrate (storage: Storage) (userData: UserData) =
     let period = Calendar.currentPeriod ()
+
     if userData.version <> "2.0" then
         let userData =
             Calendar.initUserData userData.owner Settings.initDefault
@@ -21,13 +23,18 @@ let migrate (storage: Storage) (userData: UserData) =
             |> List.sortByDescending fst
             |> List.head
 
-        let newCalendar = Calendar.initCalendar Settings.initDefault
+        let newCalendar =
+            Calendar.initCalendar Settings.initDefault
 
         let userDataWithNewPeriod =
             { userData with
                   latestPeriod = period
                   calendars =
-                      userData.calendars.Add(period, {newCalendar with settings = previousCalendar.settings}) }
+                      userData.calendars.Add(
+                          period,
+                          { newCalendar with
+                                settings = previousCalendar.settings }
+                      ) }
 
         Some(storage.UpdateUserData userDataWithNewPeriod)
     else
@@ -89,6 +96,7 @@ let postHandler next (ctx: HttpContext) =
     json (storage.AddNewUser cal) next ctx
 
 let handlers: HttpFunc -> HttpContext -> HttpFuncResult =
-    choose [ GET >=> route "/api/calendars" >=> getHandler
-             PUT >=> route "/api/calendars" >=> putHandler
-             POST >=> route "/api/calendars" >=> postHandler ]
+    mustBeLoggedIn
+    >=> choose [ GET >=> route "/api/calendars" >=> getHandler
+                 PUT >=> route "/api/calendars" >=> putHandler
+                 POST >=> route "/api/calendars" >=> postHandler ]

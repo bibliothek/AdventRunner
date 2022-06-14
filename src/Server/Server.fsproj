@@ -8,7 +8,9 @@
     <None Include="paket.references" />
     <Compile Include="TokenAuthenticationExtensions.fs" />
     <Compile Include="Storage.fs" />
-    <Compile Include="CalendarController.fs" />
+    <Compile Include="EndpointsHelpers.fs" />
+    <Compile Include="CalendarEndpoints.fs" />
+    <Compile Include="SharedCalendarEndpoints.fs" />
     <Compile Include="Server.fs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,30 +1,21 @@
 module Server
 
-open System.IO
-open System.Security.Claims
-open System.Text
-open Microsoft.AspNetCore.Authentication.JwtBearer
-open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.DependencyInjection
 open Saturn
 open Giraffe
-open Azure.Storage.Blobs
-open Newtonsoft.Json
-open Shared
 open TokenAuthenticationExtensions
 
 open Storage
-
-let notLoggedIn =
-    setStatusCode 403 >=> text "Forbidden"
-
-let mustBeLoggedIn = requiresAuthentication notLoggedIn
 
 let serviceConfig (serviceCollection: IServiceCollection) =
     serviceCollection.AddSingleton<Storage>(fun provider -> Storage())
 
 let webApp =
-    mustBeLoggedIn >=> CalendarController.handlers
+    choose [
+        SharedCalendarEndpoints.handlers
+        CalendarEndpoints.handlers
+    ]
+
 
 let app =
     application {
