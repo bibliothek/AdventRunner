@@ -12,7 +12,7 @@ let serviceConfig (serviceCollection: IServiceCollection) =
 
 let webApp =
     choose [
-        SharedCalendarEndpoints.handlers
+        SharedLinkEndpoints.handlers
         CalendarEndpoints.handlers
     ]
 

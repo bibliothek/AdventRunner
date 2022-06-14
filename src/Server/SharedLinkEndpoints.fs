@@ -1,4 +1,4 @@
-﻿module SharedCalendarEndpoints
+﻿module SharedLinkEndpoints
 
 open Microsoft.AspNetCore.Http
 open Giraffe
