@@ -38,6 +38,7 @@ let private getData<'T> containerName id =
 type UserDataStorage () =
     let containerName = "users"
     let getId owner = owner.name
+
     member __.GetUserData owner =
         getData<UserData> containerName (getId owner)
 
@@ -53,5 +54,13 @@ type UserDataStorage () =
         uploadData containerName (getId userData.owner) userData
         userData
 
+type SharedLinksStorage () =
+    let containerName = "shared-links"
+    let getId sharedLink = sharedLink.id
 
+    member __.UpsertSharedLink sharedLink =
+        uploadData containerName (getId sharedLink) sharedLink
+        sharedLink
 
+    member __.GetSharedLink sharedLinkId =
+        getData<SharedLink> containerName sharedLinkId

@@ -17,6 +17,7 @@ type Settings = { distanceFactor: double; sharedLinkId: SharedLinkId option }
 type SharedLink = {
     id: SharedLinkId
     owner: Owner
+    period: int
 }
 
 type Calendar =

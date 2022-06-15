@@ -8,13 +8,13 @@ open TokenAuthenticationExtensions
 open Storage
 
 let serviceConfig (serviceCollection: IServiceCollection) =
-    serviceCollection.AddSingleton<UserDataStorage>(fun provider -> UserDataStorage())
+    serviceCollection
+        .AddSingleton<UserDataStorage>(fun provider -> UserDataStorage())
+        .AddSingleton<SharedLinksStorage>(fun provider -> SharedLinksStorage())
 
 let webApp =
-    choose [
-        SharedLinkEndpoints.handlers
-        CalendarEndpoints.handlers
-    ]
+    choose [ SharedLinkEndpoints.handlers
+             CalendarEndpoints.handlers ]
 
 
 let app =
