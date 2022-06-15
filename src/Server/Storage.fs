@@ -3,48 +3,54 @@
 open System.IO
 open System.Text
 open Azure.Storage.Blobs
-open Microsoft.Extensions.DependencyInjection
 open Newtonsoft.Json
 open Shared
 
-
-type Storage () =
-    let getContainerClient =
+let private getContainerClient containerName =
         let connectionString = System.Environment.GetEnvironmentVariable "AR_StorageAccount_ConnectionString"
         let blobServiceClient = BlobServiceClient connectionString
-        let containerName = "users"
         blobServiceClient.GetBlobContainerClient containerName
 
-    let getBlobClient owner =
-        let containerClient = getContainerClient
-        containerClient.GetBlobClient (sprintf "%s.json" owner.name)
+let private getBlobClient containerName id =
+        let containerClient = getContainerClient containerName
+        containerClient.GetBlobClient (sprintf "%s.json" id)
 
-    let uploadUserData userData =
-        let serializedCalendar = JsonConvert.SerializeObject userData
-        let blobClient = getBlobClient userData.owner
+let private uploadData containerName id data =
+        let serializedCalendar = JsonConvert.SerializeObject data
+        let blobClient = getBlobClient containerName id
         use stream = new MemoryStream (Encoding.UTF8.GetBytes serializedCalendar)
         blobClient.Upload(stream, true) |> ignore
 
-    member __.GetUserData owner =
-        let blobClient = getBlobClient owner
+let private elementExists containerName id =
+        let blobClient = getBlobClient containerName id
+        blobClient.Exists().Value
+
+let private getData<'T> containerName id =
+        let blobClient = getBlobClient containerName id
         use stream = new MemoryStream()
         blobClient.DownloadTo stream |> ignore
         stream.Position <- 0L
         use reader = new StreamReader(stream, Encoding.UTF8)
         let serializedCalendar = reader.ReadToEnd()
-        let userData = JsonConvert.DeserializeObject<UserData> serializedCalendar
-        userData
+        let data = JsonConvert.DeserializeObject<'T> serializedCalendar
+        data
+
+type UserDataStorage () =
+    let containerName = "users"
+    let getId owner = owner.name
+    member __.GetUserData owner =
+        getData<UserData> containerName (getId owner)
 
     member __.UserExists owner =
-        let blobClient = getBlobClient owner
+        let blobClient = getBlobClient containerName (getId owner)
         blobClient.Exists().Value
 
-    member __.UpdateUserData updatedUserData =
-        uploadUserData updatedUserData
+    member __.UpdateUserData (updatedUserData: UserData) =
+        uploadData containerName (getId updatedUserData.owner) updatedUserData
         updatedUserData
 
     member __.AddNewUser userData =
-        uploadUserData userData
+        uploadData containerName (getId userData.owner) userData
         userData
 
 

@@ -8,7 +8,7 @@ open TokenAuthenticationExtensions
 open Storage
 
 let serviceConfig (serviceCollection: IServiceCollection) =
-    serviceCollection.AddSingleton<Storage>(fun provider -> Storage())
+    serviceCollection.AddSingleton<UserDataStorage>(fun provider -> UserDataStorage())
 
 let webApp =
     choose [

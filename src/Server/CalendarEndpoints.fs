@@ -8,7 +8,7 @@ open Storage
 open FSharp.Control.Tasks
 open EndpointsHelpers
 
-let migrate (storage: Storage) (userData: UserData) =
+let migrate (storage: UserDataStorage) (userData: UserData) =
     let period = Calendar.currentPeriod ()
 
     if userData.version <> "2.0" then
@@ -50,7 +50,7 @@ let getHandler next (ctx: HttpContext) =
             .Value
 
     let (owner: Owner) = { name = ownerName }
-    let storage = ctx.GetService<Storage>()
+    let storage = ctx.GetService<UserDataStorage>()
 
     let cal =
         match (storage.UserExists owner) with
@@ -74,7 +74,7 @@ let putHandler next (ctx: HttpContext) =
         let! userData = ctx.BindJsonAsync<UserData>()
         let (owner: Owner) = { name = ownerName }
         let userDataWithOwner = { userData with owner = owner }
-        let storage = ctx.GetService<Storage>()
+        let storage = ctx.GetService<UserDataStorage>()
         return! json (storage.UpdateUserData userDataWithOwner) next ctx
     }
 
@@ -88,7 +88,7 @@ let postHandler next (ctx: HttpContext) =
             .Value
 
     let (owner: Owner) = { name = ownerName }
-    let storage = ctx.GetService<Storage>()
+    let storage = ctx.GetService<UserDataStorage>()
 
     let cal =
         Calendar.initUserData owner Settings.initDefault
