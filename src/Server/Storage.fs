@@ -25,6 +25,10 @@ let private elementExists containerName id =
         let blobClient = getBlobClient containerName id
         blobClient.Exists().Value
 
+let private delete containerName id =
+    let blobClient = getBlobClient containerName id
+    blobClient.Delete()
+
 let private getData<'T> containerName id =
         let blobClient = getBlobClient containerName id
         use stream = new MemoryStream()
@@ -64,3 +68,6 @@ type SharedLinksStorage () =
 
     member __.GetSharedLink sharedLinkId =
         getData<SharedLink> containerName sharedLinkId
+
+    member __.DeleteSharedLink sharedLinkId =
+        delete containerName sharedLinkId

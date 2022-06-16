@@ -1,6 +1,5 @@
 ﻿module CalendarEndpoints
 
-open System.Security.Claims
 open Microsoft.AspNetCore.Http
 open Giraffe
 open Shared
@@ -41,15 +40,7 @@ let migrate (storage: UserDataStorage) (userData: UserData) =
         None
 
 let getHandler next (ctx: HttpContext) =
-    let ownerName =
-        ctx
-            .User
-            .FindFirst(
-                ClaimTypes.NameIdentifier
-            )
-            .Value
-
-    let (owner: Owner) = { name = ownerName }
+    let owner = getUser ctx
     let storage = ctx.GetService<UserDataStorage>()
 
     let cal =
@@ -63,31 +54,15 @@ let getHandler next (ctx: HttpContext) =
 
 let putHandler next (ctx: HttpContext) =
     task {
-        let ownerName =
-            ctx
-                .User
-                .FindFirst(
-                    ClaimTypes.NameIdentifier
-                )
-                .Value
-
+        let owner = getUser ctx
         let! userData = ctx.BindJsonAsync<UserData>()
-        let (owner: Owner) = { name = ownerName }
         let userDataWithOwner = { userData with owner = owner }
         let storage = ctx.GetService<UserDataStorage>()
         return! json (storage.UpdateUserData userDataWithOwner) next ctx
     }
 
 let postHandler next (ctx: HttpContext) =
-    let ownerName =
-        ctx
-            .User
-            .FindFirst(
-                ClaimTypes.NameIdentifier
-            )
-            .Value
-
-    let (owner: Owner) = { name = ownerName }
+    let owner = getUser ctx
     let storage = ctx.GetService<UserDataStorage>()
 
     let cal =
