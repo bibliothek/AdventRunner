@@ -72,10 +72,9 @@ let postHandler next (ctx: HttpContext) =
         let updatedUserData =
             getUpdatedSharedLinkInUserData userData (Some sharedLinkId) sharedLinkPostRequest.period
 
-        userDataStorage.UpdateUserData updatedUserData
-        |> ignore
+        linkStorage.UpsertSharedLink sharedLink |> ignore
 
-        return! json (linkStorage.UpsertSharedLink sharedLink) next ctx
+        return! json (userDataStorage.UpdateUserData updatedUserData) next ctx
     }
 
 

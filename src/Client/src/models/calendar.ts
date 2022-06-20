@@ -1,3 +1,5 @@
+import {FOption} from "./fsharp-helpers";
+
 export type Calendar = {
     version: string;
     settings: Settings;
@@ -7,10 +9,12 @@ export type Calendar = {
 
 export type UserData = {
     version: string;
-    calendars: {[key: number]: Calendar};
+    calendars: { [key: number]: Calendar };
     owner: Owner;
     latestPeriod: number;
-}
+};
+
+export type SharedLinkPostRequest = { period: number };
 
 export function emptyCalendar(): Calendar {
     return {
@@ -24,10 +28,10 @@ export function emptyCalendar(): Calendar {
 export function emptyUserData(): UserData {
     return {
         version: "",
-        owner: { name: ""},
-        calendars: { 0 : emptyCalendar()},
+        owner: { name: "" },
+        calendars: { 0: emptyCalendar() },
         latestPeriod: 0,
-    }
+    };
 }
 
 export type Owner = {
@@ -48,4 +52,5 @@ export type DoorStateCase = "Closed" | "Open" | "Done" | "Failed";
 
 export type Settings = {
     distanceFactor: number;
+    sharedLinkId?: FOption<string>;
 };

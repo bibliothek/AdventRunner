@@ -13,6 +13,14 @@
           <option value="2">Double it</option>
         </select>
       </div>
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Shareable link</span>
+        </label>
+        <input type="checkbox" class="toggle" v-model="hasShareableLink" />
+
+
+      </div>
     </div>
   </div>
   <button @click="resetCalendar" class="btn btn-error btn-outline border-error text-error mt-5">Reset Calendar</button>
@@ -32,6 +40,7 @@ import * as actionTypes from '../store/action-types';
 import {
     defineComponent,
 } from "@vue/runtime-core";
+import {IsSome} from "../models/fsharp-helpers";
 
 export default defineComponent({
     name: "SettingsComponent",
@@ -47,7 +56,19 @@ export default defineComponent({
                 }
                 this.$store.dispatch(actionTypes.SET_SCALE_FACTOR, value)
             }
-        }
+        },
+        hasShareableLink: {
+            get() {
+                return !!this.$store.getters.displayCalendar.settings.sharedLinkId && IsSome(this.$store.getters.displayCalendar.settings.sharedLinkId);
+            },
+            set(value: boolean) {
+                if(value){
+                    this.$store.dispatch(actionTypes.ENABLE_SHARED_LINK);
+                } else {
+                    this.$store.dispatch(actionTypes.DISABLE_SHARED_LINK);
+                }
+            }
+        },
     },
     methods: {
         resetCalendar() {
@@ -58,4 +79,5 @@ export default defineComponent({
         this.$store.dispatch(actionTypes.GET_CALENDAR)
     }
 })
+
 </script>
