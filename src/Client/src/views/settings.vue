@@ -40,7 +40,6 @@
                 <label class="">Resets the entire calendar and it's data!</label>
             </div>
         </div>
-        <button class="btn">Button</button>
     </div>
 </template>
 
