@@ -21,7 +21,11 @@
                     <div class="" v-if="hasShareableLink">
                         <a class="link link-hover" :href="sharedLinkValue">{{ sharedLinkValue }}</a>
                         <span>&nbsp;</span>
-                        <button class="btn btn-ghost" @click="copyLinkToClipboard" ><font-awesome-icon icon="fas fa-copy" /></button>
+                        <div class="tooltip" :data-tip="copyToClipboardTooltip" v-on:mouseenter="resetClipboardTooltip">
+                            <button class="btn btn-ghost" @click="copyLinkToClipboard">
+                                <font-awesome-icon icon="fas fa-copy" />
+                            </button>
+                        </div>
                     </div>
                     <div class="" v-else>Create link for sharing</div>
                 </div>
@@ -53,6 +57,11 @@ import { mapGetters } from 'vuex';
 
 export default defineComponent({
     name: "SettingsComponent",
+    data() {
+        return {
+            "copyToClipboardTooltip": "Copy to clipboard",
+        }
+    },
     computed: {
         ...mapGetters(['sharedLinkValue']),
         selectedFactor: {
@@ -87,7 +96,12 @@ export default defineComponent({
         },
         async copyLinkToClipboard() {
             await navigator.clipboard.writeText(this.sharedLinkValue);
-        }
+            this.copyToClipboardTooltip = "Copied!";
+        },
+        resetClipboardTooltip() {
+            this.copyToClipboardTooltip = "Copy to clipboard";
+        },
+
     },
     mounted() {
         this.$store.dispatch(actionTypes.GET_CALENDAR)
