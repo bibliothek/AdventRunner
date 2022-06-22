@@ -1,5 +1,4 @@
 <template>
-  <button @click="$emit('opened')">
     <div
       class="
         m-2
@@ -33,7 +32,6 @@
         </svg>
       </div>
     </div>
-  </button>
 </template>
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
@@ -41,7 +39,6 @@ import { Options, Vue } from "vue-class-component";
   props: {
     day: Number,
   },
-  emits: ['opened']
 })
 export default class ClosedDoor extends Vue {
     day!: number;

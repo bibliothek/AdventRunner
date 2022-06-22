@@ -177,7 +177,7 @@ export const store = createStore({
         },
         sharedLinkValue: (state: State) => {
             const linkId = state.userData.calendars[state.displayPeriod].settings.sharedLinkId?.fields[0];
-            return `https://${window.location.host}/s/${linkId}`;
+            return `${window.location.protocol}//${window.location.host}/#/s/${linkId}`;
         },
     },
 });

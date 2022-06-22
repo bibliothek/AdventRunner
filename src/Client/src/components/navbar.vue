@@ -45,11 +45,11 @@ export default {
             this.Auth.logout();
         },
         goToCalendar() {
-            this.$router.push({ path: 'calendar' });
+            this.$router.push({ path: '/calendar' });
         },
         goToSettings() {
             document.activeElement.blur();
-            this.$router.push({ path: 'settings' });
+            this.$router.push({ path: '/settings' });
         },
         setDisplayPeriod(period) {
             document.activeElement.blur();
