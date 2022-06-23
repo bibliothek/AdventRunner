@@ -29,6 +29,7 @@ type UserData =
     {
        version: string
        owner: Owner
+       displayName: string option
        calendars: Map<int, Calendar>
        latestPeriod: int
     }
@@ -65,4 +66,5 @@ module Calendar =
         { owner = owner
           version = "2.0"
           calendars = Map [(period, (initCalendar settings))]
-          latestPeriod = period}
+          latestPeriod = period
+          displayName = None}

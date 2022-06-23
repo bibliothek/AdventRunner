@@ -8,6 +8,10 @@ import {
     SharedLinkPostRequest,
     UserData,
 } from "../models/calendar";
+import {
+    getSome,
+    isSome
+} from '../models/fsharp-helpers';
 import * as actionTypes from "./action-types";
 import * as mutationTypes from "./mutation-types.";
 
@@ -168,6 +172,9 @@ export const store = createStore({
         },
         displayPeriod: (state: State) => {
             return state.displayPeriod;
+        },
+        displayName: (state: State) => {
+          return isSome(state.userData.displayName) ? getSome(state.userData.displayName) : ""
         },
         latestPeriod: (state: State) => {
             return state.userData.latestPeriod;
