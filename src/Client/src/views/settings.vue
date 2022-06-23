@@ -2,7 +2,14 @@
     <div>
         <div class="card max-w-xl border-2 border-base-300">
             <div class="card-body">
+
                 <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Display name</span>
+                    </label>
+                    <input type="text" placeholder="Your name" class="input w-full max-w-xs input-bordered" v-model="displayName" />
+                </div>
+                <div class="form-control mt-8">
                     <label class="label">
                         <span class="label-text">Distance</span>
                     </label>
@@ -52,14 +59,15 @@ import * as actionTypes from '../store/action-types';
 import {
     defineComponent,
 } from "@vue/runtime-core";
-import { IsSome } from "../models/fsharp-helpers";
+import { isSome } from "../models/fsharp-helpers";
 import { mapGetters } from 'vuex';
 
 export default defineComponent({
     name: "SettingsComponent",
     data() {
         return {
-            "copyToClipboardTooltip": "Copy to clipboard",
+            copyToClipboardTooltip: "Copy to clipboard",
+            typingTimer: setTimeout(() => {},0),
         }
     },
     computed: {
@@ -76,9 +84,21 @@ export default defineComponent({
                 this.$store.dispatch(actionTypes.SET_SCALE_FACTOR, value)
             }
         },
+        displayName: {
+          get() {
+              return this.$store.state.userData.displayName;
+          },
+          set() {
+            clearTimeout(this.typingTimer);
+            this.typingTimer = setTimeout(() => {
+                console.log("done")
+            }, 500);
+
+          }
+        },
         hasShareableLink: {
             get() {
-                return !!this.$store.getters.displayCalendar.settings.sharedLinkId && IsSome(this.$store.getters.displayCalendar.settings.sharedLinkId);
+                return !!this.$store.getters.displayCalendar.settings.sharedLinkId && isSome(this.$store.getters.displayCalendar.settings.sharedLinkId);
             },
             set(value: boolean) {
                 if (value) {
