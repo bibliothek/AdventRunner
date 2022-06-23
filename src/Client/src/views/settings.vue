@@ -1,6 +1,6 @@
 ﻿<template>
     <div>
-        <div class="card max-w-lg border-2 border-base-300">
+        <div class="card max-w-xl border-2 border-base-300">
             <div class="card-body">
                 <div class="form-control">
                     <label class="label">
