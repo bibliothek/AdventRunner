@@ -3,7 +3,9 @@
         <div class="flex-grow"></div>
         <div class="flex flex-row flex-wrap max-w-6xl justify-center">
             <div class="w-auto" v-for="door in cal.doors" :key="door.day">
-                <ClosedDoor v-if="door.state.case === 'Closed'" :day="door.day" @opened="markOpen(door)" />
+                <button v-if="door.state.case === 'Closed'" @click="markOpen(door)">
+                    <ClosedDoor :day="door.day" />
+                </button>
                 <button v-if="door.state.case === 'Open'" @click="markDone(door)">
                     <OpenDoor :day="door.day" :isDone="false" :distance="distanceFor(door)" />
                 </button>

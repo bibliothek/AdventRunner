@@ -1,14 +1,15 @@
-﻿module CalendarController
+﻿module CalendarEndpoints
 
-open System.Security.Claims
 open Microsoft.AspNetCore.Http
 open Giraffe
 open Shared
 open Storage
 open FSharp.Control.Tasks
+open EndpointsHelpers
 
-let migrate (storage: Storage) (userData: UserData) =
+let migrate (storage: UserDataStorage) (userData: UserData) =
     let period = Calendar.currentPeriod ()
+
     if userData.version <> "2.0" then
         let userData =
             Calendar.initUserData userData.owner Settings.initDefault
@@ -21,29 +22,26 @@ let migrate (storage: Storage) (userData: UserData) =
             |> List.sortByDescending fst
             |> List.head
 
-        let newCalendar = Calendar.initCalendar Settings.initDefault
+        let newCalendar =
+            Calendar.initCalendar Settings.initDefault
 
         let userDataWithNewPeriod =
             { userData with
                   latestPeriod = period
                   calendars =
-                      userData.calendars.Add(period, {newCalendar with settings = previousCalendar.settings}) }
+                      userData.calendars.Add(
+                          period,
+                          { newCalendar with
+                                settings = previousCalendar.settings }
+                      ) }
 
         Some(storage.UpdateUserData userDataWithNewPeriod)
     else
         None
 
 let getHandler next (ctx: HttpContext) =
-    let ownerName =
-        ctx
-            .User
-            .FindFirst(
-                ClaimTypes.NameIdentifier
-            )
-            .Value
-
-    let (owner: Owner) = { name = ownerName }
-    let storage = ctx.GetService<Storage>()
+    let owner = getUser ctx
+    let storage = ctx.GetService<UserDataStorage>()
 
     let cal =
         match (storage.UserExists owner) with
@@ -56,32 +54,27 @@ let getHandler next (ctx: HttpContext) =
 
 let putHandler next (ctx: HttpContext) =
     task {
-        let ownerName =
-            ctx
-                .User
-                .FindFirst(
-                    ClaimTypes.NameIdentifier
-                )
-                .Value
-
+        let owner = getUser ctx
         let! userData = ctx.BindJsonAsync<UserData>()
-        let (owner: Owner) = { name = ownerName }
         let userDataWithOwner = { userData with owner = owner }
-        let storage = ctx.GetService<Storage>()
+        let storage = ctx.GetService<UserDataStorage>()
         return! json (storage.UpdateUserData userDataWithOwner) next ctx
     }
 
 let postHandler next (ctx: HttpContext) =
-    let ownerName =
-        ctx
-            .User
-            .FindFirst(
-                ClaimTypes.NameIdentifier
-            )
-            .Value
+    let owner = getUser ctx
+    let storage = ctx.GetService<UserDataStorage>()
+    let linkStorage = ctx.GetService<SharedLinksStorage>()
+    let oldCal = storage.GetUserData owner
 
-    let (owner: Owner) = { name = ownerName }
-    let storage = ctx.GetService<Storage>()
+    let sharedLinks =
+        oldCal.calendars
+        |> Map.toList
+        |> List.map (fun x -> (x |> snd).settings.sharedLinkId)
+        |> List.choose id
+
+    sharedLinks
+    |> List.iter (fun x -> linkStorage.DeleteSharedLink x |> ignore)
 
     let cal =
         Calendar.initUserData owner Settings.initDefault
@@ -89,6 +82,7 @@ let postHandler next (ctx: HttpContext) =
     json (storage.AddNewUser cal) next ctx
 
 let handlers: HttpFunc -> HttpContext -> HttpFuncResult =
-    choose [ GET >=> route "/api/calendars" >=> getHandler
-             PUT >=> route "/api/calendars" >=> putHandler
-             POST >=> route "/api/calendars" >=> postHandler ]
+    mustBeLoggedIn
+    >=> choose [ GET >=> route "/api/calendars" >=> getHandler
+                 PUT >=> route "/api/calendars" >=> putHandler
+                 POST >=> route "/api/calendars" >=> postHandler ]

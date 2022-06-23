@@ -8,6 +8,10 @@ import {
     store
 } from "./store";
 
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faCopy } from '@fortawesome/free-solid-svg-icons'
+
 async function init() {
 
 
@@ -24,8 +28,13 @@ async function init() {
         audience: 'AdventRunner',
         redirectUri: window.location.origin + '/#/calendar',
     });
+
+    library.add(faCopy)
+
+
     const app = createApp(App);
     app
+        .component('font-awesome-icon', FontAwesomeIcon)
         .use(AuthPlugin)
         .use(router)
         .use(store)

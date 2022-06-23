@@ -4,11 +4,12 @@
             <a class="btn btn-ghost normal-case text-primary text-2xl" @click="goToCalendar">Adventrunner</a>
         </div>
         <div class="flex-none" v-if="isAuthenticated">
-            <div class="dropdown dropdown-end">
+            <div class="dropdown dropdown-end" v-if="!isSharedCalendarView">
                 <label tabindex="0" class="btn btn-ghost normal-case">{{ displayPeriod }}</label>
                 <ul tabindex="0" class="menu  dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box">
                     <li v-for="period in periods"><a @click="setDisplayPeriod(period)">{{ period }}<span
-                                v-if="period == latestPeriod" class="text-xs text-neutral">&nbsp;(current)</span></a></li>
+                                v-if="period == latestPeriod" class="text-xs text-neutral">&nbsp;(current)</span></a>
+                    </li>
                 </ul>
             </div>
             <div class="dropdown dropdown-end">
@@ -30,6 +31,7 @@
 import { inject } from 'vue';
 import * as actionTypes from '../store/action-types';
 import { mapGetters } from "vuex";
+import { sharedCalendarRoute } from '../router/router'
 export default {
     data() {
         return {};
@@ -37,6 +39,9 @@ export default {
     computed: {
         ...mapGetters(['periods', 'displayPeriod', 'latestPeriod']
         ),
+        isSharedCalendarView() {
+            return this.$route.name === sharedCalendarRoute;
+        },
     },
     inject: ["Auth"],
     methods: {
@@ -45,11 +50,11 @@ export default {
             this.Auth.logout();
         },
         goToCalendar() {
-            this.$router.push({ path: 'calendar' });
+            this.$router.push({ path: '/calendar' });
         },
         goToSettings() {
             document.activeElement.blur();
-            this.$router.push({ path: 'settings' });
+            this.$router.push({ path: '/settings' });
         },
         setDisplayPeriod(period) {
             document.activeElement.blur();

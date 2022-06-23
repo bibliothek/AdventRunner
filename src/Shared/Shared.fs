@@ -10,8 +10,15 @@ type CalendarDoor =
       state: DoorState }
 
 type Owner = { name: string }
+type SharedLinkId = string
 
-type Settings = { distanceFactor: double }
+type Settings = { distanceFactor: double; sharedLinkId: SharedLinkId option }
+
+type SharedLink = {
+    id: SharedLinkId
+    owner: Owner
+    period: int
+}
 
 type Calendar =
     { settings: Settings
@@ -27,7 +34,7 @@ type UserData =
     }
 
 module Settings =
-    let init factor = { distanceFactor = factor }
+    let init factor = { distanceFactor = factor; sharedLinkId = None}
 
     let initDefault = init 1.0
 
@@ -59,12 +66,3 @@ module Calendar =
           version = "2.0"
           calendars = Map [(period, (initCalendar settings))]
           latestPeriod = period}
-
-
-module Route =
-    let builder typeName methodName = sprintf "/api/%s/%s" typeName methodName
-
-type IAdventRunApi =
-    { createCalendar: Owner -> Async<Calendar>
-      getCalendar: Owner -> Async<Calendar>
-      updateCalendar: Calendar -> Async<Calendar> }
