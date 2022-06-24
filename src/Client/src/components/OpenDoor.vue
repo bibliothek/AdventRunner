@@ -23,7 +23,7 @@
       <div class="flex-grow"></div>
     </div>
     <div class="hidden md:block">
-      <div class="font-bold text-primary-focus pt-2" v-if="!isDone">
+      <div class="font-bold text-primary-focus pt-2" v-if="!isDone && showButtonIndicator">
         Done
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -39,7 +39,7 @@
           ></path>
         </svg>
       </div>
-      <div class="font text-primary-content pt-2" v-else>Done🎉</div>
+      <div class="font text-primary-content pt-2" v-if="isDone">Done🎉</div>
     </div>
   </div>
 </template>
@@ -50,12 +50,14 @@ import { Options, Vue } from "vue-class-component";
     day: Number,
     distance: Number,
     isDone: Boolean,
+    showButtonIndicator: Boolean,
   },
 })
 export default class ClosedDoor extends Vue {
   day!: number;
   distance!: number;
   isDone!: boolean;
+  showButtonIndicator = false;
 
   getCardStyle(): string {
     if (this.isDone!) {

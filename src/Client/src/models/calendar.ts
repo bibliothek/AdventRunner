@@ -1,4 +1,7 @@
-import {FOption} from "./fsharp-helpers";
+import {
+    FOption,
+    None
+} from "./fsharp-helpers";
 
 export type Calendar = {
     version: string;
@@ -11,10 +14,12 @@ export type UserData = {
     version: string;
     calendars: { [key: number]: Calendar };
     owner: Owner;
+    displayName: FOption<string>;
     latestPeriod: number;
 };
 
 export type SharedLinkPostRequest = { period: number };
+export type SharedLinkResponse = {calendar: Calendar; period: number; displayName: FOption<string>}
 
 export function emptyCalendar(): Calendar {
     return {
@@ -31,6 +36,7 @@ export function emptyUserData(): UserData {
         owner: { name: "" },
         calendars: { 0: emptyCalendar() },
         latestPeriod: 0,
+        displayName: None<string>()
     };
 }
 

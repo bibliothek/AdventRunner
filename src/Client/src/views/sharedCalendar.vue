@@ -1,13 +1,20 @@
 <template>
     <div class="flex flex-row">
         <div class="flex-grow"></div>
-        <div class="flex flex-row flex-wrap max-w-6xl justify-center">
-            <div class="w-auto" v-for="door in cal.doors" :key="door.day">
-                <ClosedDoor v-if="door.state.case === 'Closed'" :day="door.day" />
-                <OpenDoor v-if="door.state.case === 'Open'" :day="door.day" :isDone="false"
-                    :distance="distanceFor(door)" />
-                <OpenDoor v-if="door.state.case === 'Done'" :day="door.day" :isDone="true"
-                    :distance="distanceFor(door)" />
+        <div class="flex flex-col">
+            <div class="mb-4 text-center" v-if="displayName.length > 0">
+                <div class="text-2xl font-semibold text-content">{{ displayName }}</div>
+                <div class="text-md font-light"> in {{ period }}</div>
+            </div>
+            <div class="flex-grow-1"></div>
+            <div class="flex flex-row flex-wrap max-w-6xl justify-center">
+                <div class="w-auto" v-for="door in cal.doors" :key="door.day">
+                    <ClosedDoor v-if="door.state.case === 'Closed'" :day="door.day" />
+                    <OpenDoor v-if="door.state.case === 'Open'" :day="door.day" :isDone="false"
+                        :distance="distanceFor(door)" />
+                    <OpenDoor v-if="door.state.case === 'Done'" :day="door.day" :isDone="true"
+                        :distance="distanceFor(door)" />
+                </div>
             </div>
         </div>
         <div class="flex-grow"></div>
@@ -15,19 +22,22 @@
 </template>
 
 <script lang="ts">
-import { Calendar, Door, emptyCalendar } from "../models/calendar";
+import { Calendar, Door, emptyCalendar, SharedLinkResponse } from "../models/calendar";
 
 import { defineComponent } from "@vue/runtime-core";
 import ClosedDoor from "../components/ClosedDoor.vue";
 import OpenDoor from "../components/OpenDoor.vue";
 import axios from "axios";
+import { getSome, isSome } from "../models/fsharp-helpers";
 
 export default defineComponent({
     name: "SharedCalendarComponent",
     components: { ClosedDoor, OpenDoor },
     data() {
         return {
-            cal: emptyCalendar()
+            cal: emptyCalendar(),
+            displayName: "",
+            period: 0
         };
     },
     methods: {
@@ -37,8 +47,10 @@ export default defineComponent({
     },
     async mounted() {
         const id = this.$route.params['id'];
-        const response = await axios.get<Calendar>("/api/sharedCalendars/" + id);
-        this.cal = response.data;
+        const response = await axios.get<SharedLinkResponse>("/api/sharedCalendars/" + id);
+        this.cal = response.data.calendar;
+        this.displayName = isSome(response.data.displayName) ? getSome(response.data.displayName) : "";
+        this.period = response.data.period;
     }
 })
 

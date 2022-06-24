@@ -29,9 +29,18 @@ type UserData =
     {
        version: string
        owner: Owner
+       displayName: string option
        calendars: Map<int, Calendar>
        latestPeriod: int
     }
+
+
+type SharedLinkPostRequest = { period: int }
+type SharedLinkResponse = {
+    displayName: string option
+    calendar: Calendar
+    period: int
+}
 
 module Settings =
     let init factor = { distanceFactor = factor; sharedLinkId = None}
@@ -65,4 +74,5 @@ module Calendar =
         { owner = owner
           version = "2.0"
           calendars = Map [(period, (initCalendar settings))]
-          latestPeriod = period}
+          latestPeriod = period
+          displayName = None}

@@ -8,6 +8,11 @@ import {
     SharedLinkPostRequest,
     UserData,
 } from "../models/calendar";
+import {
+    getSome,
+    isSome,
+    Some
+} from '../models/fsharp-helpers';
 import * as actionTypes from "./action-types";
 import * as mutationTypes from "./mutation-types.";
 
@@ -34,6 +39,9 @@ const mutations = {
         state.userData.calendars[state.displayPeriod]!.doors[
             day - 1
         ].state.case = "Done";
+    },
+    [mutationTypes.SET_DISPLAY_NAME](state: State, displayName: string) {
+        state.userData.displayName = Some<string>(displayName)
     },
     [mutationTypes.SET_CALENDAR](state: State, calendar: Calendar) {
         state.userData.calendars[state.displayPeriod] = calendar;
@@ -79,6 +87,10 @@ const actions = {
         day: number
     ) {
         context.commit(mutationTypes.MARK_DOOR_DONE, day);
+        await context.dispatch(actionTypes.SET_CALENDAR);
+    },
+    async [actionTypes.SET_DISPLAY_NAME](context: ActionContext<State,State>, displayName: string){
+        context.commit(mutationTypes.SET_DISPLAY_NAME, displayName);
         await context.dispatch(actionTypes.SET_CALENDAR);
     },
     async [actionTypes.SET_SCALE_FACTOR](
@@ -168,6 +180,9 @@ export const store = createStore({
         },
         displayPeriod: (state: State) => {
             return state.displayPeriod;
+        },
+        displayName: (state: State) => {
+          return isSome(state.userData.displayName) ? getSome(state.userData.displayName) : ""
         },
         latestPeriod: (state: State) => {
             return state.userData.latestPeriod;
