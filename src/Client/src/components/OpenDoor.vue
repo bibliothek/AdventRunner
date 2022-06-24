@@ -53,7 +53,7 @@ import { Options, Vue } from "vue-class-component";
     showButtonIndicator: Boolean,
   },
 })
-export default class ClosedDoor extends Vue {
+export default class OpenDoor extends Vue {
   day!: number;
   distance!: number;
   isDone!: boolean;

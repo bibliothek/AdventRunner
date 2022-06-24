@@ -12,7 +12,7 @@
         bg-neutral
         text-neutral-content
       ">
-        <div class="text-2xl md:text-4xl " :class="paddingTopDay">{{ day }}</div>
+        <div class="text-2xl md:text-4xl " :class="paddingTopDay()">{{ day }}</div>
         <div class="hidden md:block font-bold pt-10" v-if="showButtonIndicator">
             Open
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -23,17 +23,19 @@
     </div>
 </template>
 <script lang="ts">
-import { defineComponent } from "vue";
-export default defineComponent({
-    name: "ClosedDoorComponent",
+import { Options, Vue } from "vue-class-component";
+@Options({
     props: {
         day: Number,
         showButtonIndicator: Boolean,
     },
-    computed: {
-        paddingTopDay() {
-            return this.showButtonIndicator ? "pt-2 md:pt-8" : "pt-2 md:pt-14";
-        }
-    }
 })
+export default class ClosedDoor extends Vue {
+    day!: number;
+    showButtonIndicator = false;
+
+    paddingTopDay() {
+        return this.showButtonIndicator ? "pt-2 md:pt-8" : "pt-2 md:pt-14";
+    }
+}
 </script>
