@@ -1,14 +1,20 @@
 <template>
     <div class="flex flex-row">
         <div class="flex-grow"></div>
-        <h2 v-if="displayName.length > 0">{{displayName}} in {{period}}</h2>
-        <div class="flex flex-row flex-wrap max-w-6xl justify-center">
-            <div class="w-auto" v-for="door in cal.doors" :key="door.day">
-                <ClosedDoor v-if="door.state.case === 'Closed'" :day="door.day" />
-                <OpenDoor v-if="door.state.case === 'Open'" :day="door.day" :isDone="false"
-                    :distance="distanceFor(door)" />
-                <OpenDoor v-if="door.state.case === 'Done'" :day="door.day" :isDone="true"
-                    :distance="distanceFor(door)" />
+        <div class="flex flex-col">
+            <div class="mb-4 text-center" v-if="displayName.length > 0">
+                <div class="text-2xl font-semibold text-content">{{ displayName }}</div>
+                <div class="text-md font-light"> in {{ period }}</div>
+            </div>
+            <div class="flex-grow-1"></div>
+            <div class="flex flex-row flex-wrap max-w-6xl justify-center">
+                <div class="w-auto" v-for="door in cal.doors" :key="door.day">
+                    <ClosedDoor v-if="door.state.case === 'Closed'" :day="door.day" />
+                    <OpenDoor v-if="door.state.case === 'Open'" :day="door.day" :isDone="false"
+                        :distance="distanceFor(door)" />
+                    <OpenDoor v-if="door.state.case === 'Done'" :day="door.day" :isDone="true"
+                        :distance="distanceFor(door)" />
+                </div>
             </div>
         </div>
         <div class="flex-grow"></div>
