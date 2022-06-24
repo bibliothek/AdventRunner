@@ -19,6 +19,7 @@ export type UserData = {
 };
 
 export type SharedLinkPostRequest = { period: number };
+export type SharedLinkResponse = {calendar: Calendar; period: number; displayName: FOption<string>}
 
 export function emptyCalendar(): Calendar {
     return {

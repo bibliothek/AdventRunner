@@ -17,9 +17,9 @@ let getHandler (id: string) next (ctx: HttpContext) =
     let userData =
         userDataStorage.GetUserData sharedLink.owner
 
-    let cal = userData.calendars.[sharedLink.period]
+    let response: SharedLinkResponse = { calendar = userData.calendars.[sharedLink.period]; displayName = userData.displayName; period = sharedLink.period}
 
-    json cal next ctx
+    json response next ctx
 
 let getUpdatedSharedLinkInUserData userData sharedLinkOption period =
     let calendarToUpdate = userData.calendars.[period]
@@ -51,15 +51,13 @@ let deleteHandler (id: string) next (ctx: HttpContext) =
     ctx.SetStatusCode 204
     next ctx
 
-type SharedLinkPostRequest = { period: int }
-
 let postHandler next (ctx: HttpContext) =
     task {
         let linkStorage = ctx.GetService<SharedLinksStorage>()
         let userDataStorage = ctx.GetService<UserDataStorage>()
         let owner = getUser ctx
 
-        let! sharedLinkPostRequest = ctx.BindJsonAsync<SharedLinkPostRequest>()
+        let! sharedLinkPostRequest = ctx.BindJsonAsync<Shared.SharedLinkPostRequest>()
         let sharedLinkId = (Guid.NewGuid() |> ShortGuid.fromGuid)
 
         let sharedLink =

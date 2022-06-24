@@ -34,6 +34,14 @@ type UserData =
        latestPeriod: int
     }
 
+
+type SharedLinkPostRequest = { period: int }
+type SharedLinkResponse = {
+    displayName: string option
+    calendar: Calendar
+    period: int
+}
+
 module Settings =
     let init factor = { distanceFactor = factor; sharedLinkId = None}
 
