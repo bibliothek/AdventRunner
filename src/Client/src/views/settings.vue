@@ -86,12 +86,12 @@ export default defineComponent({
         },
         displayName: {
           get() {
-              return this.$store.state.userData.displayName;
+              return this.$store.getters.displayName;
           },
-          set() {
+          set(val: string) {
             clearTimeout(this.typingTimer);
             this.typingTimer = setTimeout(() => {
-                console.log("done")
+                this.$store.dispatch(actionTypes.SET_DISPLAY_NAME, val)
             }, 500);
 
           }

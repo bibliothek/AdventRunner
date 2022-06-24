@@ -9,6 +9,10 @@ export function None<T>() : FOption<T> {
     return {case: "None", fields: []}
 }
 
+export function Some<T>(v: T)  : FOption<T> {
+    return {case: "Some", fields: [v]}
+}
+
 export function isSome(option: FOption<any>): boolean {
     if(!option) {
         return false;
