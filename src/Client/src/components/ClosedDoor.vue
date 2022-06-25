@@ -23,19 +23,22 @@
     </div>
 </template>
 <script lang="ts">
-import { Options, Vue } from "vue-class-component";
-@Options({
+
+
+import { defineComponent } from "vue";
+
+export default defineComponent({
+    name: "OpenDoorComponent",
     props: {
         day: Number,
         showButtonIndicator: Boolean,
     },
-})
-export default class ClosedDoor extends Vue {
-    day!: number;
-    showButtonIndicator = false;
+    methods: {
 
-    paddingTopDay() {
-        return this.showButtonIndicator ? "pt-2 md:pt-8" : "pt-2 md:pt-14";
+        paddingTopDay() {
+            return this.showButtonIndicator ? "pt-2 md:pt-8" : "pt-2 md:pt-14";
+        }
     }
-}
+});
+
 </script>
