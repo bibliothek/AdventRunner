@@ -25,9 +25,10 @@
                         <span class="label-text">Shareable link</span>
                     </label>
                     <input type="checkbox" class="toggle" v-model="hasShareableLink" />
-                    <div class="" v-if="hasShareableLink">
-                        <a class="link link-hover" :href="sharedLinkValue">{{ sharedLinkValue }}</a>
-                        <span>&nbsp;</span>
+                    <div class="flex items-center border-2 rounded my-2 px-2" v-if="hasShareableLink">
+                        <div class="w-4/5 flex-grow">
+                            <a class="link link-hover block truncate" :href="sharedLinkValue">{{ sharedLinkValue }}</a>
+                        </div>
                         <div class="tooltip" :data-tip="copyToClipboardTooltip" v-on:mouseenter="resetClipboardTooltip">
                             <button class="btn btn-ghost" @click="copyLinkToClipboard">
                                 <font-awesome-icon icon="fas fa-copy" />
