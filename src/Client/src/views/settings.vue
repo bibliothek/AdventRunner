@@ -7,13 +7,20 @@
                     <label class="label">
                         <span class="label-text">Display name</span>
                     </label>
-                    <input type="text" placeholder="Your name" class="input w-full max-w-xs input-bordered" v-model="displayName" />
+                    <div class="flex items-center">
+                        <input type="text" placeholder="Your name" class="input w-4/5 max-w-xs input-bordered"
+                            v-model="displayName" />
+                        <font-awesome-icon
+                            icon="fa-solid fa-spinner" class="animate-spin m-4" :class="displayNameProgressIconDisplay" />
+                        <font-awesome-icon
+                            icon="far fa-check-square" class="m-4 text-success" :class="displayNameDoneIconDisplay" />
+                    </div>
                 </div>
                 <div class="form-control mt-8">
                     <label class="label">
                         <span class="label-text">Distance</span>
                     </label>
-                    <select class="select select-bordered w-full max-w-xs" v-model="selectedFactor">
+                    <select class="select select-bordered w-4/5 max-w-xs" v-model="selectedFactor">
                         <option>Chose you preferred dinstance</option>
                         <option value="1">Normal</option>
                         <option value="0.5">Half it</option>
@@ -25,7 +32,7 @@
                         <span class="label-text">Shareable link</span>
                     </label>
                     <input type="checkbox" class="toggle" v-model="hasShareableLink" />
-                    <div class="flex items-center border-2 rounded my-2 px-2" v-if="hasShareableLink">
+                    <div class="flex items-center border-2 bg-gray-50 rounded my-2 px-2" v-if="hasShareableLink">
                         <div class="w-4/5 flex-grow">
                             <a class="link link-hover block truncate" :href="sharedLinkValue">{{ sharedLinkValue }}</a>
                         </div>
@@ -68,7 +75,9 @@ export default defineComponent({
     data() {
         return {
             copyToClipboardTooltip: "Copy to clipboard",
-            typingTimer: setTimeout(() => {},0),
+            typingTimer: setTimeout(() => { }, 0),
+            displayNameProgressIconDisplay: "hidden",
+            displayNameDoneIconDisplay: "hidden",
         }
     },
     computed: {
@@ -86,16 +95,21 @@ export default defineComponent({
             }
         },
         displayName: {
-          get() {
-              return this.$store.getters.displayName;
-          },
-          set(val: string) {
-            clearTimeout(this.typingTimer);
-            this.typingTimer = setTimeout(() => {
-                this.$store.dispatch(actionTypes.SET_DISPLAY_NAME, val)
-            }, 500);
+            get() {
+                return this.$store.getters.displayName;
+            },
+            set(val: string) {
+                clearTimeout(this.typingTimer);
+                this.displayNameProgressIconDisplay = "";
+                this.displayNameDoneIconDisplay = "hidden";
+                this.typingTimer = setTimeout(() => {
+                    this.$store.dispatch(actionTypes.SET_DISPLAY_NAME, val)
+                    this.displayNameDoneIconDisplay = "";
+                    this.displayNameProgressIconDisplay = "hidden";
 
-          }
+                }, 500);
+
+            }
         },
         hasShareableLink: {
             get() {
