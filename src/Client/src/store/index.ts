@@ -21,12 +21,14 @@ export interface State {
     userData: UserData;
     displayPeriod: number;
     axiosConfig: any;
+    loading: Boolean;
 }
 
 const state: State = {
     userData: emptyUserData(),
     displayPeriod: 0,
     axiosConfig: null,
+    loading: false,
 };
 
 const mutations = {
@@ -61,7 +63,10 @@ const mutations = {
     },
     [mutationTypes.REMOVE_SHARED_LINK](state: State, period: number) {
         state.userData.calendars[period]!.settings.sharedLinkId = undefined;
-    }
+    },
+    [mutationTypes.SET_LOADING](state: State, loading: Boolean) {
+        state.loading = loading;
+    },
 };
 
 async function getAxiosConfig(): Promise<any> {
@@ -107,6 +112,7 @@ const actions = {
         if (state.displayPeriod > 0) {
             return;
         }
+        context.commit(mutationTypes.SET_LOADING, true);
         await context.dispatch(actionTypes.GET_AUTH_HEADERS);
         const response = await axios.get<UserData>(
             "/api/calendars",
@@ -117,6 +123,7 @@ const actions = {
             mutationTypes.SET_DISPLAY_PERIOD,
             response.data.latestPeriod
         );
+        context.commit(mutationTypes.SET_LOADING, false);
     },
     async [actionTypes.SET_CALENDAR](context: ActionContext<State, State>) {
         await axios.put<UserData>(
