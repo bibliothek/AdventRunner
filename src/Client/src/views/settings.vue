@@ -8,12 +8,12 @@
                         <span class="label-text">Display name</span>
                     </label>
                     <div class="flex items-center">
-                        <input type="text" placeholder="Your name" class="input w-4/5 max-w-xs input-bordered"
-                            v-model="displayName" />
-                        <font-awesome-icon
-                            icon="fa-solid fa-spinner" class="animate-spin m-4" :class="displayNameProgressIconDisplay" />
-                        <font-awesome-icon
-                            icon="far fa-check-square" class="m-4 text-success" :class="displayNameDoneIconDisplay" />
+                        <input type="text" @keydown="displayNameKeyDown" placeholder="Your name"
+                            class="input w-4/5 max-w-xs input-bordered" v-model="displayName" />
+                        <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin m-4"
+                            v-if="displayNameIcon === DisplayNameIcon.Processing" />
+                        <font-awesome-icon icon="far fa-check-square" class="m-4 text-success"
+                            v-if="displayNameIcon === DisplayNameIcon.Done" />
                     </div>
                 </div>
                 <div class="form-control mt-8">
@@ -70,14 +70,23 @@ import {
 import { isSome } from "../models/fsharp-helpers";
 import { mapGetters } from 'vuex';
 
+const inputDebounceInMs = 300;
+
+enum DisplayNameIcon {
+    None,
+    Processing,
+    Done,
+}
+
 export default defineComponent({
     name: "SettingsComponent",
     data() {
         return {
             copyToClipboardTooltip: "Copy to clipboard",
-            typingTimer: setTimeout(() => { }, 0),
-            displayNameProgressIconDisplay: "hidden",
-            displayNameDoneIconDisplay: "hidden",
+            typingTimerValue: setTimeout(() => { }, 0),
+            typingTimerIcon: setTimeout(() => { }, 0),
+            displayNameIcon: DisplayNameIcon.None,
+            DisplayNameIcon
         }
     },
     computed: {
@@ -99,15 +108,10 @@ export default defineComponent({
                 return this.$store.getters.displayName;
             },
             set(val: string) {
-                clearTimeout(this.typingTimer);
-                this.displayNameProgressIconDisplay = "";
-                this.displayNameDoneIconDisplay = "hidden";
-                this.typingTimer = setTimeout(() => {
+                clearTimeout(this.typingTimerValue);
+                this.typingTimerValue = setTimeout(() => {
                     this.$store.dispatch(actionTypes.SET_DISPLAY_NAME, val)
-                    this.displayNameDoneIconDisplay = "";
-                    this.displayNameProgressIconDisplay = "hidden";
-
-                }, 500);
+                }, inputDebounceInMs);
 
             }
         },
@@ -136,6 +140,16 @@ export default defineComponent({
         resetClipboardTooltip() {
             this.copyToClipboardTooltip = "Copy to clipboard";
         },
+        displayNameKeyDown() {
+            clearTimeout(this.typingTimerIcon);
+            this.displayNameIcon = DisplayNameIcon.Processing;
+            this.typingTimerIcon = setTimeout(() => {
+                this.displayNameIcon = DisplayNameIcon.Done;
+                this.typingTimerIcon = setTimeout(() => {
+                    this.displayNameIcon = DisplayNameIcon.None;
+                }, 1000);
+            }, inputDebounceInMs);
+        }
 
     },
     mounted() {
