@@ -4,24 +4,22 @@ import { inject } from "vue";
 import { ActionContext, createLogger, createStore } from "vuex";
 import {
     Calendar,
+    emptyCalendar,
     emptyUserData,
     SharedLinkPostRequest,
+    SharedLinkResponse,
     UserData,
 } from "../models/calendar";
-import {
-    getSome,
-    isSome,
-    Some
-} from '../models/fsharp-helpers';
+import { getSome, isSome, None, Some } from "../models/fsharp-helpers";
 import * as actionTypes from "./action-types";
 import * as mutationTypes from "./mutation-types.";
-
 
 export interface State {
     userData: UserData;
     displayPeriod: number;
     axiosConfig: any;
     loading: Boolean;
+    currentSharedCalendar: [string,SharedLinkResponse];
 }
 
 const state: State = {
@@ -29,6 +27,11 @@ const state: State = {
     displayPeriod: 0,
     axiosConfig: null,
     loading: false,
+    currentSharedCalendar: ["",{
+        calendar: emptyCalendar(),
+        period: 0,
+        displayName: None<string>(),
+    }],
 };
 
 const mutations = {
@@ -43,7 +46,7 @@ const mutations = {
         ].state.case = "Done";
     },
     [mutationTypes.SET_DISPLAY_NAME](state: State, displayName: string) {
-        state.userData.displayName = Some<string>(displayName)
+        state.userData.displayName = Some<string>(displayName);
     },
     [mutationTypes.SET_CALENDAR](state: State, calendar: Calendar) {
         state.userData.calendars[state.displayPeriod] = calendar;
@@ -66,6 +69,12 @@ const mutations = {
     },
     [mutationTypes.SET_LOADING](state: State, loading: Boolean) {
         state.loading = loading;
+    },
+    [mutationTypes.SET_CURRENT_SHARED_CALENDAR](
+        state: State,
+        payload: [string, SharedLinkResponse]
+    ) {
+        state.currentSharedCalendar = payload;
     },
 };
 
@@ -94,7 +103,10 @@ const actions = {
         context.commit(mutationTypes.MARK_DOOR_DONE, day);
         await context.dispatch(actionTypes.SET_CALENDAR);
     },
-    async [actionTypes.SET_DISPLAY_NAME](context: ActionContext<State,State>, displayName: string){
+    async [actionTypes.SET_DISPLAY_NAME](
+        context: ActionContext<State, State>,
+        displayName: string
+    ) {
         context.commit(mutationTypes.SET_DISPLAY_NAME, displayName);
         await context.dispatch(actionTypes.SET_CALENDAR);
     },
@@ -153,21 +165,46 @@ const actions = {
     async [actionTypes.ENABLE_SHARED_LINK](
         context: ActionContext<State, State>
     ) {
-        const response = await axios.post<SharedLinkPostRequest,{data: UserData}>(
+        const response = await axios.post<
+            SharedLinkPostRequest,
+            { data: UserData }
+        >(
             "/api/sharedCalendars",
             { period: context.getters.displayPeriod },
             context.state.axiosConfig
         );
         context.commit(mutationTypes.SET_USER_DATA, response.data);
     },
-    async [actionTypes.DISABLE_SHARED_LINK](context: ActionContext<State,State>){
+    async [actionTypes.DISABLE_SHARED_LINK](
+        context: ActionContext<State, State>
+    ) {
         const linkId = context.getters.sharedLinkId.fields[0];
         const _ = await axios.delete(
             "/api/sharedCalendars/" + linkId,
             context.state.axiosConfig
         );
-        context.commit(mutationTypes.REMOVE_SHARED_LINK, context.getters.displayPeriod);
-    }
+        context.commit(
+            mutationTypes.REMOVE_SHARED_LINK,
+            context.getters.displayPeriod
+        );
+    },
+    async [actionTypes.GET_SHARED_CALENDAR](
+        context: ActionContext<State, State>,
+        sharedLinkId: string
+    ) {
+        if(sharedLinkId === context.state.currentSharedCalendar[0]) {
+            return;
+        }
+        context.commit(mutationTypes.SET_LOADING, true);
+        const response = await axios.get<SharedLinkResponse>(
+            "/api/sharedCalendars/" + sharedLinkId
+        );
+        context.commit(
+            mutationTypes.SET_CURRENT_SHARED_CALENDAR,
+            [sharedLinkId,response.data]
+        );
+        context.commit(mutationTypes.SET_LOADING, false);
+    },
 };
 
 export const store = createStore({
@@ -189,16 +226,21 @@ export const store = createStore({
             return state.displayPeriod;
         },
         displayName: (state: State) => {
-          return isSome(state.userData.displayName) ? getSome(state.userData.displayName) : ""
+            return isSome(state.userData.displayName)
+                ? getSome(state.userData.displayName)
+                : "";
         },
         latestPeriod: (state: State) => {
             return state.userData.latestPeriod;
         },
         sharedLinkId: (state: State) => {
-            return state.userData.calendars[state.displayPeriod].settings.sharedLinkId;
+            return state.userData.calendars[state.displayPeriod].settings
+                .sharedLinkId;
         },
         sharedLinkValue: (state: State) => {
-            const linkId = state.userData.calendars[state.displayPeriod].settings.sharedLinkId?.fields[0];
+            const linkId =
+                state.userData.calendars[state.displayPeriod].settings
+                    .sharedLinkId?.fields[0];
             return `${window.location.protocol}//${window.location.host}/#/s/${linkId}`;
         },
     },
