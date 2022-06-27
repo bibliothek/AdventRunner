@@ -29,6 +29,7 @@ import ClosedDoor from "../components/ClosedDoor.vue";
 import OpenDoor from "../components/OpenDoor.vue";
 import { getSome, isSome } from "../models/fsharp-helpers";
 import * as actionTypes from "../store/action-types"
+import { sharedCalendarRoute } from "../router/router";
 
 export default defineComponent({
     name: "SharedCalendarComponent",
@@ -56,7 +57,7 @@ export default defineComponent({
     },
     watch: {
         $route(to, from) {
-            if (to !== from) {
+            if (to !== from && to.name === sharedCalendarRoute) {
                 this.getCal();
             }
         }
