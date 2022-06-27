@@ -16,7 +16,7 @@ export default {
       this.$router.push("calendar")
     },
   },
-  
+
 
   setup() {
     const auth = inject("Auth");
@@ -51,7 +51,7 @@ export default {
           Open a door and get out running!
         </p>
       </div>
-      <img class="mt-3 opacity-90" src="../assets/preview.png" alt="preview" />
+      <img class="mt-3 opacity-90" src="../../public/preview.png" alt="preview" />
     </div>
   </div>
 </template>
