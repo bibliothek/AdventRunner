@@ -10,16 +10,18 @@ open Storage
 
 let getHandler (id: string) next (ctx: HttpContext) =
     let linkStorage = ctx.GetService<SharedLinksStorage>()
-    let userDataStorage = ctx.GetService<UserDataStorage>()
 
-    let sharedLink = linkStorage.GetSharedLink id
-
-    let userData =
-        userDataStorage.GetUserData sharedLink.owner
-
-    let response: SharedLinkResponse = { calendar = userData.calendars.[sharedLink.period]; displayName = userData.displayName; period = sharedLink.period}
-
-    json response next ctx
+    match linkStorage.LinkExists id with
+    | false ->
+        ctx.SetStatusCode 404
+        next ctx
+    | true ->
+        let userDataStorage = ctx.GetService<UserDataStorage>()
+        let sharedLink = linkStorage.GetSharedLink id
+        let userData =
+            userDataStorage.GetUserData sharedLink.owner
+        let response: SharedLinkResponse = { calendar = userData.calendars.[sharedLink.period]; displayName = userData.displayName; period = sharedLink.period}
+        json response next ctx
 
 let getUpdatedSharedLinkInUserData userData sharedLinkOption period =
     let calendarToUpdate = userData.calendars.[period]

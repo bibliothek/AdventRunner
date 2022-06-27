@@ -39,6 +39,10 @@ let private getData<'T> containerName id =
         let data = JsonConvert.DeserializeObject<'T> serializedCalendar
         data
 
+let private dataExists containerName id =
+    let blobClient = getBlobClient containerName id
+    blobClient.Exists().Value
+
 type UserDataStorage () =
     let containerName = "users"
     let getId owner = owner.name
@@ -47,8 +51,7 @@ type UserDataStorage () =
         getData<UserData> containerName (getId owner)
 
     member __.UserExists owner =
-        let blobClient = getBlobClient containerName (getId owner)
-        blobClient.Exists().Value
+        dataExists containerName (getId owner)
 
     member __.UpdateUserData (updatedUserData: UserData) =
         uploadData containerName (getId updatedUserData.owner) updatedUserData
@@ -65,6 +68,9 @@ type SharedLinksStorage () =
     member __.UpsertSharedLink sharedLink =
         uploadData containerName (getId sharedLink) sharedLink
         sharedLink
+
+    member __.LinkExists sharedLinkId =
+        dataExists containerName sharedLinkId
 
     member __.GetSharedLink sharedLinkId =
         getData<SharedLink> containerName sharedLinkId
