@@ -2,18 +2,26 @@
     <div class="flex flex-row">
         <div class="flex-grow"></div>
         <div class="flex flex-col">
-            <div class="mb-4 text-center" v-if="displayName.length > 0">
-                <div class="text-2xl font-semibold text-content">{{ displayName }}</div>
-                <div class="text-md font-light"> in {{ sharedLinkResponse.period }}</div>
+            <div class="" v-if="hasResponse">
+                <div class="mb-4 text-center" v-if="displayName.length > 0">
+                    <div class="text-2xl font-semibold text-content">{{ displayName }}</div>
+                    <div class="text-md font-light">{{ sharedLinkResponse.period }}</div>
+                </div>
+                <div class="flex-grow-1"></div>
+                <div class="flex flex-row flex-wrap max-w-6xl justify-center">
+                    <div class="w-auto" v-for="door in sharedLinkResponse.calendar.doors" :key="door.day">
+                        <ClosedDoor v-if="door.state.case === 'Closed'" :day="door.day" />
+                        <OpenDoor v-if="door.state.case === 'Open'" :day="door.day" :isDone="false"
+                            :distance="distanceFor(door)" />
+                        <OpenDoor v-if="door.state.case === 'Done'" :day="door.day" :isDone="true"
+                            :distance="distanceFor(door)" />
+                    </div>
+                </div>
             </div>
-            <div class="flex-grow-1"></div>
-            <div class="flex flex-row flex-wrap max-w-6xl justify-center">
-                <div class="w-auto" v-for="door in sharedLinkResponse.calendar.doors" :key="door.day">
-                    <ClosedDoor v-if="door.state.case === 'Closed'" :day="door.day" />
-                    <OpenDoor v-if="door.state.case === 'Open'" :day="door.day" :isDone="false"
-                        :distance="distanceFor(door)" />
-                    <OpenDoor v-if="door.state.case === 'Done'" :day="door.day" :isDone="true"
-                        :distance="distanceFor(door)" />
+            <div class="h-96 flex items-center" v-else>
+                <div class="flex flex-col justify-center items-center">
+                    <h2 class="text-4xl">404</h2>
+                    <p class="text-xl">Runner not found</p>
                 </div>
             </div>
         </div>
@@ -29,22 +37,29 @@ import ClosedDoor from "../components/ClosedDoor.vue";
 import OpenDoor from "../components/OpenDoor.vue";
 import { getSome, isSome } from "../models/fsharp-helpers";
 import * as actionTypes from "../store/action-types"
+import { sharedCalendarRoute } from "../router/router";
 
 export default defineComponent({
     name: "SharedCalendarComponent",
     components: { ClosedDoor, OpenDoor },
     computed: {
+        hasResponse() {
+            return isSome(this.$store.state.currentSharedCalendar[1]);
+        },
         sharedLinkResponse() {
-            return this.$store.state.currentSharedCalendar[1];
+            return getSome(this.$store.state.currentSharedCalendar[1]);
         },
         displayName() {
-            const sharedCalendar = this.$store.state.currentSharedCalendar[1];
+            const sharedCalendar = getSome(this.$store.state.currentSharedCalendar[1]);
             return isSome(sharedCalendar.displayName) ? getSome(sharedCalendar.displayName) : "";
         }
     },
     methods: {
         distanceFor(door: Door) {
-            return door.distance * this.sharedLinkResponse.calendar.settings.distanceFactor;
+            if (this.hasResponse) {
+                return door.distance * this.sharedLinkResponse.calendar.settings.distanceFactor;
+            }
+            return 0;
         },
         getCal() {
             const id = this.$route.params['id'];
@@ -56,7 +71,7 @@ export default defineComponent({
     },
     watch: {
         $route(to, from) {
-            if (to !== from) {
+            if (to !== from && to.name === sharedCalendarRoute) {
                 this.getCal();
             }
         }

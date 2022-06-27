@@ -10,7 +10,7 @@ import {
     SharedLinkResponse,
     UserData,
 } from "../models/calendar";
-import { getSome, isSome, None, Some } from "../models/fsharp-helpers";
+import { FOption, getSome, isSome, None, Some } from "../models/fsharp-helpers";
 import * as actionTypes from "./action-types";
 import * as mutationTypes from "./mutation-types.";
 
@@ -19,7 +19,7 @@ export interface State {
     displayPeriod: number;
     axiosConfig: any;
     loading: Boolean;
-    currentSharedCalendar: [string,SharedLinkResponse];
+    currentSharedCalendar: [string,FOption<SharedLinkResponse>];
 }
 
 const state: State = {
@@ -27,11 +27,11 @@ const state: State = {
     displayPeriod: 0,
     axiosConfig: null,
     loading: false,
-    currentSharedCalendar: ["",{
+    currentSharedCalendar: ["",Some({
         calendar: emptyCalendar(),
         period: 0,
         displayName: None<string>(),
-    }],
+    })],
 };
 
 const mutations = {
@@ -72,7 +72,7 @@ const mutations = {
     },
     [mutationTypes.SET_CURRENT_SHARED_CALENDAR](
         state: State,
-        payload: [string, SharedLinkResponse]
+        payload: [string, FOption<SharedLinkResponse>]
     ) {
         state.currentSharedCalendar = payload;
     },
@@ -198,12 +198,16 @@ const actions = {
         context.commit(mutationTypes.SET_LOADING, true);
         const response = await axios.get<SharedLinkResponse>(
             "/api/sharedCalendars/" + sharedLinkId
-        );
-        context.commit(
-            mutationTypes.SET_CURRENT_SHARED_CALENDAR,
-            [sharedLinkId,response.data]
-        );
-        context.commit(mutationTypes.SET_LOADING, false);
+        , {validateStatus: (status) => {return status === 200 || status === 404}});
+
+            const data = response.status === 200 ? Some(response.data) : None();
+            context.commit(
+                mutationTypes.SET_CURRENT_SHARED_CALENDAR,
+                [sharedLinkId,data]
+            );
+            context.commit(mutationTypes.SET_LOADING, false);
+
+
     },
 };
 
