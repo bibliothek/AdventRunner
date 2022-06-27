@@ -4,7 +4,7 @@
         <div class="flex flex-col">
             <div class="mb-4 text-center" v-if="displayName.length > 0">
                 <div class="text-2xl font-semibold text-content">{{ displayName }}</div>
-                <div class="text-md font-light"> in {{ sharedLinkResponse.period }}</div>
+                <div class="text-md font-light">{{ sharedLinkResponse.period }}</div>
             </div>
             <div class="flex-grow-1"></div>
             <div class="flex flex-row flex-wrap max-w-6xl justify-center">
