@@ -2,12 +2,12 @@
     <div class="h-8 m-8">
         <div class="mx-auto h-full max-w-2xl rounded-box flex flex-row">
 
-            <div class="text-xs bg-primary rounded-l-lg text-center text-primary-content" style="height:100%"
-                :style="doneWidth"><span class="">{{ getKmByState("Done") }}</span></div>
-            <div class="text-xs bg-warning text-center text-waring" style="33%; height:100%" :style="openWidth">
-                <span class="">{{ getKmByState("Open") }}</span></div>
-            <div class="text-xs bg-neutral text-center text-neutral-content rounded-r-lg" style="33%; height:100%"
-                :style="closedWidth"><span class="">{{ getKmByState("Closed") }}</span></div>
+            <div class="text-xs bg-primary leading-8 rounded-l-lg text-center text-primary-content" style="height:100%"
+                :style="doneWidth">{{ getKmByState("Done") }}</div>
+            <div class="text-xs bg-warning leading-8 text-center text-waring" style="33%; height:100%" :style="openWidth">
+                {{ getKmByState("Open") }}</div>
+            <div class="text-xs bg-neutral leading-8 text-center text-neutral-content rounded-r-lg" style="33%; height:100%"
+                :style="closedWidth">{{ getKmByState("Closed") }}</div>
         </div>
     </div>
 </template>
