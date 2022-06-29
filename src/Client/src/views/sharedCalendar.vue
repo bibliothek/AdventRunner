@@ -1,6 +1,5 @@
 <template>
-    <div class="flex flex-row">
-        <div class="flex-grow"></div>
+    <div class="flex flex-row justify-center">
         <div class="flex flex-col">
             <div class="" v-if="hasResponse">
                 <div class="mb-4 text-center" v-if="displayName.length > 0">
@@ -25,7 +24,6 @@
                 </div>
             </div>
         </div>
-        <div class="flex-grow"></div>
     </div>
 </template>
 
