@@ -1,9 +1,14 @@
 <template>
-    <div class="h-4 rounded-box flex flex-row">
+    <div class="h-8 m-8">
+        <div class="mx-auto h-full max-w-2xl rounded-box flex flex-row">
 
-        <div class="bg-primary rounded-l-lg" style="height:100%" :style="doneWidth"></div>
-        <div class="bg-warning" style="33%; height:100%" :style="openWidth"></div>
-        <div class="bg-neutral rounded-r-lg" style="33%; height:100%" :style="closedWidth"></div>
+            <div class="text-xs bg-primary rounded-l-lg text-center text-primary-content" style="height:100%"
+                :style="doneWidth"><span class="">{{ getKmByState("Done") }}</span></div>
+            <div class="text-xs bg-warning text-center text-waring" style="33%; height:100%" :style="openWidth">
+                <span class="">{{ getKmByState("Open") }}</span></div>
+            <div class="text-xs bg-neutral text-center text-neutral-content rounded-r-lg" style="33%; height:100%"
+                :style="closedWidth"><span class="">{{ getKmByState("Closed") }}</span></div>
+        </div>
     </div>
 </template>
 <script lang="ts">
@@ -32,11 +37,18 @@ export default defineComponent({
         doneWidth() {
             return getWidthPropertyForState(this.cal!, "Done");
         },
-        openWidth() {return getWidthPropertyForState(this.cal!, "Open");
+        openWidth() {
+            return getWidthPropertyForState(this.cal!, "Open");
         },
         closedWidth() {
             return getWidthPropertyForState(this.cal!, "Closed");
         },
+    },
+    methods: {
+        getKmByState(state: DoorStateCase) {
+            const distance = getByState(this.cal!, state) * this.cal!.settings.distanceFactor;
+            return `${distance} km`;
+        }
     }
 })
 </script>
