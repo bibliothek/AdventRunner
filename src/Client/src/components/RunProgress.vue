@@ -1,16 +1,24 @@
 <template>
     <div class="h-8 m-8">
-        <div class="mx-auto h-full max-w-2xl rounded-box flex flex-row">
-
-            <div class="text-xs bg-primary leading-8 rounded-l-lg text-center text-primary-content" style="height:100%"
-                :style="doneWidth">{{ getKmByState("Done") }}</div>
-            <div class="text-xs bg-warning leading-8 text-center text-waring" style="33%; height:100%" :style="openWidth">
-                {{ getKmByState("Open") }}</div>
-            <div class="text-xs bg-neutral leading-8 text-center text-neutral-content rounded-r-lg" style="33%; height:100%"
-                :style="closedWidth">{{ getKmByState("Closed") }}</div>
+        <div class="text-xs text-center leading-8 mx-auto h-full max-w-2xl rounded-box flex flex-row">
+            <div class="bg-primary rounded-l-lg text-primary-content myOverflow" style="height:100%" :style="doneWidth">
+                <span :title="getKmByState('Done')">{{ getKmByState("Done") }}</span>
+            </div>
+            <div class=" bg-warning text-waring myOverflow" style="33%; height:100%" :style="openWidth">
+                <span :title="getKmByState('Open')">{{ getKmByState("Open") }}</span>
+            </div>
+            <div class=" bg-neutral text-neutral-content rounded-r-lg myOverflow" style="33%; height:100%"
+                :style="closedWidth">
+                <span :title="getKmByState('Closed')">{{ getKmByState("Closed") }}</span>
+            </div>
         </div>
     </div>
 </template>
+<style lang="postcss">
+.myOverflow {
+    @apply text-ellipsis whitespace-nowrap overflow-hidden
+}
+</style>
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Calendar, emptyCalendar, Door, DoorState, DoorStateCase } from "../models/calendar"
