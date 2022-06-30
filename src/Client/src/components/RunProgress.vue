@@ -1,6 +1,6 @@
 <template>
     <div class="h-8 m-8">
-        <div class="text-xs text-center leading-8 mx-auto h-full max-w-2xl rounded-box flex flex-row">
+        <div class="text-xs font-semibold text-center leading-8 mx-auto h-full max-w-2xl rounded-box flex flex-row">
             <div class="bg-primary rounded-l-lg text-primary-content myOverflow" style="height:100%" :style="doneWidth">
                 <span :title="getKmByState('Done')">{{ getKmByState("Done") }}</span>
             </div>
