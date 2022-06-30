@@ -1,22 +1,23 @@
 <template>
-    <div class="flex flex-row">
-        <div class="flex-grow"></div>
-        <div class="flex flex-row flex-wrap max-w-6xl justify-center">
-            <div class="w-auto" v-for="door in cal.doors" :key="door.day">
-                <button v-if="door.state.case === 'Closed'" @click="markOpen(door)">
-                    <ClosedDoor :day="door.day" :showButtonIndicator="true" />
-                </button>
-                <button v-if="door.state.case === 'Open'" @click="markDone(door)">
-                    <OpenDoor :day="door.day" :isDone="false" :distance="distanceFor(door)"
-                        :showButtonIndicator="true" />
-                </button>
-                <button @click="markOpen(door)">
-                    <OpenDoor v-if="door.state.case === 'Done'" :day="door.day" :isDone="true"
-                        :showButtonIndicator="true" :distance="distanceFor(door)" />
-                </button>
+    <div class="flex flex-row justify-center">
+        <div class="flex flex-col">
+            <RunProgress :cal="cal"></RunProgress>
+            <div class="flex flex-row flex-wrap max-w-6xl justify-center">
+                <div class="w-auto" v-for="door in cal.doors" :key="door.day">
+                    <button v-if="door.state.case === 'Closed'" @click="markOpen(door)">
+                        <ClosedDoor :day="door.day" :showButtonIndicator="true" />
+                    </button>
+                    <button v-if="door.state.case === 'Open'" @click="markDone(door)">
+                        <OpenDoor :day="door.day" :isDone="false" :distance="distanceFor(door)"
+                            :showButtonIndicator="true" />
+                    </button>
+                    <button @click="markOpen(door)">
+                        <OpenDoor v-if="door.state.case === 'Done'" :day="door.day" :isDone="true"
+                            :showButtonIndicator="true" :distance="distanceFor(door)" />
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="flex-grow"></div>
     </div>
 </template>
 
@@ -26,12 +27,13 @@ import { Door } from "../models/calendar";
 import { defineComponent } from "@vue/runtime-core";
 import ClosedDoor from "../components/ClosedDoor.vue";
 import OpenDoor from "../components/OpenDoor.vue";
+import RunProgress from "../components/RunProgress.vue";
 import * as actionTypes from '../store/action-types';
 import { mapGetters } from "vuex";
 
 export default defineComponent({
     name: "CalendarComponent",
-    components: { ClosedDoor, OpenDoor },
+    components: { ClosedDoor, OpenDoor, RunProgress },
     computed: {
         ...mapGetters({
             cal: "displayCalendar",
