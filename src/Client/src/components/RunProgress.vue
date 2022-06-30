@@ -1,13 +1,13 @@
 <template>
     <div class="h-8 m-8">
-        <div class="text-xs font-semibold text-center leading-8 mx-auto h-full max-w-2xl rounded-box flex flex-row">
-            <div class="bg-primary rounded-l-lg text-primary-content myOverflow" style="height:100%" :style="doneWidth">
+        <div class="text-xs rounded-lg overflow-hidden font-semibold text-center leading-8 mx-auto h-full max-w-2xl flex flex-row">
+            <div class="bg-primary text-primary-content myOverflow" style="height:100%" :style="doneWidth">
                 <span :title="getKmByState('Done')">{{ getKmByState("Done") }}</span>
             </div>
             <div class=" bg-warning text-waring myOverflow" style="33%; height:100%" :style="openWidth">
                 <span :title="getKmByState('Open')">{{ getKmByState("Open") }}</span>
             </div>
-            <div class=" bg-neutral text-neutral-content rounded-r-lg myOverflow" style="33%; height:100%"
+            <div class=" bg-neutral text-neutral-content myOverflow" style="33%; height:100%"
                 :style="closedWidth">
                 <span :title="getKmByState('Closed')">{{ getKmByState("Closed") }}</span>
             </div>
