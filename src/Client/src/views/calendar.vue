@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-row justify-center">
+    <!-- <div class="flex flex-row justify-center">
         <div class="flex flex-col">
             <RunProgress :cal="cal"></RunProgress>
             <div class="flex flex-row flex-wrap max-w-6xl justify-center">
@@ -18,7 +18,8 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
+    <MonthlyCalendar></MonthlyCalendar>
 </template>
 
 <script lang="ts">
@@ -27,13 +28,14 @@ import { Door } from "../models/calendar";
 import { defineComponent } from "@vue/runtime-core";
 import ClosedDoor from "../components/ClosedDoor.vue";
 import OpenDoor from "../components/OpenDoor.vue";
+import MonthlyCalendar from "../components/MonthlyCalendar.vue";
 import RunProgress from "../components/RunProgress.vue";
 import * as actionTypes from '../store/action-types';
 import { mapGetters } from "vuex";
 
 export default defineComponent({
     name: "CalendarComponent",
-    components: { ClosedDoor, OpenDoor, RunProgress },
+    components: { ClosedDoor, OpenDoor, RunProgress, MonthlyCalendar },
     computed: {
         ...mapGetters({
             cal: "displayCalendar",
