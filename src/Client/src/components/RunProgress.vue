@@ -1,15 +1,15 @@
 <template>
     <div class="h-8 m-8">
         <div class="text-xs rounded-lg overflow-hidden font-semibold text-center leading-8 mx-auto h-full max-w-2xl flex flex-row">
-            <div class="bg-primary text-primary-content myOverflow" style="height:100%" :style="doneWidth">
-                <span :title="getKmByState('Done')">{{ getKmByState("Done") }}</span>
+            <div :title="getKmByState('Done')" class="bg-primary text-primary-content myOverflow" style="height:100%" :style="doneWidth">
+                <span >{{ getKmByState("Done") }}</span>
             </div>
-            <div class=" bg-warning text-waring myOverflow" style="33%; height:100%" :style="openWidth">
-                <span :title="getKmByState('Open')">{{ getKmByState("Open") }}</span>
+            <div :title="getKmByState('Open')" class=" bg-warning text-waring myOverflow" style="33%; height:100%" :style="openWidth">
+                <span >{{ getKmByState("Open") }}</span>
             </div>
-            <div class=" bg-neutral text-neutral-content myOverflow" style="33%; height:100%"
+            <div :title="getKmByState('Closed')" class=" bg-neutral text-neutral-content myOverflow" style="33%; height:100%"
                 :style="closedWidth">
-                <span :title="getKmByState('Closed')">{{ getKmByState("Closed") }}</span>
+                <span >{{ getKmByState("Closed") }}</span>
             </div>
         </div>
     </div>
