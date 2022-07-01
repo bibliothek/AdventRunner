@@ -46,7 +46,7 @@ export default defineComponent({
     name: "MonthlyCalendarComponent",
     data() {
         return {
-            days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
             blankdays: [],
         }
     }
