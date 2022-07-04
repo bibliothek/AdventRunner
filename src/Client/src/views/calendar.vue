@@ -19,7 +19,7 @@
             </div>
         </div>
     </div> -->
-    <MonthlyCalendar :year="year"></MonthlyCalendar>
+    <MonthlyCalendar :year="year" :cal="cal"></MonthlyCalendar>
 </template>
 
 <script lang="ts">

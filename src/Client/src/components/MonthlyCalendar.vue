@@ -24,19 +24,24 @@
                 <div class="flex flex-wrap border-t border-l">
                     <div v-for="_ in blankdays" style="width: 14.28%; height: 120px"
                         class="text-center border-r border-b px-4 pt-2"></div>
-                    <div v-for="(n, idx) in 24" style="width: 14.28%; height: 120px"
-                        class="px-4 pt-2 border-r border-b relative bg-neutral text-neutral-content">
+                    <div v-for="door in cal?.doors" style="width: 14.28%; height: 120px"
+                        class="px-4 pt-2 border-r border-b rounded-sm relative" :class="getDoorClasses(door)">
                         <div
-                            class="inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100">
-                            {{ n }}
+                            class="inline-flex w-6 h-6 items-center justify-center" :class="getDayIndicatorClasses(door)">
+                            {{ door.day }}
                         </div>
-                        <div style="height: 80px;" class="overflow-y-auto mt-1">
+                        <div style="height: 100%" class=" -mt-7 flex flex-col justify-center items-center text-2xl font-light"
+                            :class="getDayContentClasses(door)">
+                            <div v-if="door.state.case !== 'Closed'" class="mb-2 mt-4">{{ door.distance }} km</div>
 
-
+                            <!-- <div class="text-sm font-semibold" v-if="door.state.case === 'Done'">Done🎉</div> -->
+                            <div class="btn btn-sm btn-ghost text-sm font-semibold" v-if="door.state.case === 'Done'">Undo</div>
+                            <div class="btn btn-sm btn-ghost text-sm font-semibold" v-if="door.state.case === 'Open'">Done</div>
+                            <div class="btn text-sm font-semibold" v-if="door.state.case === 'Closed'">Open</div>
                         </div>
                     </div>
                     <div v-for="(n, _) in [...Array(7).keys()].map(v => v + 25)" style="width: 14.28%; height: 120px"
-                        class="px-4 pt-2 border-r border-b relative text-content">
+                        class="px-4 pt-2 border-r border-b relative text-gray-500">
                         <div
                             class="inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100">
                             {{ n }}
@@ -52,7 +57,7 @@
 import { defineComponent } from "vue";
 import ClosedDoor from "../components/ClosedDoor.vue";
 import OpenDoor from "../components/OpenDoor.vue";
-import { Calendar } from "../models/calendar";
+import { Calendar, Door } from "../models/calendar";
 
 export default defineComponent({
     name: "MonthlyCalendarComponent",
@@ -63,20 +68,59 @@ export default defineComponent({
         }
     },
     props: {
-        cal: Object as () => Calendar,
+        cal: { type: Object as () => Calendar, required: true },
         year: { type: Number, required: true }
     },
     computed: {
         blankdays() {
             const firstDayOfMonth = (new Date(this.year, 11)).getDay();
-            console.log(new Date(this.year, 11))
-            console.log(firstDayOfMonth)
             const blankDaysArray = [];
             for (var i = 1; i < firstDayOfMonth; i++) {
                 blankDaysArray.push(i);
             }
             return blankDaysArray;
         },
+    },
+    methods: {
+        getDoorClasses(door: Door) {
+            switch (door.state.case) {
+                case "Closed":
+                    return "bg-neutral";
+                case "Open":
+                    return "bg-gray-100";
+                case "Done":
+                    return "bg-primary";
+                default:
+                    return "";
+
+            }
+        },
+        getDayContentClasses(door: Door) {
+            switch (door.state.case) {
+                case "Closed":
+                    return "text-neutral-content";
+                case "Open":
+                    return "";
+                case "Done":
+                    return "text-primary-content";
+                default:
+                    return "";
+
+            }
+        },
+        getDayIndicatorClasses(door: Door) {
+            switch (door.state.case) {
+                case "Closed":
+                    return "text-gray-100";
+                case "Open":
+                    return "text-gray-500";
+                case "Done":
+                    return "text-gray-100";
+                default:
+                    return "";
+
+            }
+        }
     }
 
 });
