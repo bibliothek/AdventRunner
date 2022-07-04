@@ -19,7 +19,7 @@
             </div>
         </div>
     </div> -->
-    <MonthlyCalendar></MonthlyCalendar>
+    <MonthlyCalendar :year="year"></MonthlyCalendar>
 </template>
 
 <script lang="ts">
@@ -39,6 +39,8 @@ export default defineComponent({
     computed: {
         ...mapGetters({
             cal: "displayCalendar",
+            year: "displayPeriod",
+
         }),
     },
     methods: {
