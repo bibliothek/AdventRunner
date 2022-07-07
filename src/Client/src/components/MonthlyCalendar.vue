@@ -63,8 +63,7 @@
 
 import { defineComponent } from "vue";
 import ClosedDoor from "../components/ClosedDoor.vue";
-import OpenDoor from "../components/OpenDoor.vue";
-import { Calendar, Door } from "../models/calendar";
+import { Calendar, Door, DoorStateCase } from "../models/calendar";
 
 export default defineComponent({
     name: "MonthlyCalendarComponent",
@@ -76,7 +75,8 @@ export default defineComponent({
     },
     props: {
         cal: { type: Object as () => Calendar, required: true },
-        year: { type: Number, required: true }
+        year: { type: Number, required: true },
+        readonly: {type: Boolean, default: false},
     },
     computed: {
         blankdays() {
@@ -90,7 +90,10 @@ export default defineComponent({
     },
     methods: {
         getDoorClasses(door: Door) {
-            switch (door.state.case) {
+
+            let selectColor = (c: DoorStateCase): string => {
+
+            switch (c) {
                 case "Closed":
                     return "bg-neutral";
                 case "Open":
@@ -101,6 +104,10 @@ export default defineComponent({
                     return "";
 
             }
+            }
+            const cursor = this.readonly ? 'cursor-default' : 'cursor-pointer';
+            const color = selectColor(door.state.case);
+            return `${cursor} ${color}`;
         },
         getDayContentClasses(door: Door) {
             switch (door.state.case) {
