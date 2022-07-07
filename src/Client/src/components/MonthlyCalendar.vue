@@ -34,10 +34,10 @@
                             :class="getDayContentClasses(door)">
                             <div v-if="door.state.case !== 'Closed'" class="mb-2 mt-4">{{ door.distance }} km</div>
 
-                            <!-- <div class="text-sm font-semibold" v-if="door.state.case === 'Done'">Done🎉</div> -->
-                            <div class="btn btn-sm btn-ghost text-sm font-semibold" v-if="door.state.case === 'Done'">Undo</div>
-                            <div class="btn btn-sm btn-ghost text-sm font-semibold" v-if="door.state.case === 'Open'">Done</div>
-                            <div class="btn text-sm font-semibold" v-if="door.state.case === 'Closed'">Open</div>
+                            <font-awesome-icon icon="fa-solid fa-check" v-if="door.state.case === 'Done'"/>
+                            <font-awesome-icon icon="fa-solid fa-person-running" v-if="door.state.case === 'Open'"/>
+                            <font-awesome-icon icon="fa-solid fa-door-open" v-if="door.state.case === 'Closed'"/>
+                        
                         </div>
                     </div>
                     <div v-for="(n, _) in [...Array(7).keys()].map(v => v + 25)" style="width: 14.28%; height: 120px"

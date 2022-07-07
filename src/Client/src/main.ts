@@ -10,7 +10,7 @@ import {
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCopy, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faCopy, faPersonRunning, faSpinner, faDoorOpen } from '@fortawesome/free-solid-svg-icons'
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons'
 
 async function init() {
@@ -33,6 +33,9 @@ async function init() {
     library.add(faCopy)
     library.add(faSpinner)
     library.add(faCheckSquare)
+    library.add(faCheck)
+    library.add(faPersonRunning)
+    library.add(faDoorOpen)
 
     const app = createApp(App);
     app
