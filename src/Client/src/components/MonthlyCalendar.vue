@@ -27,23 +27,23 @@
                     <div v-for="door in cal?.doors" style="width: 14.28%; height: 120px"
                         class="px-4 pt-2 border-r border-b rounded-sm relative" :class="getDoorClasses(door)">
                         <div
-                            class="inline-flex w-6 h-6 items-center justify-center" :class="getDayIndicatorClasses(door)">
+                            class="h-6 day-indicator items-center justify-center" :class="getDayIndicatorClasses(door)">
                             {{ door.day }}
                         </div>
-                        <div style="height: 100%" class=" -mt-7 flex flex-col justify-center items-center text-2xl font-light"
+                        <div style="height: 100%"
+                            class=" -mt-7 flex flex-col justify-center items-center text-center text-sm lg:text-2xl lg:font-light"
                             :class="getDayContentClasses(door)">
-                            <div v-if="door.state.case !== 'Closed'" class="mb-2 mt-4">{{ door.distance }} km</div>
+                            <div v-if="door.state.case !== 'Closed'" class="mb-2 mt-4">{{ door.distance * cal.settings.distanceFactor }} km</div>
 
                             <font-awesome-icon icon="fa-solid fa-check" v-if="door.state.case === 'Done'"/>
                             <font-awesome-icon icon="fa-solid fa-person-running" v-if="door.state.case === 'Open'"/>
                             <font-awesome-icon icon="fa-solid fa-door-open" v-if="door.state.case === 'Closed'"/>
-                        
                         </div>
                     </div>
                     <div v-for="(n, _) in [...Array(7).keys()].map(v => v + 25)" style="width: 14.28%; height: 120px"
                         class="px-4 pt-2 border-r border-b relative text-gray-500">
                         <div
-                            class="inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100">
+                            class="h-6 items-center justify-center day-indicator leading-none rounded-full transition ease-in-out duration-100">
                             {{ n }}
                         </div>
                     </div>
@@ -52,6 +52,13 @@
         </div>
     </div>
 </template>
+
+<style lang="postcss">
+    .day-indicator {
+        @apply text-center lg:text-base text-xs
+    }
+</style>
+
 <script lang="ts">
 
 import { defineComponent } from "vue";
