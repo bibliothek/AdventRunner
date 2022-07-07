@@ -26,18 +26,20 @@
                         class="text-center border-r border-b px-4 pt-2"></div>
                     <div v-for="door in cal?.doors" style="width: 14.28%; height: 120px"
                         class="px-4 pt-2 border-r border-b rounded-sm relative" :class="getDoorClasses(door)">
-                        <div
-                            class="h-6 day-indicator items-center justify-center" :class="getDayIndicatorClasses(door)">
+                        <div class="h-6 day-indicator items-center justify-center"
+                            :class="getDayIndicatorClasses(door)">
                             {{ door.day }}
                         </div>
                         <div style="height: 100%"
                             class=" -mt-7 flex flex-col justify-center items-center text-center text-sm lg:text-2xl lg:font-light"
                             :class="getDayContentClasses(door)">
-                            <div v-if="door.state.case !== 'Closed'" class="mb-2 mt-4">{{ door.distance * cal.settings.distanceFactor }} km</div>
+                            <div v-if="door.state.case !== 'Closed'" class="mb-2 mt-4">{{ door.distance *
+                                    cal.settings.distanceFactor
+                            }} km</div>
 
-                            <font-awesome-icon icon="fa-solid fa-check" v-if="door.state.case === 'Done'"/>
-                            <font-awesome-icon icon="fa-solid fa-person-running" v-if="door.state.case === 'Open'"/>
-                            <font-awesome-icon icon="fa-solid fa-door-open" v-if="door.state.case === 'Closed'"/>
+                            <font-awesome-icon icon="fa-solid fa-check" v-if="door.state.case === 'Done'" />
+                            <font-awesome-icon icon="fa-solid fa-person-running" v-if="door.state.case === 'Open'" />
+                            <font-awesome-icon icon="fa-solid fa-door-open" v-if="door.state.case === 'Closed'" />
                         </div>
                     </div>
                     <div v-for="(n, _) in [...Array(7).keys()].map(v => v + 25)" style="width: 14.28%; height: 120px"
@@ -76,7 +78,7 @@ export default defineComponent({
     props: {
         cal: { type: Object as () => Calendar, required: true },
         year: { type: Number, required: true },
-        readonly: {type: Boolean, default: false},
+        readonly: { type: Boolean, default: false },
     },
     computed: {
         blankdays() {
@@ -90,20 +92,18 @@ export default defineComponent({
     },
     methods: {
         getDoorClasses(door: Door) {
-
             let selectColor = (c: DoorStateCase): string => {
+                switch (c) {
+                    case "Closed":
+                        return "bg-neutral";
+                    case "Open":
+                        return "bg-gray-100";
+                    case "Done":
+                        return "bg-primary";
+                    default:
+                        return "";
 
-            switch (c) {
-                case "Closed":
-                    return "bg-neutral";
-                case "Open":
-                    return "bg-gray-100";
-                case "Done":
-                    return "bg-primary";
-                default:
-                    return "";
-
-            }
+                }
             }
             const cursor = this.readonly ? 'cursor-default' : 'cursor-pointer';
             const color = selectColor(door.state.case);
@@ -119,7 +119,6 @@ export default defineComponent({
                     return "text-primary-content";
                 default:
                     return "";
-
             }
         },
         getDayIndicatorClasses(door: Door) {
@@ -132,7 +131,6 @@ export default defineComponent({
                     return "text-gray-100";
                 default:
                     return "";
-
             }
         }
     }
