@@ -1,25 +1,6 @@
 <template>
-    <!-- <div class="flex flex-row justify-center">
-        <div class="flex flex-col">
-            <RunProgress :cal="cal"></RunProgress>
-            <div class="flex flex-row flex-wrap max-w-6xl justify-center">
-                <div class="w-auto" v-for="door in cal.doors" :key="door.day">
-                    <button v-if="door.state.case === 'Closed'" @click="markOpen(door)">
-                        <ClosedDoor :day="door.day" :showButtonIndicator="true" />
-                    </button>
-                    <button v-if="door.state.case === 'Open'" @click="markDone(door)">
-                        <OpenDoor :day="door.day" :isDone="false" :distance="distanceFor(door)"
-                            :showButtonIndicator="true" />
-                    </button>
-                    <button @click="markOpen(door)">
-                        <OpenDoor v-if="door.state.case === 'Done'" :day="door.day" :isDone="true"
-                            :showButtonIndicator="true" :distance="distanceFor(door)" />
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div> -->
-    <MonthlyCalendar :year="year" :cal="cal"></MonthlyCalendar>
+    <MonthlyCalendar :year="year" :cal="cal" :readonly="false" @markedDone="(door) => markDone(door)"
+        @markedOpen="(door) => markOpen(door)"></MonthlyCalendar>
 </template>
 
 <script lang="ts">
@@ -44,9 +25,6 @@ export default defineComponent({
         }),
     },
     methods: {
-        distanceFor(door: Door) {
-            return door.distance * this.$store.getters.displayCalendar.settings.distanceFactor;
-        },
         markDone(door: Door) {
             this.$store.dispatch(actionTypes.MARK_DOOR_DONE, door.day)
         },

@@ -32,7 +32,8 @@
                         </div>
                         <div style="height: 100%"
                             class=" -mt-7 flex flex-col justify-center items-center text-center text-sm lg:text-2xl lg:font-light"
-                            :class="getDayContentClasses(door)">
+                            :class="getDayContentClasses(door)"
+                            @click="doorClicked(door)">
                             <div v-if="door.state.case !== 'Closed'" class="mb-2 mt-4">{{ door.distance *
                                     cal.settings.distanceFactor
                             }} km</div>
@@ -75,10 +76,18 @@ export default defineComponent({
             days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
         }
     },
+    emits: {
+        markedDone(payload: {door: Door}) {
+            return true;
+        },
+        markedOpen(payload: {door: Door}) {
+            return true;
+        }
+    },
     props: {
         cal: { type: Object as () => Calendar, required: true },
         year: { type: Number, required: true },
-        readonly: { type: Boolean, default: false },
+        readonly: { type: Boolean, required: true },
     },
     computed: {
         blankdays() {
@@ -91,6 +100,16 @@ export default defineComponent({
         },
     },
     methods: {
+        doorClicked(door: Door) {
+            if(this.readonly) {
+                return;
+            }
+            if(door.state.case == 'Open') {
+                this.$emit('markedDone', door);
+                return;
+            }
+            this.$emit('markedOpen', door);
+        },
         getDoorClasses(door: Door) {
             let selectColor = (c: DoorStateCase): string => {
                 switch (c) {
