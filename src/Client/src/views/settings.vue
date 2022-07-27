@@ -21,10 +21,18 @@
                         <span class="label-text">Distance</span>
                     </label>
                     <select class="select select-bordered w-4/5 max-w-xs" v-model="selectedFactor">
-                        <option>Chose you preferred dinstance</option>
                         <option value="1">Normal</option>
                         <option value="0.5">Half it</option>
                         <option value="2">Double it</option>
+                    </select>
+                </div>
+                <div class="form-control mt-8">
+                    <label class="label">
+                        <span class="label-text">Display Mode</span>
+                    </label>
+                    <select class="select select-bordered w-4/5 max-w-xs" v-model="displayType">
+                        <option value="1">Doors</option>
+                        <option value="0">Calendar</option>
                     </select>
                 </div>
                 <div class="form-control mt-8">
@@ -101,6 +109,15 @@ export default defineComponent({
                     return;
                 }
                 this.$store.dispatch(actionTypes.SET_SCALE_FACTOR, value)
+            }
+        },
+        displayType: {
+            get() {
+                return this.$store.getters.displayType;
+            },
+            set(value: string) {
+                // TODO
+
             }
         },
         displayName: {

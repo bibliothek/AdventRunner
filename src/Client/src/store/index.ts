@@ -4,6 +4,7 @@ import { inject } from "vue";
 import { ActionContext, createLogger, createStore } from "vuex";
 import {
     Calendar,
+    DisplayType,
     emptyCalendar,
     emptyUserData,
     SharedLinkPostRequest,
@@ -228,6 +229,12 @@ export const store = createStore({
         },
         displayPeriod: (state: State) => {
             return state.displayPeriod;
+        },
+        displayType: (state: State) => {
+            if(!!state.userData.displayType) {
+                return state.userData.displayType;
+            }
+            return DisplayType.Door;
         },
         displayName: (state: State) => {
             return isSome(state.userData.displayName)
