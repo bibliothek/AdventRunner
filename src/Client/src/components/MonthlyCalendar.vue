@@ -70,7 +70,6 @@ import { Calendar, Door, DoorStateCase } from "../models/calendar";
 
 export default defineComponent({
     name: "MonthlyCalendarComponent",
-    components: { ClosedDoor },
     data() {
         return {
             days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],

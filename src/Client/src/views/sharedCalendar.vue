@@ -29,8 +29,8 @@
 import { Door } from "../models/calendar";
 
 import { defineComponent } from "@vue/runtime-core";
-import ClosedDoor from "../components/ClosedDoor.vue";
-import OpenDoor from "../components/OpenDoor.vue";
+import ClosedDoor from "../components/DoorCalendar/ClosedDoor.vue";
+import OpenDoor from "../components/DoorCalendar/OpenDoor.vue";
 import RunProgress from "../components/RunProgress.vue";
 import { getSome, isSome } from "../models/fsharp-helpers";
 import * as actionTypes from "../store/action-types"
