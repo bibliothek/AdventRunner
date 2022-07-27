@@ -1,8 +1,8 @@
 <template>
-    <DoorCalendar :cal="cal" :readonly="false" @markedDone="(payload) => markDone(payload.door)"
-        @markedOpen="(payload) => markOpen(payload.door)"></DoorCalendar>
-    <!-- <MonthlyCalendar :year="year" :cal="cal" :readonly="false" @markedDone="(door) => markDone(door)"
-        @markedOpen="(door) => markOpen(door)"></MonthlyCalendar> -->
+    <!-- <DoorCalendar :cal="cal" :readonly="false" @markedDone="(payload) => markDone(payload.door)"
+        @markedOpen="(payload) => markOpen(payload.door)"></DoorCalendar> -->
+    <MonthlyCalendar :year="year" :cal="cal" :readonly="false" @markedDone="(door) => markDone(door)"
+        @markedOpen="(door) => markOpen(door)"></MonthlyCalendar>
 </template>
 
 <script lang="ts">
@@ -11,13 +11,12 @@ import { Door } from "../models/calendar";
 import { defineComponent } from "@vue/runtime-core";
 import MonthlyCalendar from "../components/MonthlyCalendar.vue";
 import DoorCalendar from "../components/DoorCalendar/DoorCalendar.vue";
-import RunProgress from "../components/RunProgress.vue";
 import * as actionTypes from '../store/action-types';
 import { mapGetters } from "vuex";
 
 export default defineComponent({
     name: "CalendarComponent",
-    components: { RunProgress, MonthlyCalendar, DoorCalendar },
+    components: { MonthlyCalendar, DoorCalendar },
     computed: {
         ...mapGetters({
             cal: "displayCalendar",

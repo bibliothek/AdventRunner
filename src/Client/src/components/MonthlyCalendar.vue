@@ -1,6 +1,11 @@
 <template>
 
+    <div class="flex flex-col">
+
+            <RunProgress :cal="cal"></RunProgress>
+
     <div class="flex justify-center">
+
         <div class="bg-white max-w-6xl rounded-lg shadow overflow-hidden">
 
             <div class="flex items-center justify-between py-2 px-6">
@@ -53,6 +58,7 @@
                 </div>
             </div>
         </div>
+        </div>
     </div>
 </template>
 
@@ -65,7 +71,7 @@
 <script lang="ts">
 
 import { defineComponent } from "vue";
-import ClosedDoor from "../components/ClosedDoor.vue";
+import RunProgress from "./RunProgress.vue";
 import { Calendar, Door, DoorStateCase } from "../models/calendar";
 
 export default defineComponent({
@@ -75,6 +81,7 @@ export default defineComponent({
             days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
         }
     },
+    components: {RunProgress},
     emits: {
         markedDone(payload: {door: Door}) {
             return true;

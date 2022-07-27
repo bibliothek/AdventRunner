@@ -28,11 +28,12 @@
 import { defineComponent } from "vue";
 import ClosedDoor from "./ClosedDoor.vue";
 import OpenDoor from "./OpenDoor.vue";
+import RunProgress from "../RunProgress.vue"
 import { Calendar, Door, DoorStateCase } from "../../models/calendar";
 
 export default defineComponent({
     name: "DoorCalendarComponent",
-    components: { ClosedDoor, OpenDoor },
+    components: { ClosedDoor, OpenDoor, RunProgress },
     emits: {
         markedDone(payload: { door: Door }) {
             return true;
