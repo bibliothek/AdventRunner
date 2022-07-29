@@ -62,6 +62,9 @@ const mutations = {
     [mutationTypes.SET_DISPLAY_PERIOD](state: State, period: number) {
         state.displayPeriod = period;
     },
+    [mutationTypes.SET_DISPLAY_TYPE](state: State, displayType: DisplayType) {
+        state.userData.displayType = {case: DisplayType[displayType]};
+    },
     [mutationTypes.SET_USER_DATA](state: State, userData: UserData) {
         state.userData = userData;
     },
@@ -116,6 +119,13 @@ const actions = {
         scaleFactor: number
     ) {
         context.commit(mutationTypes.SET_SCALE_FACTOR, scaleFactor);
+        await context.dispatch(actionTypes.SET_CALENDAR);
+    },
+    async [actionTypes.SET_DISPLAY_TYPE](
+        context: ActionContext<State, State>,
+        displayType: DisplayType
+    ) {
+        context.commit(mutationTypes.SET_DISPLAY_TYPE, displayType);
         await context.dispatch(actionTypes.SET_CALENDAR);
     },
     async [actionTypes.GET_AUTH_HEADERS](context: ActionContext<State, State>) {
@@ -232,7 +242,7 @@ export const store = createStore({
         },
         displayType: (state: State) => {
             if(!!state.userData.displayType) {
-                return state.userData.displayType;
+                return DisplayType[state.userData.displayType.case as keyof typeof DisplayType];
             }
             return DisplayType.Door;
         },

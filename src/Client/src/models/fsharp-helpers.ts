@@ -5,6 +5,10 @@ export type FOption<T> = {
     fields: T[];
 };
 
+export type FEnum<T> = {
+    case: string;
+}
+
 export function None<T>() : FOption<T> {
     return {case: "None", fields: []}
 }

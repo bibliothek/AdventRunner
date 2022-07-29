@@ -1,4 +1,5 @@
 import {
+    FEnum,
     FOption,
     None
 } from "./fsharp-helpers";
@@ -21,7 +22,7 @@ export type UserData = {
     owner: Owner;
     displayName: FOption<string>;
     latestPeriod: number;
-    displayType: DisplayType | undefined;
+    displayType: FEnum<DisplayType> | undefined;
 };
 
 export type SharedLinkPostRequest = { period: number };
@@ -43,7 +44,7 @@ export function emptyUserData(): UserData {
         calendars: { 0: emptyCalendar() },
         latestPeriod: 0,
         displayName: None<string>(),
-        displayType: DisplayType.Door
+        displayType: {case: DisplayType[DisplayType.Door]}
     };
 }
 

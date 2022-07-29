@@ -77,6 +77,7 @@ import {
 } from "@vue/runtime-core";
 import { isSome } from "../models/fsharp-helpers";
 import { mapGetters } from 'vuex';
+import { DisplayType } from '../models/calendar';
 
 const inputDebounceInMs = 300;
 
@@ -115,9 +116,8 @@ export default defineComponent({
             get() {
                 return this.$store.getters.displayType;
             },
-            set(value: string) {
-                // TODO
-
+            set(value: DisplayType) {
+                this.$store.dispatch(actionTypes.SET_DISPLAY_TYPE, value);
             }
         },
         displayName: {
