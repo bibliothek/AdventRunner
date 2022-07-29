@@ -5,17 +5,17 @@
             <RunProgress :cal="cal"></RunProgress>
             <div class="flex flex-row flex-wrap max-w-6xl justify-center">
                 <div class="w-auto" v-for="door in cal.doors" :key="door.day">
-                    <button v-if="door.state.case === 'Closed'" @click="$emit('markedOpen',{door})">
+                    <div v-if="door.state.case === 'Closed'" @click="$emit('markedOpen',{door})" :class="getCursorClass()">
                         <ClosedDoor :day="door.day" :showButtonIndicator="!readonly" />
-                    </button>
-                    <button v-if="door.state.case === 'Open'" @click="$emit('markedDone',{door})">
+                    </div>
+                    <div v-if="door.state.case === 'Open'" @click="$emit('markedDone',{door})" :class="getCursorClass()">
                         <OpenDoor :day="door.day" :isDone="false" :distance="distanceFor(door)"
                             :showButtonIndicator="!readonly" />
-                    </button>
-                    <button @click="$emit('markedOpen',{door})">
+                    </div>
+                    <div @click="$emit('markedOpen',{door})" :class="getCursorClass()">
                         <OpenDoor v-if="door.state.case === 'Done'" :day="door.day" :isDone="true"
                             :showButtonIndicator="!readonly" :distance="distanceFor(door)" />
-                    </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -50,6 +50,12 @@ export default defineComponent({
         distanceFor(door: Door) {
             return door.distance * this.$store.getters.displayCalendar.settings.distanceFactor;
         },
+        getCursorClass() {
+            if(this.readonly) {
+                return "cursor-default";
+            }
+            return "cursor-pointer";
+        }
     }
 });
 
