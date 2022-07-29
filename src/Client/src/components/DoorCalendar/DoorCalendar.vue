@@ -48,7 +48,7 @@ export default defineComponent({
     },
     methods: {
         distanceFor(door: Door) {
-            return door.distance * this.$store.getters.displayCalendar.settings.distanceFactor;
+            return door.distance * this.cal.settings.distanceFactor;
         },
         getCursorClass() {
             if(this.readonly) {

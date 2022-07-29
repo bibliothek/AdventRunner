@@ -17,7 +17,6 @@
 </template>
 
 <script lang="ts">
-import { Door } from "../models/calendar";
 
 import { defineComponent } from "@vue/runtime-core";
 import DoorCalendar from "../components/DoorCalendar/DoorCalendar.vue";
@@ -44,12 +43,6 @@ export default defineComponent({
         }
     },
     methods: {
-        distanceFor(door: Door) {
-            if (this.hasResponse) {
-                return door.distance * this.sharedLinkResponse.calendar.settings.distanceFactor;
-            }
-            return 0;
-        },
         getCal() {
             const id = this.$route.params['id'];
             this.$store.dispatch(actionTypes.GET_SHARED_CALENDAR, id);
