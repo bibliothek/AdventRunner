@@ -1,54 +1,39 @@
 <template>
-    <div class="flex flex-row justify-center">
-        <div class="flex flex-col">
-            <RunProgress :cal="cal"></RunProgress>
-            <div class="flex flex-row flex-wrap max-w-6xl justify-center">
-                <div class="w-auto" v-for="door in cal.doors" :key="door.day">
-                    <button v-if="door.state.case === 'Closed'" @click="markOpen(door)">
-                        <ClosedDoor :day="door.day" :showButtonIndicator="true" />
-                    </button>
-                    <button v-if="door.state.case === 'Open'" @click="markDone(door)">
-                        <OpenDoor :day="door.day" :isDone="false" :distance="distanceFor(door)"
-                            :showButtonIndicator="true" />
-                    </button>
-                    <button @click="markOpen(door)">
-                        <OpenDoor v-if="door.state.case === 'Done'" :day="door.day" :isDone="true"
-                            :showButtonIndicator="true" :distance="distanceFor(door)" />
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <MonthlyCalendar v-if="useMonthlyCalender()" :year="year" :cal="cal" :readonly="false" @markedDone="markDone"
+        @markedOpen="markOpen"></MonthlyCalendar>
+    <DoorCalendar v-else :cal="cal" :readonly="false" @markedDone="markDone"
+        @markedOpen="markOpen"></DoorCalendar>
 </template>
 
 <script lang="ts">
-import { Door } from "../models/calendar";
+import { Door, DisplayType } from "../models/calendar";
 
 import { defineComponent } from "@vue/runtime-core";
-import ClosedDoor from "../components/ClosedDoor.vue";
-import OpenDoor from "../components/OpenDoor.vue";
-import RunProgress from "../components/RunProgress.vue";
+import MonthlyCalendar from "../components/MonthlyCalendar.vue";
+import DoorCalendar from "../components/DoorCalendar/DoorCalendar.vue";
 import * as actionTypes from '../store/action-types';
 import { mapGetters } from "vuex";
 
 export default defineComponent({
     name: "CalendarComponent",
-    components: { ClosedDoor, OpenDoor, RunProgress },
+    components: { MonthlyCalendar, DoorCalendar },
     computed: {
         ...mapGetters({
             cal: "displayCalendar",
+            year: "displayPeriod",
+            displayType: "displayType",
         }),
     },
     methods: {
-        distanceFor(door: Door) {
-            return door.distance * this.$store.getters.displayCalendar.settings.distanceFactor;
-        },
         markDone(door: Door) {
             this.$store.dispatch(actionTypes.MARK_DOOR_DONE, door.day)
         },
         markOpen(door: Door) {
             this.$store.dispatch(actionTypes.OPEN_DOOR, door.day)
-        }
+        },
+        useMonthlyCalender() {
+            return this.displayType === DisplayType.Monthly;
+        },
     },
     mounted() {
         this.$store.dispatch(actionTypes.GET_CALENDAR)

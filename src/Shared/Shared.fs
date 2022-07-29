@@ -25,11 +25,15 @@ type Calendar =
       doors: CalendarDoor list
     }
 
+type DisplayType =
+    Monthly | Door
+
 type UserData =
     {
        version: string
        owner: Owner
        displayName: string option
+       displayType: DisplayType
        calendars: Map<int, Calendar>
        latestPeriod: int
     }
@@ -75,4 +79,5 @@ module Calendar =
           version = "2.0"
           calendars = Map [(period, (initCalendar settings))]
           latestPeriod = period
-          displayName = None}
+          displayName = None
+          displayType = Door}
