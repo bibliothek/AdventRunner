@@ -83,12 +83,8 @@ export default defineComponent({
     },
     components: {RunProgress},
     emits: {
-        markedDone(payload: {door: Door}) {
-            return true;
-        },
-        markedOpen(payload: {door: Door}) {
-            return true;
-        }
+        markedDone: (door: Door) => true,
+        markedOpen: (door: Door) => true,
     },
     props: {
         cal: { type: Object as () => Calendar, required: true },
