@@ -1,8 +1,8 @@
 <template>
-    <MonthlyCalendar v-if="useMonthlyCalender()" :year="year" :cal="cal" :readonly="false" @markedDone="(door) => markDone(door)"
-        @markedOpen="(door) => markOpen(door)"></MonthlyCalendar>
-    <DoorCalendar v-else :cal="cal" :readonly="false" @markedDone="(payload) => markDone(payload.door)"
-        @markedOpen="(payload) => markOpen(payload.door)"></DoorCalendar>
+    <MonthlyCalendar v-if="useMonthlyCalender()" :year="year" :cal="cal" :readonly="false" @markedDone="markDone"
+        @markedOpen="markOpen"></MonthlyCalendar>
+    <DoorCalendar v-else :cal="cal" :readonly="false" @markedDone="markDone"
+        @markedOpen="markOpen"></DoorCalendar>
 </template>
 
 <script lang="ts">

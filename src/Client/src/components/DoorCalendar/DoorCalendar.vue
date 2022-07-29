@@ -35,10 +35,10 @@ export default defineComponent({
     name: "DoorCalendarComponent",
     components: { ClosedDoor, OpenDoor, RunProgress },
     emits: {
-        markedDone(payload: { door: Door }) {
+        markedDone(payload: {door: Door}) {
             return true;
         },
-        markedOpen(payload: { door: Door }) {
+        markedOpen(payload: {door: Door}) {
             return true;
         }
     },
