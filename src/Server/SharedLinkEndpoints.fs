@@ -1,6 +1,7 @@
 ﻿module SharedLinkEndpoints
 
 open System
+open FSharp.Control.Tasks
 open Microsoft.AspNetCore.Http
 open Giraffe
 open EndpointsHelpers

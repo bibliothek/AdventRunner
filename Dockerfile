@@ -1,17 +1,18 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 as build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 as build
 
 # Install node
-RUN apt-get update && apt-get install -y nodejs npm
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash
+RUN apt-get update && apt-get install -y nodejs
 RUN npm install --global yarn
 
 WORKDIR /workspace
 COPY . .
 RUN dotnet tool restore
 
-RUN dotnet run -- Bundle
+RUN dotnet fake build -t Bundle
 
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
 COPY --from=build /workspace/deploy /app
 WORKDIR /app
 EXPOSE 8085

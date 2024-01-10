@@ -1,20 +1,25 @@
 source https://api.nuget.org/v3/index.json
-framework: net8.0
+framework: netcoreapp3.1
 storage: none
 
-nuget FSharp.Core ~> 8
-nuget Fable.Remoting.Giraffe ~> 5
-nuget Saturn ~> 0
-nuget Expecto ~> 9
-
-nuget Feliz ~> 2
-
-nuget Fake.Core.Target ~> 5
-nuget Fake.IO.FileSystem ~> 5
-nuget Farmer ~> 1
-
 nuget Azure.Storage.Blobs
-nuget Microsoft.AspNetCore.Authentication.JwtBearer
+nuget Giraffe 4.1
+nuget FSharp.Core 5.0
+nuget Saturn
+nuget Microsoft.AspNetCore.Authentication.JwtBearer ~> 3.0.3
+nuget Expecto
 nuget Newtonsoft.Json
 nuget Microsoft.IdentityModel.Protocols.OpenIdConnect
 nuget Microsoft.Extensions.DependencyInjection.Abstractions
+
+group Build
+    source https://api.nuget.org/v3/index.json
+    framework: netstandard2.0
+    storage: none
+
+    nuget FSharp.Core 5.0
+    nuget Fake.Core.ReleaseNotes
+    nuget Fake.Core.Target
+    nuget Fake.DotNet.Cli
+    nuget Fake.IO.FileSystem
+    nuget Farmer
