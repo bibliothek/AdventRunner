@@ -5,7 +5,6 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{08CCFCF6-2248-43ED-A6EF-E972A2DA0E6A}"
 	ProjectSection(SolutionItems) = preProject
-		build.fsx = build.fsx
 		paket.dependencies = paket.dependencies
 		paket.lock = paket.lock
 		README.md = README.md
@@ -16,6 +15,8 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Shared", "src\Shared\Shared.fsproj", "{B743B9A7-78C6-4FEB-ADDD-19B27F542340}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Server", "src\Server\Server.fsproj", "{B56110F0-2D27-4718-8C80-E7FDE3439A63}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Build", "Build.fsproj", "{6231CB52-A2A1-4673-9BDF-0F3A16433167}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,6 +55,18 @@ Global
 		{B56110F0-2D27-4718-8C80-E7FDE3439A63}.Release|x64.Build.0 = Release|Any CPU
 		{B56110F0-2D27-4718-8C80-E7FDE3439A63}.Release|x86.ActiveCfg = Release|Any CPU
 		{B56110F0-2D27-4718-8C80-E7FDE3439A63}.Release|x86.Build.0 = Release|Any CPU
+		{6231CB52-A2A1-4673-9BDF-0F3A16433167}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6231CB52-A2A1-4673-9BDF-0F3A16433167}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6231CB52-A2A1-4673-9BDF-0F3A16433167}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6231CB52-A2A1-4673-9BDF-0F3A16433167}.Debug|x64.Build.0 = Debug|Any CPU
+		{6231CB52-A2A1-4673-9BDF-0F3A16433167}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6231CB52-A2A1-4673-9BDF-0F3A16433167}.Debug|x86.Build.0 = Debug|Any CPU
+		{6231CB52-A2A1-4673-9BDF-0F3A16433167}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6231CB52-A2A1-4673-9BDF-0F3A16433167}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6231CB52-A2A1-4673-9BDF-0F3A16433167}.Release|x64.ActiveCfg = Release|Any CPU
+		{6231CB52-A2A1-4673-9BDF-0F3A16433167}.Release|x64.Build.0 = Release|Any CPU
+		{6231CB52-A2A1-4673-9BDF-0F3A16433167}.Release|x86.ActiveCfg = Release|Any CPU
+		{6231CB52-A2A1-4673-9BDF-0F3A16433167}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B743B9A7-78C6-4FEB-ADDD-19B27F542340} = {F84DCF8A-FC1A-4677-AF4D-616AD7DB3470}
