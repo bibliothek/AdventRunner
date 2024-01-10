@@ -4,7 +4,6 @@ open Microsoft.AspNetCore.Http
 open Giraffe
 open Shared
 open Storage
-open FSharp.Control.Tasks
 open EndpointsHelpers
 
 let migrate (storage: UserDataStorage) (userData: UserData) =
