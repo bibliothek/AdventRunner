@@ -1,7 +1,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 as build
 
 # Install node
-RUN apt-get update && apt-get install -y nodejs npm
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt-get install -y nodejs
 RUN npm install --global yarn
 
 WORKDIR /workspace
