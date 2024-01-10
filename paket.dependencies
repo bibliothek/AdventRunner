@@ -5,9 +5,6 @@ storage: none
 nuget FSharp.Core ~> 8
 nuget Fable.Remoting.Giraffe ~> 5
 nuget Saturn ~> 0
-nuget Expecto ~> 9
-
-nuget Feliz ~> 2
 
 nuget Fake.Core.Target ~> 5
 nuget Fake.IO.FileSystem ~> 5

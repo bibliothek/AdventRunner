@@ -19,12 +19,12 @@ Target.create "Clean" (fun _ ->
     Shell.cleanDir deployPath
 )
 
-Target.create "InstallClient" (fun _ -> run yarn "install" clientPath)
+Target.create "InstallClient" (fun _ -> run yarn ["install"] clientPath)
 
 Target.create "Bundle" (fun _ ->
     [
         "server", dotnet [ "publish"; "-c"; "Release"; "-o"; deployPath ] serverPath
-        "client", yarn "install" clientPath
+        "client", yarn ["install"] clientPath
     ]
     |> runParallel)
 
@@ -33,7 +33,7 @@ Target.create "Run" (fun _ ->
 
     [
         "server", dotnet [ "watch"; "run" ] serverPath
-        "client", yarn "dev" clientPath
+        "client", yarn ["dev"] clientPath
     ]
     |> runParallel)
 

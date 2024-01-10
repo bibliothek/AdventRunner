@@ -85,23 +85,7 @@ let yarn args workingDir =
             "yarn was not found in path. Please install it and make sure it's available from your path. "
             |> failwith
 
-    let arguments = args |> String.split ' ' |> Arguments.OfArgs
-
-    Command.RawCommand (yarnPath, arguments)
-    |> CreateProcess.fromCommand
-    |> CreateProcess.withWorkingDirectory workingDir
-    |> CreateProcess.ensureExitCode
-
-let npm args dir =
-    let npmPath =
-        match ProcessUtils.tryFindFileOnPath "npm" with
-        | Some path -> path
-        | None ->
-            "npm was not found in path. Please install it and make sure it's available from your path. "
-            + "See https://safe-stack.github.io/docs/quickstart/#install-pre-requisites for more info"
-            |> failwith
-
-    createProcess npmPath args dir
+    createProcess yarnPath args workingDir
 
 let run proc arg dir = proc arg dir |> Proc.run |> ignore
 
