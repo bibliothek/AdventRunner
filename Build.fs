@@ -24,7 +24,7 @@ Target.create "InstallClient" (fun _ -> run yarn ["install"] clientPath)
 Target.create "Bundle" (fun _ ->
     [
         "server", dotnet [ "publish"; "-c"; "Release"; "-o"; deployPath ] serverPath
-        "client", yarn ["install"] clientPath
+        "client", yarn ["build"] clientPath
     ]
     |> runParallel)
 
@@ -51,6 +51,8 @@ let dependencies = [
     "Clean" ==> "InstallClient" ==> "Run"
 
     "InstallClient" ==> "RunTests"
+
+    "InstallClient" ==> "Bundle"
 ]
 
 [<EntryPoint>]
