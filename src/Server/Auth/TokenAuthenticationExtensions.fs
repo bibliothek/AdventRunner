@@ -1,4 +1,4 @@
-﻿module TokenAuthenticationExtensions
+﻿module Server.Auth.TokenAuthenticationExtensions
 
 open System.Security.Claims
 open Microsoft.AspNetCore.Authentication.JwtBearer

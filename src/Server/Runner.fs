@@ -1,9 +1,9 @@
-module Server
+module Server.Runner
 
 open Microsoft.Extensions.DependencyInjection
 open Saturn
 open Giraffe
-open TokenAuthenticationExtensions
+open Server.Auth.TokenAuthenticationExtensions
 
 open Storage
 

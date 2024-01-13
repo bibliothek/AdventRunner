@@ -3,15 +3,20 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="Auth\TokenAuthenticationExtensions.fs" />
     <Compile Include="Auth\EndpointsHelpers.fs" />
     <Compile Include="Storage.fs" />
+    <Compile Include="Auth0Client.fs" />
+    <Compile Include="StravaClient.fs" />
+    <Compile Include="StravaSync.fs" />
+    <Compile Include="SyncQueue.fs" />
     <Compile Include="CalendarEndpoints.fs" />
     <Compile Include="SharedLinkEndpoints.fs" />
-    <Compile Include="Server.fs" />
+    <Compile Include="Runner.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.fsproj" />

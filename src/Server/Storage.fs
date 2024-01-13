@@ -1,4 +1,4 @@
-﻿module Storage
+﻿module Server.Storage
 
 open System.IO
 open System.Text

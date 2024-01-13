@@ -1,4 +1,4 @@
-﻿module EndpointsHelpers
+﻿module Server.Auth.EndpointsHelpers
 
 open System.Security.Claims
 open Microsoft.AspNetCore.Http
