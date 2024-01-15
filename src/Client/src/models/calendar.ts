@@ -9,6 +9,7 @@ export type Calendar = {
     settings: Settings;
     doors: Door[];
     owner: Owner;
+    verifiedDistance: FOption<number>;
 };
 
 export enum DisplayType {
@@ -34,6 +35,7 @@ export function emptyCalendar(): Calendar {
         settings: { distanceFactor: 1 },
         doors: [],
         owner: { name: "" },
+        verifiedDistance: None<number>()
     };
 }
 
