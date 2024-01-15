@@ -5,6 +5,7 @@ storage: none
 nuget Flurl.Http
 nuget FSharp.Core ~> 8
 nuget Saturn ~> 0
+nuget Microsoft.IO.RecyclableMemoryStream ~> 2
 
 nuget Fake.Core.Target ~> 5
 nuget Fake.IO.FileSystem ~> 5

@@ -93,7 +93,7 @@ NUGET
       System.IdentityModel.Tokens.Jwt (>= 7.1.2)
     Microsoft.IdentityModel.Tokens (7.1.2)
       Microsoft.IdentityModel.Logging (>= 7.1.2)
-    Microsoft.IO.RecyclableMemoryStream (3.0)
+    Microsoft.IO.RecyclableMemoryStream (2.3.2)
     Newtonsoft.Json (13.0.3)
     Saturn (0.16.1)
       FSharp.Control.Websockets (>= 0.2.2)

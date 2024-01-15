@@ -33,16 +33,16 @@
 }
 </style>
 <script lang="ts">
-import { defineComponent } from "vue";
-import { Calendar, emptyCalendar, Door, DoorState, DoorStateCase } from "../models/calendar"
-import { getSome, isSome } from "../models/fsharp-helpers";
+import {defineComponent} from "vue";
+import {Calendar, DoorStateCase} from "../models/calendar"
+import {getSome, isSome} from "../models/fsharp-helpers";
 
 let getTotal = (cal: Calendar) => {
     return cal.doors.reduce((val, el) => val + el.distance, 0)
 }
 
 let getByState = (cal: Calendar, state: DoorStateCase) => {
-    return cal.doors.reduce((val, el) => el.state.case === state ? val + el.distance : val, 0)
+    return cal.doors.reduce((val, el) => el.state.Case === state ? val + el.distance : val, 0)
 }
 
 let getWidthPropertyForState = (cal: Calendar, state: DoorStateCase) => {
@@ -72,7 +72,7 @@ export default defineComponent({
             return Math.min((this.verifiedDistance / (this.verifiedDistance + this.missingVerifiedDistance)) * 100, 100);
         },
         verifiedDistance() {
-            const distance = getSome(this.cal!.verifiedDistance);
+            const distance = getSome(this.cal!.verifiedDistance!);
             return (distance / 1000);
         },
         missingVerifiedDistance() {

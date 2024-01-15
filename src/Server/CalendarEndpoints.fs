@@ -2,6 +2,7 @@
 
 open Microsoft.AspNetCore.Http
 open Giraffe
+open Newtonsoft.Json
 open Server.MsgProcessor
 open Shared
 open Server.Storage
@@ -55,7 +56,8 @@ let getHandler next (ctx: HttpContext) =
 let putHandler next (ctx: HttpContext) =
     task {
         let owner = getUser ctx
-        let! userData = ctx.BindJsonAsync<UserData>()
+        let! requestBody = ctx.ReadBodyFromRequestAsync ()
+        let userData = JsonConvert.DeserializeObject<UserData> requestBody
         let userDataWithOwner = { userData with owner = owner }
         let storage = ctx.GetService<UserDataStorage>()
         return! json (storage.UpdateUserData userDataWithOwner) next ctx

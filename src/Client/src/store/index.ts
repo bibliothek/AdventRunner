@@ -1,7 +1,7 @@
-import { Auth0Client } from "@auth0/auth0-spa-js";
+import {Auth0Client} from "@auth0/auth0-spa-js";
 import axios from "axios";
-import { inject } from "vue";
-import { ActionContext, createLogger, createStore } from "vuex";
+import {inject} from "vue";
+import {ActionContext, createLogger, createStore} from "vuex";
 import {
     Calendar,
     DisplayType,
@@ -11,7 +11,7 @@ import {
     SharedLinkResponse,
     UserData,
 } from "../models/calendar";
-import { FOption, getSome, isSome, None, Some } from "../models/fsharp-helpers";
+import {FOption, getSome, isSome, None, Some} from "../models/fsharp-helpers";
 import * as actionTypes from "./action-types";
 import * as mutationTypes from "./mutation-types.";
 
@@ -39,12 +39,12 @@ const mutations = {
     [mutationTypes.OPEN_DOOR](state: State, day: number) {
         state.userData.calendars[state.displayPeriod]!.doors[
             day - 1
-        ].state.case = "Open";
+        ].state.Case = "Open";
     },
     [mutationTypes.MARK_DOOR_DONE](state: State, day: number) {
         state.userData.calendars[state.displayPeriod]!.doors[
             day - 1
-        ].state.case = "Done";
+        ].state.Case = "Done";
     },
     [mutationTypes.SET_DISPLAY_NAME](state: State, displayName: string) {
         state.userData.displayName = Some<string>(displayName);
@@ -63,7 +63,7 @@ const mutations = {
         state.displayPeriod = period;
     },
     [mutationTypes.SET_DISPLAY_TYPE](state: State, displayType: DisplayType) {
-        state.userData.displayType = {case: DisplayType[displayType]};
+        state.userData.displayType = {Case: DisplayType[displayType]};
     },
     [mutationTypes.SET_USER_DATA](state: State, userData: UserData) {
         state.userData = userData;
@@ -189,7 +189,7 @@ const actions = {
     async [actionTypes.DISABLE_SHARED_LINK](
         context: ActionContext<State, State>
     ) {
-        const linkId = context.getters.sharedLinkId.fields[0];
+        const linkId = context.getters.sharedLinkId.Fields[0];
         const _ = await axios.delete(
             "/api/sharedCalendars/" + linkId,
             context.state.axiosConfig
@@ -242,7 +242,7 @@ export const store = createStore({
         },
         displayType: (state: State) => {
             if(!!state.userData.displayType) {
-                return DisplayType[state.userData.displayType.case as keyof typeof DisplayType];
+                return DisplayType[state.userData.displayType.Case as keyof typeof DisplayType];
             }
             return DisplayType.Door;
         },
@@ -261,7 +261,7 @@ export const store = createStore({
         sharedLinkValue: (state: State) => {
             const linkId =
                 state.userData.calendars[state.displayPeriod].settings
-                    .sharedLinkId?.fields[0];
+                    .sharedLinkId?.Fields[0];
             return `${window.location.protocol}//${window.location.host}/#/s/${linkId}`;
         },
     },

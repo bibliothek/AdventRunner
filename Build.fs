@@ -20,6 +20,8 @@ Target.create "Clean" (fun _ ->
 
 Target.create "InstallClient" (fun _ -> run yarn ["install"] clientPath)
 
+Target.create "RunClient" (fun _ -> run yarn ["dev"] clientPath)
+
 Target.create "Bundle" (fun _ ->
     [
         "server", dotnet [ "publish"; "-c"; "Release"; "-o"; deployPath ] serverPath
@@ -48,6 +50,8 @@ open Fake.Core.TargetOperators
 
 let dependencies = [
     "Clean" ==> "InstallClient" ==> "Run"
+
+    "InstallClient" ==> "RunClient"
 
     "InstallClient" ==> "RunTests"
 
