@@ -2,6 +2,7 @@ module Server.StravaSync
 
 open System
 open System.Threading.Tasks
+open Server.Storage
 
 // we cannot filter by local time in Strava
 // instead we include more elements and then filter the results (which do contain the local time)
@@ -37,7 +38,7 @@ let private getTotalDistanceFromActivities (activities: StravaClient.Activity[])
     |> Array.map (_.distance)
     |> Array.sum
 
-let getTotalDistance owner (period: int) =
+let private getTotalDistance owner (period: int) =
     let timestamps = getDecemberTimestamps period
     if fst timestamps < DateTimeOffset.UtcNow.ToUnixTimeSeconds() then
         task {
@@ -49,3 +50,26 @@ let getTotalDistance owner (period: int) =
                 return None
         }
     else Task.FromResult(None)
+
+let private syncVerifiedDistance (storage: UserDataStorage, owner, period) =
+    task {
+        let! totalDistance = getTotalDistance owner period
+        let userData = storage.GetUserData owner
+        if userData.calendars[period].verifiedDistance <> totalDistance then
+            let calendars =
+                userData.calendars.Change(
+                    period,
+                    (fun el ->
+                        Some
+                            { el.Value with
+                                verifiedDistance = totalDistance })
+                )
+
+            storage.UpdateUserData { userData with calendars = calendars } |> ignore
+    }
+let sync owner (storage:UserDataStorage) =
+    task {
+        let userData = storage.GetUserData owner
+        userData.calendars.Keys
+        |> Seq.iter (fun period -> syncVerifiedDistance (storage, owner, period) |> Async.AwaitTask |> Async.RunSynchronously )
+    }

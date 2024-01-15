@@ -5,12 +5,14 @@ open Saturn
 open Giraffe
 open Server.Auth.TokenAuthenticationExtensions
 
-open Storage
+open Server.Storage
+open Server.MsgProcessor
 
 let serviceConfig (serviceCollection: IServiceCollection) =
     serviceCollection
         .AddSingleton<UserDataStorage>(fun provider -> UserDataStorage())
         .AddSingleton<SharedLinksStorage>(fun provider -> SharedLinksStorage())
+        .AddSingleton<SyncQueue>(fun provider -> provider.GetRequiredService<UserDataStorage>() |> SyncQueue )
 
 let webApp =
     choose [ SharedLinkEndpoints.handlers

@@ -2,6 +2,7 @@
 
 open Microsoft.AspNetCore.Http
 open Giraffe
+open Server.MsgProcessor
 open Shared
 open Server.Storage
 open Server.Auth.EndpointsHelpers
@@ -33,25 +34,6 @@ let migrate (storage: UserDataStorage) (userData: UserData) =
     else
         None
 
-let syncVerifiedDistance (storage: UserDataStorage, owner, userData, period) : unit =
-    task {
-        let! totalDistance = StravaSync.getTotalDistance owner period
-
-        if userData.calendars[period].verifiedDistance <> totalDistance then
-            let calendars =
-                userData.calendars.Change(
-                    period,
-                    (fun el ->
-                        Some
-                            { el.Value with
-                                verifiedDistance = totalDistance })
-                )
-
-            storage.UpdateUserData { userData with calendars = calendars } |> ignore
-    }
-    |> Async.AwaitTask
-    |> Async.RunSynchronously
-
 let getHandler next (ctx: HttpContext) =
     let owner = getUser ctx
     let storage = ctx.GetService<UserDataStorage>()
@@ -64,8 +46,8 @@ let getHandler next (ctx: HttpContext) =
         | false -> storage.AddNewUser(Calendar.initUserData owner Settings.initDefault)
 
     if owner |> Auth0Client.canVerifyDistance then
-        userData.calendars.Keys
-        |> Seq.iter (fun period -> syncVerifiedDistance (storage, owner, userData, period))
+        let queue = ctx.GetService<SyncQueue>()
+        queue.Enqueue {owner = owner }
 
     json userData next ctx
 

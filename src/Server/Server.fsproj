@@ -13,7 +13,7 @@
     <Compile Include="Auth0Client.fs" />
     <Compile Include="StravaClient.fs" />
     <Compile Include="StravaSync.fs" />
-    <Compile Include="SyncQueue.fs" />
+    <Compile Include="MsgProcessor.fs" />
     <Compile Include="CalendarEndpoints.fs" />
     <Compile Include="SharedLinkEndpoints.fs" />
     <Compile Include="Runner.fs" />
