@@ -1,14 +1,11 @@
-import {
-    FEnum,
-    FOption,
-    None
-} from "./fsharp-helpers";
+import {FEnum, FOption, None} from "./fsharp-helpers";
 
 export type Calendar = {
     version: string;
     settings: Settings;
     doors: Door[];
     owner: Owner;
+    verifiedDistance: FOption<number> | undefined;
 };
 
 export enum DisplayType {
@@ -34,6 +31,7 @@ export function emptyCalendar(): Calendar {
         settings: { distanceFactor: 1 },
         doors: [],
         owner: { name: "" },
+        verifiedDistance: None<number>()
     };
 }
 
@@ -44,7 +42,7 @@ export function emptyUserData(): UserData {
         calendars: { 0: emptyCalendar() },
         latestPeriod: 0,
         displayName: None<string>(),
-        displayType: {case: DisplayType[DisplayType.Door]}
+        displayType: {Case: DisplayType[DisplayType.Door]}
     };
 }
 
@@ -59,7 +57,7 @@ export type Door = {
 };
 
 export type DoorState = {
-    case: DoorStateCase;
+    Case: DoorStateCase;
 };
 
 export type DoorStateCase = "Closed" | "Open" | "Done" | "Failed";

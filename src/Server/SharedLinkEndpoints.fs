@@ -1,11 +1,11 @@
-﻿module SharedLinkEndpoints
+﻿module Server.SharedLinkEndpoints
 
 open System
 open Microsoft.AspNetCore.Http
 open Giraffe
-open EndpointsHelpers
+open Server.Auth.EndpointsHelpers
 open Shared
-open Storage
+open Server.Storage
 
 let getHandler (id: string) next (ctx: HttpContext) =
     let linkStorage = ctx.GetService<SharedLinksStorage>()

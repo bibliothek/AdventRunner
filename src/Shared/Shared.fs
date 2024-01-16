@@ -23,6 +23,7 @@ type SharedLink = {
 type Calendar =
     { settings: Settings
       doors: CalendarDoor list
+      verifiedDistance: float option
     }
 
 type DisplayType =
@@ -71,7 +72,9 @@ module Calendar =
 
     let initCalendar settings: Calendar =
         { doors = initDoors settings
-          settings = settings }
+          settings = settings
+          verifiedDistance = None
+          }
 
     let initUserData owner settings: UserData =
         let period = currentPeriod()

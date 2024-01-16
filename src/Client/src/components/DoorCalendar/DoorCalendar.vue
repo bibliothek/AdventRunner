@@ -5,15 +5,15 @@
             <RunProgress :cal="cal"></RunProgress>
             <div class="flex flex-row flex-wrap max-w-6xl justify-center">
                 <div class="w-auto" v-for="door in cal.doors" :key="door.day">
-                    <div v-if="door.state.case === 'Closed'" @click="$emit('markedOpen',door)" :class="getCursorClass()">
+                    <div v-if="door.state.Case === 'Closed'" @click="$emit('markedOpen',door)" :class="getCursorClass()">
                         <ClosedDoor :day="door.day" :showButtonIndicator="!readonly" />
                     </div>
-                    <div v-if="door.state.case === 'Open'" @click="$emit('markedDone',door)" :class="getCursorClass()">
+                    <div v-if="door.state.Case === 'Open'" @click="$emit('markedDone',door)" :class="getCursorClass()">
                         <OpenDoor :day="door.day" :isDone="false" :distance="distanceFor(door)"
                             :showButtonIndicator="!readonly" />
                     </div>
                     <div @click="$emit('markedOpen',door)" :class="getCursorClass()">
-                        <OpenDoor v-if="door.state.case === 'Done'" :day="door.day" :isDone="true"
+                        <OpenDoor v-if="door.state.Case === 'Done'" :day="door.day" :isDone="true"
                             :showButtonIndicator="!readonly" :distance="distanceFor(door)" />
                     </div>
                 </div>
@@ -25,11 +25,11 @@
 <script lang="ts">
 
 
-import { defineComponent } from "vue";
+import {defineComponent} from "vue";
 import ClosedDoor from "./ClosedDoor.vue";
 import OpenDoor from "./OpenDoor.vue";
 import RunProgress from "../RunProgress.vue"
-import { Calendar, Door, DoorStateCase } from "../../models/calendar";
+import {Calendar, Door} from "../../models/calendar";
 
 export default defineComponent({
     name: "DoorCalendarComponent",

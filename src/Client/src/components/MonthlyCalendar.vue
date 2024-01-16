@@ -39,13 +39,13 @@
                             class=" -mt-7 flex flex-col justify-center items-center text-center text-sm lg:text-2xl lg:font-light"
                             :class="getDayContentClasses(door)"
                             @click="doorClicked(door)">
-                            <div v-if="door.state.case !== 'Closed'" class="mb-2 mt-4">{{ door.distance *
+                            <div v-if="door.state.Case !== 'Closed'" class="mb-2 mt-4">{{ door.distance *
                                     cal.settings.distanceFactor
                             }} km</div>
 
-                            <font-awesome-icon icon="fa-solid fa-check" v-if="door.state.case === 'Done'" />
-                            <font-awesome-icon icon="fa-solid fa-person-running" v-if="door.state.case === 'Open'" />
-                            <font-awesome-icon icon="fa-solid fa-door-open" v-if="door.state.case === 'Closed'" />
+                            <font-awesome-icon icon="fa-solid fa-check" v-if="door.state.Case === 'Done'" />
+                            <font-awesome-icon icon="fa-solid fa-person-running" v-if="door.state.Case === 'Open'" />
+                            <font-awesome-icon icon="fa-solid fa-door-open" v-if="door.state.Case === 'Closed'" />
                         </div>
                     </div>
                     <div v-for="(n, _) in [...Array(7).keys()].map(v => v + 25)" style="width: 14.28%; height: 120px"
@@ -70,9 +70,9 @@
 
 <script lang="ts">
 
-import { defineComponent } from "vue";
+import {defineComponent} from "vue";
 import RunProgress from "./RunProgress.vue";
-import { Calendar, Door, DoorStateCase } from "../models/calendar";
+import {Calendar, Door, DoorStateCase} from "../models/calendar";
 
 export default defineComponent({
     name: "MonthlyCalendarComponent",
@@ -106,7 +106,7 @@ export default defineComponent({
             if(this.readonly) {
                 return;
             }
-            if(door.state.case == 'Open') {
+            if(door.state.Case == 'Open') {
                 this.$emit('markedDone', door);
                 return;
             }
@@ -127,11 +127,11 @@ export default defineComponent({
                 }
             }
             const cursor = this.readonly ? 'cursor-default' : 'cursor-pointer';
-            const color = selectColor(door.state.case);
+            const color = selectColor(door.state.Case);
             return `${cursor} ${color}`;
         },
         getDayContentClasses(door: Door) {
-            switch (door.state.case) {
+            switch (door.state.Case) {
                 case "Closed":
                     return "text-neutral-content";
                 case "Open":
@@ -143,7 +143,7 @@ export default defineComponent({
             }
         },
         getDayIndicatorClasses(door: Door) {
-            switch (door.state.case) {
+            switch (door.state.Case) {
                 case "Closed":
                     return "text-gray-100";
                 case "Open":

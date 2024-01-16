@@ -1,7 +1,6 @@
 open Fake.Core
 open Fake.IO
 open Farmer
-open Farmer.Builders
 
 open Helpers
 
@@ -20,6 +19,8 @@ Target.create "Clean" (fun _ ->
 )
 
 Target.create "InstallClient" (fun _ -> run yarn ["install"] clientPath)
+
+Target.create "RunClient" (fun _ -> run yarn ["dev"] clientPath)
 
 Target.create "Bundle" (fun _ ->
     [
@@ -49,6 +50,8 @@ open Fake.Core.TargetOperators
 
 let dependencies = [
     "Clean" ==> "InstallClient" ==> "Run"
+
+    "InstallClient" ==> "RunClient"
 
     "InstallClient" ==> "RunTests"
 
