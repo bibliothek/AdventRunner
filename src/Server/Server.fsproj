@@ -16,6 +16,7 @@
     <Compile Include="MsgProcessor.fs" />
     <Compile Include="CalendarEndpoints.fs" />
     <Compile Include="SharedLinkEndpoints.fs" />
+    <Compile Include="WebhookEndpoints.fs" />
     <Compile Include="Runner.fs" />
   </ItemGroup>
   <ItemGroup>

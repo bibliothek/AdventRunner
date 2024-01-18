@@ -10,16 +10,20 @@ open Server.Storage
 open Server.MsgProcessor
 
 let serviceConfig (serviceCollection: IServiceCollection) =
-    let jsonSerializer : Json.ISerializer = NewtonsoftJson.Serializer (JsonSerializerSettings ())
+    let jsonSerializer: Json.ISerializer =
+        NewtonsoftJson.Serializer(JsonSerializerSettings())
+
     serviceCollection
         .AddSingleton<UserDataStorage>(fun provider -> UserDataStorage())
         .AddSingleton<SharedLinksStorage>(fun provider -> SharedLinksStorage())
-        .AddSingleton<SyncQueue>(fun provider -> provider.GetRequiredService<UserDataStorage>() |> SyncQueue )
+        .AddSingleton<SyncQueue>(fun provider -> provider.GetRequiredService<UserDataStorage>() |> SyncQueue)
         .AddSingleton<Json.ISerializer>(fun provider -> jsonSerializer)
 
 let webApp =
-    choose [ SharedLinkEndpoints.handlers
-             CalendarEndpoints.handlers ]
+    choose
+        [ WebhookEndpoints.handlers
+          SharedLinkEndpoints.handlers
+          CalendarEndpoints.handlers ]
 
 
 let app =
