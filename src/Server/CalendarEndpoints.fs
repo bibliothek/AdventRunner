@@ -7,6 +7,7 @@ open Server.MsgProcessor
 open Shared
 open Server.Storage
 open Server.Auth.EndpointsHelpers
+open Server.StravaSync
 
 let migrate (storage: UserDataStorage) (userData: UserData) =
     let period = Calendar.currentPeriod ()
@@ -48,7 +49,7 @@ let getHandler next (ctx: HttpContext) =
 
     if owner |> Auth0Client.canVerifyDistance then
         let queue = ctx.GetService<SyncQueue>()
-        queue.Enqueue {owner = owner }
+        queue.Enqueue {owner = owner ; period = All }
 
     json userData next ctx
 

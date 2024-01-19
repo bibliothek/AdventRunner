@@ -4,6 +4,10 @@ open System
 open System.Threading.Tasks
 open Server.Storage
 
+type PeriodSelector =
+    | All
+    | Period of int
+
 // we cannot filter by local time in Strava
 // instead we include more elements and then filter the results (which do contain the local time)
 let private getDecemberTimestamps (period: int) =
@@ -15,7 +19,7 @@ let private getDecemberTimestamps (period: int) =
 
     (beginning, ending)
 
-let private getActivities owner (period: int64*int64) =
+let private getActivities owner (period: int64 * int64) =
     task {
         let! auth0Token = Auth0Client.getManagementAccessTokenAsync
         let! refreshToken = Auth0Client.getStravaRefreshToken auth0Token owner
@@ -40,6 +44,7 @@ let private getTotalDistanceFromActivities (activities: StravaClient.Activity[])
 
 let private getTotalDistance owner (period: int) =
     let timestamps = getDecemberTimestamps period
+
     if fst timestamps < DateTimeOffset.UtcNow.ToUnixTimeSeconds() then
         task {
             let! activities = getActivities owner timestamps
@@ -49,12 +54,14 @@ let private getTotalDistance owner (period: int) =
             else
                 return None
         }
-    else Task.FromResult(None)
+    else
+        Task.FromResult(None)
 
 let private syncVerifiedDistance (storage: UserDataStorage, owner, period) =
     task {
         let! totalDistance = getTotalDistance owner period
         let userData = storage.GetUserData owner
+
         if userData.calendars[period].verifiedDistance <> totalDistance then
             let calendars =
                 userData.calendars.Change(
@@ -67,9 +74,19 @@ let private syncVerifiedDistance (storage: UserDataStorage, owner, period) =
 
             storage.UpdateUserData { userData with calendars = calendars } |> ignore
     }
-let sync owner (storage:UserDataStorage) =
+
+let sync owner periodSelector (storage: UserDataStorage) =
     task {
         let userData = storage.GetUserData owner
-        userData.calendars.Keys
-        |> Seq.iter (fun period -> syncVerifiedDistance (storage, owner, period) |> Async.AwaitTask |> Async.RunSynchronously )
+
+        let periods =
+            match periodSelector with
+            | All -> userData.calendars.Keys
+            | Period p -> [| p |]
+
+        periods
+        |> Seq.iter (fun period ->
+            syncVerifiedDistance (storage, owner, period)
+            |> Async.AwaitTask
+            |> Async.RunSynchronously)
     }
