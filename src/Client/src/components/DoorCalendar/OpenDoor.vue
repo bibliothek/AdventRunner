@@ -1,6 +1,7 @@
 <template>
     <div class="
       m-2
+      pt-1
       md:m-4
       w-14
       h-14
