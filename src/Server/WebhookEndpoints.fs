@@ -29,7 +29,7 @@ let postHandlerStrava next (ctx: HttpContext) : HttpFuncResult =
     task {
         let! requestData = ctx.ReadBodyFromRequestAsync()
         let eventData = JsonConvert.DeserializeObject<StravaEventData> requestData
-        let logger = ctx.GetLogger ()
+        let logger = ctx.GetLogger "WebhookEndpoints:postHandlerStrava"
 
         if eventData.object_type <> "activity" then
             logger.LogInformation ("Ignoring received object of type: {ObjectType}", eventData.object_type)

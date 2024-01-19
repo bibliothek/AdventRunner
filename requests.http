@@ -1,0 +1,11 @@
+GET http://{{endpoint}}/api/webhooks/strava?hub.challenge=challengeme
+
+###
+
+POST http://{{endpoint}}/api/webhooks/strava
+Content-Type: application/json
+
+    { "object_type": "activity",
+      "owner_id": 28896490,
+      "event_time": 1705674682 }
+
