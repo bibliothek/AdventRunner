@@ -2,8 +2,8 @@
     <div class="
         m-2
         md:m-4
-        w-12
-        h-12
+        w-14
+        h-14
         md:w-40
         md:h-40
         rounded-box
