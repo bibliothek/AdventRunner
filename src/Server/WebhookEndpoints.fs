@@ -40,7 +40,7 @@ let postHandlerStrava next (ctx: HttpContext) : HttpFuncResult =
             let period = (DateTimeOffset.FromUnixTimeSeconds eventData.event_time).Year
             let syncQueue = ctx.GetService<SyncQueue> ()
             syncQueue.Enqueue {owner = owner; period = Period period }
-            return! next ctx
+            return! setStatusCode 200 next ctx
     }
 
 let handlers: HttpFunc -> HttpContext -> HttpFuncResult =
