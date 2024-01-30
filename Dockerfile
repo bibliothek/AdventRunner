@@ -11,7 +11,6 @@ RUN dotnet tool restore
 
 RUN dotnet run -- Bundle
 
-
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 COPY --from=build /workspace/deploy /app
 WORKDIR /app
