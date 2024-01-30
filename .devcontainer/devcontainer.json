@@ -32,13 +32,22 @@
 	},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [8085, 3000]
+	"forwardPorts": [8085, 3000],
 
 	// Uncomment the next line to run commands after the container is created.
 	// "postCreateCommand": "cat /etc/os-release",
 
 	// Configure tool-specific properties.
-	// "customizations": {},
+	"customizations": {
+        "vscode": {
+            "extensions": [
+                "ionide.ionide-fsharp",
+                "editorconfig.editorconfig",
+                "vue.volar",
+                "vue.vscode-typescript-vue-plugin"
+            ]
+        }
+    },
 
 	// Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "devcontainer"
