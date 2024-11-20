@@ -2,3 +2,8 @@ Saturn
 Azure.Storage.Blobs
 Microsoft.Extensions.DependencyInjection.Abstractions
 Flurl.Http
+Microsoft.Data.Sqlite
+Dapper
+FluentMigrator
+FluentMigrator.Runner
+FluentMigrator.Runner.Sqlite

@@ -9,15 +9,18 @@
     <None Include="paket.references" />
     <Compile Include="Auth\TokenAuthenticationExtensions.fs" />
     <Compile Include="Auth\EndpointsHelpers.fs" />
-    <Compile Include="Storage.fs" />
-    <Compile Include="Auth0Client.fs" />
-    <Compile Include="StravaClient.fs" />
-    <Compile Include="StravaSync.fs" />
-    <Compile Include="MsgProcessor.fs" />
-    <Compile Include="CalendarEndpoints.fs" />
-    <Compile Include="SharedLinkEndpoints.fs" />
-    <Compile Include="WebhookEndpoints.fs" />
-    <Compile Include="Runner.fs" />
+      <Compile Include="Migrations\Migration20240222CreateTables.fs" />
+      <Compile Include="ConfigAccessor.fs" />
+      <Compile Include="Database.fs" />
+      <Compile Include="Storage.fs" />
+      <Compile Include="Auth0Client.fs" />
+      <Compile Include="StravaClient.fs" />
+      <Compile Include="StravaSync.fs" />
+      <Compile Include="MsgProcessor.fs" />
+      <Compile Include="CalendarEndpoints.fs" />
+      <Compile Include="SharedLinkEndpoints.fs" />
+      <Compile Include="WebhookEndpoints.fs" />
+      <Compile Include="Runner.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.fsproj" />

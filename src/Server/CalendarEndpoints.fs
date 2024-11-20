@@ -1,8 +1,10 @@
 ﻿module Server.CalendarEndpoints
 
 open Microsoft.AspNetCore.Http
+open Microsoft.Extensions.Configuration
 open Giraffe
 open Newtonsoft.Json
+open Saturn.ControllerHelpers
 open Server.MsgProcessor
 open Shared
 open Server.Storage
@@ -37,6 +39,10 @@ let migrate (storage: UserDataStorage) (userData: UserData) =
         None
 
 let getHandler next (ctx: HttpContext) =
+    let cfg = ctx.GetService<IConfiguration>()
+    let c = Server.ConfigAccessor.getDbConnectionString ctx
+    let a = cfg["AR_Auth0_ClientId"]
+    let b = cfg["AR_Auth0"]
     let owner = getUser ctx
     let storage = ctx.GetService<UserDataStorage>()
 

@@ -1,13 +1,17 @@
 module Server.Runner
 
+open System.Reflection
+open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open Newtonsoft.Json
 open Saturn
 open Giraffe
 open Server.Auth.TokenAuthenticationExtensions
-
+open Microsoft.AspNetCore.Hosting
+open Microsoft.Extensions.Hosting
 open Server.Storage
 open Server.MsgProcessor
+open FluentMigrator.Runner
 
 let serviceConfig (serviceCollection: IServiceCollection) =
     let jsonSerializer: Json.ISerializer =
@@ -18,6 +22,13 @@ let serviceConfig (serviceCollection: IServiceCollection) =
         .AddSingleton<SharedLinksStorage>(fun provider -> SharedLinksStorage())
         .AddSingleton<SyncQueue>(fun provider -> provider.GetRequiredService<UserDataStorage>() |> SyncQueue)
         .AddSingleton<Json.ISerializer>(fun provider -> jsonSerializer)
+        .AddFluentMigratorCore()
+        .ConfigureRunner(fun builder ->
+            builder
+                .AddSQLite()
+                .ScanIn(Assembly.GetExecutingAssembly())
+                .WithGlobalConnectionString(ConfigAccessor.getDbConnectionStringFromServiceProvider)
+            |> ignore)
 
 let webApp =
     choose
@@ -25,8 +36,7 @@ let webApp =
           SharedLinkEndpoints.handlers
           CalendarEndpoints.handlers ]
 
-
-let app =
+let appBuilder =
     application {
         url "http://0.0.0.0:8085"
         use_token_authentication
@@ -37,4 +47,9 @@ let app =
         service_config serviceConfig
     }
 
-run app
+let app = appBuilder.Build()
+let sp = app.Services.CreateScope().ServiceProvider
+
+Database.init sp
+
+app.Run()
