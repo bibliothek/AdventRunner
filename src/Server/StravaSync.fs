@@ -52,10 +52,10 @@ let private getTotalDistance owner (period: int) =
             if activities.IsSome then
                 return Some(getTotalDistanceFromActivities activities.Value)
             else
-                return None
+                return Some(0.0)
         }
     else
-        Task.FromResult(None)
+        Task.FromResult(Some(0.0))
 
 let private syncVerifiedDistance (storage: UserDataStorage, owner, period) =
     task {
