@@ -45,7 +45,7 @@
                 </div>
             </div>
         </div>
-        <div id="share-btn" class="h-8 mt-2 flex flex-row">
+        <div id="share-btn" style="display: none" class="h-8 mt-2 flex flex-row">
             <div class="flex-grow"></div>
             <button class="btn btn-primary" @click="screenshot">
                 Share progress
