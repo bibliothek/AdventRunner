@@ -41,6 +41,11 @@ const mutations = {
             day - 1
         ].state.Case = "Open";
     },
+    [mutationTypes.CLOSE_DOOR](state: State, day: number) {
+        state.userData.calendars[state.displayPeriod]!.doors[
+            day - 1
+        ].state.Case = "Closed";
+    },
     [mutationTypes.MARK_DOOR_DONE](state: State, day: number) {
         state.userData.calendars[state.displayPeriod]!.doors[
             day - 1
@@ -98,6 +103,13 @@ const actions = {
         day: number
     ) {
         context.commit(mutationTypes.OPEN_DOOR, day);
+        await context.dispatch(actionTypes.SET_CALENDAR);
+    },
+    async [actionTypes.CLOSE_DOOR](
+        context: ActionContext<State, State>,
+        day: number
+    ) {
+        context.commit(mutationTypes.CLOSE_DOOR, day);
         await context.dispatch(actionTypes.SET_CALENDAR);
     },
     async [actionTypes.MARK_DOOR_DONE](

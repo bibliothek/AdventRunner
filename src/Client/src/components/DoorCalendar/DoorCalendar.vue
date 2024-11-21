@@ -12,7 +12,7 @@
                         <OpenDoor :day="door.day" :isDone="false" :distance="distanceFor(door)"
                             :showButtonIndicator="!readonly" />
                     </div>
-                    <div @click="$emit('markedOpen',door)" :class="getCursorClass()">
+                    <div @click="$emit('markedClosed',door)" :class="getCursorClass()">
                         <OpenDoor v-if="door.state.Case === 'Done'" :day="door.day" :isDone="true"
                             :showButtonIndicator="!readonly" :distance="distanceFor(door)" />
                     </div>
@@ -36,7 +36,8 @@ export default defineComponent({
     components: { ClosedDoor, OpenDoor, RunProgress },
     emits: {
         markedDone: (door: Door) => true,
-        markedOpen: (door: Door) => true
+        markedOpen: (door: Door) => true,
+        markedClosed: (door: Door) => true,
     },
     props: {
         cal: { type: Object as () => Calendar, required: true },

@@ -13,12 +13,12 @@
                      :style="doneWidth">
                     <span>{{ getKmByState("Done") }}</span>
                 </div>
-                <div :title="getKmByState('Open')" class=" bg-warning text-waring myOverflow" style="33%; height:100%"
+                <div :title="getKmByState('Open')" class=" bg-warning text-waring myOverflow" style="height:100%"
                      :style="openWidth">
                     <span>{{ getKmByState("Open") }}</span>
                 </div>
                 <div :title="getKmByState('Closed')" class=" bg-neutral text-neutral-content myOverflow"
-                     style="33%; height:100%" :style="closedWidth">
+                     style="height:100%" :style="closedWidth">
                     <span>{{ getKmByState("Closed") }}</span>
                 </div>
             </div>
@@ -36,7 +36,7 @@
                 </div>
                 <div :title="getDistanceText(missingVerifiedDistance)"
                      class="text-neutral-content myOverflow flex flex-row"
-                     style="33%; height:100%; background-color:#fc4c02" :style="`width: ${100 - verifiedPercentage}%`">
+                     style="height:100%; background-color:#fc4c02" :style="`width: ${100 - verifiedPercentage}%`">
                     <div class="flex-grow"></div>
                     <img v-if="hasVerifiedDistanceZero" class="my-auto" style="height: 80%"
                          src="/strava-icon.png">

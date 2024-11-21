@@ -85,6 +85,7 @@ export default defineComponent({
     emits: {
         markedDone: (door: Door) => true,
         markedOpen: (door: Door) => true,
+        markedClosed: (door: Door) => true,
     },
     props: {
         cal: { type: Object as () => Calendar, required: true },
@@ -108,6 +109,10 @@ export default defineComponent({
             }
             if(door.state.Case == 'Open') {
                 this.$emit('markedDone', door);
+                return;
+            }
+            if(door.state.Case == 'Done') {
+                this.$emit('markedClosed', door);
                 return;
             }
             this.$emit('markedOpen', door);
