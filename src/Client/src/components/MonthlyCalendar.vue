@@ -94,8 +94,12 @@ export default defineComponent({
     },
     computed: {
         blankdays() {
-            const firstDayOfMonth = (new Date(this.year, 11)).getDay();
+            let firstDayOfMonth = (new Date(this.year, 11)).getDay();
             const blankDaysArray = [];
+            if(firstDayOfMonth === 0) {
+                // Monday is the first day of the week
+                firstDayOfMonth = 7;
+            }
             for (var i = 1; i < firstDayOfMonth; i++) {
                 blankDaysArray.push(i);
             }
