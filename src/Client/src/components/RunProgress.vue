@@ -1,18 +1,24 @@
 <template>
     <div class="m-8">
+        <div style="display: none" id="screenshot-title" class="h-8 mb-12 flex flex-row">
+            <div class="flex-grow"></div>
+            <h1 class="text-5xl text-primary font-bold">adventrunner.com</h1>
+            <div class="flex-grow"></div>
+        </div>
         <div class="h-8">
             <div
                 class="text-xs rounded-lg overflow-hidden font-semibold text-center leading-8 mx-auto h-full max-w-2xl flex flex-row">
-                <div :title="getKmByState('Done')" class="bg-primary text-primary-content myOverflow" style="height:100%"
-                    :style="doneWidth">
+                <div :title="getKmByState('Done')" class="bg-primary text-primary-content myOverflow"
+                     style="height:100%"
+                     :style="doneWidth">
                     <span>{{ getKmByState("Done") }}</span>
                 </div>
                 <div :title="getKmByState('Open')" class=" bg-warning text-waring myOverflow" style="33%; height:100%"
-                    :style="openWidth">
+                     :style="openWidth">
                     <span>{{ getKmByState("Open") }}</span>
                 </div>
                 <div :title="getKmByState('Closed')" class=" bg-neutral text-neutral-content myOverflow"
-                    style="33%; height:100%" :style="closedWidth">
+                     style="33%; height:100%" :style="closedWidth">
                     <span>{{ getKmByState("Closed") }}</span>
                 </div>
             </div>
@@ -20,21 +26,31 @@
         <div class="h-8 mt-2" v-if="hasVerifiedDistance">
             <div
                 class="text-xs rounded-lg overflow-hidden font-semibold text-center leading-8 mx-auto h-full max-w-2xl flex flex-row">
-                <div :title="`${getDistanceText(verifiedDistance)} on Strava`" class="bg-primary text-primary-content myOverflow flex flex-row"
-                    style="height:100%" :style="`width: ${verifiedPercentage}%`">
+                <div :title="`${getDistanceText(verifiedDistance)} on Strava`"
+                     class="bg-primary text-primary-content myOverflow flex flex-row"
+                     style="height:100%" :style="`width: ${verifiedPercentage}%`">
                     <div class="flex-grow"></div>
                     <img class="my-auto" style="height: 80%" src="../../public/strava-icon.png">
                     <span>{{ getDistanceText(verifiedDistance) }}</span>
                     <div class="flex-grow"></div>
                 </div>
-                <div :title="getDistanceText(missingVerifiedDistance)" class="text-neutral-content myOverflow flex flex-row"
-                    style="33%; height:100%; background-color:#fc4c02" :style="`width: ${100 - verifiedPercentage}%`">
+                <div :title="getDistanceText(missingVerifiedDistance)"
+                     class="text-neutral-content myOverflow flex flex-row"
+                     style="33%; height:100%; background-color:#fc4c02" :style="`width: ${100 - verifiedPercentage}%`">
                     <div class="flex-grow"></div>
-                    <img v-if="hasVerifiedDistanceZero" class="my-auto" style="height: 80%" src="../../public/strava-icon.png">
+                    <img v-if="hasVerifiedDistanceZero" class="my-auto" style="height: 80%"
+                         src="/strava-icon.png">
                     <span>{{ getDistanceText(missingVerifiedDistance) }}</span>
                     <div class="flex-grow"></div>
                 </div>
             </div>
+        </div>
+        <div id="share-btn" class="h-8 mt-2 flex flex-row">
+            <div class="flex-grow"></div>
+            <button class="btn btn-primary" @click="screenshot">
+                Share progress
+            </button>
+            <div class="flex-grow"></div>
         </div>
     </div>
 </template>
@@ -44,9 +60,10 @@
 }
 </style>
 <script lang="ts">
-import { defineComponent } from "vue";
-import { Calendar, DoorStateCase } from "../models/calendar"
-import { getSome, isSome } from "../models/fsharp-helpers";
+import {defineComponent} from "vue";
+import {Calendar, DoorStateCase} from "../models/calendar"
+import {getSome, isSome} from "../models/fsharp-helpers";
+import html2canvas from "html2canvas";
 
 let getTotal = (cal: Calendar) => {
     return cal.doors.reduce((val, el) => val + el.distance, 0)
@@ -101,6 +118,24 @@ export default defineComponent({
         getDistanceText(distance: number) {
             const n = Number.isInteger(distance) ? distance : distance.toFixed(1);
             return `${n} km`
+        },
+        screenshot() {
+            const element = document.getElementsByClassName('container')[0] as HTMLElement;
+            const screenshotHeader = document.getElementById('screenshot-title')!;
+            screenshotHeader.style.display = '';
+            html2canvas(element, {
+                ignoreElements: (el) => el.id === 'share-btn' || el.id === 'navbar',
+                windowWidth: 700,
+                allowTaint: true,
+                useCORS: true,
+                foreignObjectRendering: true,
+            }).then(canvas => {
+                screenshotHeader.style.display = 'none';
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = 'adventrunner-progress.png';
+                link.click();
+            });
         }
     }
 })

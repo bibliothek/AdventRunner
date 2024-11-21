@@ -1,5 +1,5 @@
 <template>
-    <div class="navbar bg-base-100">
+    <div id="navbar" class="navbar bg-base-100">
         <div class="flex-1">
             <a class="btn btn-ghost normal-case text-primary text-2xl" @click="goToCalendar">Adventrunner</a>
         </div>
