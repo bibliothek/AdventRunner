@@ -7,18 +7,18 @@
         </div>
         <div class="h-8">
             <div
-                class="text-xs rounded-lg overflow-hidden font-semibold text-center leading-8 mx-auto h-full max-w-2xl flex flex-row">
+                class="text-xs rounded-lg overflow-hidden font-semibold text-center leading-8 mx-auto h-full max-w-2xl flex flex-row"
+            >
                 <div :title="getKmByState('Done')" class="bg-primary text-primary-content myOverflow"
-                     style="height:100%"
                      :style="doneWidth">
                     <span>{{ getKmByState("Done") }}</span>
                 </div>
-                <div :title="getKmByState('Open')" class=" bg-warning text-waring myOverflow" style="height:100%"
+                <div :title="getKmByState('Open')" class=" bg-warning text-waring myOverflow"
                      :style="openWidth">
                     <span>{{ getKmByState("Open") }}</span>
                 </div>
                 <div :title="getKmByState('Closed')" class=" bg-neutral text-neutral-content myOverflow"
-                     style="height:100%" :style="closedWidth">
+                     :style="closedWidth">
                     <span>{{ getKmByState("Closed") }}</span>
                 </div>
             </div>
@@ -45,7 +45,7 @@
                 </div>
             </div>
         </div>
-        <div id="share-btn" style="display: none" class="h-8 mt-2 flex flex-row">
+        <div id="share-btn" class="h-8 mt-2 flex flex-row">
             <div class="flex-grow"></div>
             <button class="btn btn-primary" @click="screenshot">
                 Share progress
@@ -122,15 +122,18 @@ export default defineComponent({
         screenshot() {
             const element = document.getElementsByClassName('container')[0] as HTMLElement;
             const screenshotHeader = document.getElementById('screenshot-title')!;
+
+            const style = document.createElement('style');
+            document.head.appendChild(style);
+            style.sheet?.insertRule('body > div:last-child img { display: inline-block; }');
+
             screenshotHeader.style.display = '';
             html2canvas(element, {
                 ignoreElements: (el) => el.id === 'share-btn' || el.id === 'navbar',
                 windowWidth: 700,
-                allowTaint: true,
-                useCORS: true,
-                foreignObjectRendering: true,
             }).then(canvas => {
                 screenshotHeader.style.display = 'none';
+                style.remove();
                 const link = document.createElement('a');
                 link.href = canvas.toDataURL('image/png');
                 link.download = 'adventrunner-progress.png';
