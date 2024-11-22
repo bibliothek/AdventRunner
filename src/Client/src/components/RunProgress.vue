@@ -134,6 +134,7 @@ export default defineComponent({
             screenshotHeader.style.display = '';
             html2canvas(element, {
                 ignoreElements: (el) => el.id === 'share-btn' || el.id === 'navbar',
+                scale: 2.0,
                 windowWidth: 700,
             }).then(canvas => {
                 screenshotHeader.style.display = 'none';
