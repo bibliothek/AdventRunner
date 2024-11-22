@@ -45,7 +45,7 @@
                 </div>
             </div>
         </div>
-        <div id="share-btn" class="h-8 mt-2 flex flex-row">
+        <div v-if="!isSharedCalendarView" id="share-btn" class="h-8 mt-2 flex flex-row">
             <div class="flex-grow"></div>
             <button class="btn btn-primary" @click="screenshot">
                 Share progress
@@ -64,6 +64,7 @@ import {defineComponent} from "vue";
 import {Calendar, DoorStateCase} from "../models/calendar"
 import {getSome, isSome} from "../models/fsharp-helpers";
 import html2canvas from "html2canvas";
+import {sharedCalendarRoute} from "../router/router";
 
 let getTotal = (cal: Calendar) => {
     return cal.doors.reduce((val, el) => val + el.distance, 0)
@@ -108,7 +109,10 @@ export default defineComponent({
         },
         missingVerifiedDistance() {
             return Math.max(getTotal(this.cal!) * this.cal!.settings.distanceFactor - this.verifiedDistance, 0);
-        }
+        },
+        isSharedCalendarView() {
+            return this.$route.name === sharedCalendarRoute;
+        },
     },
     methods: {
         getKmByState(state: DoorStateCase) {
