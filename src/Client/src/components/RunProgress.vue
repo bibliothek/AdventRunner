@@ -135,7 +135,7 @@ export default defineComponent({
             html2canvas(element, {
                 ignoreElements: (el) => el.id === 'share-btn' || el.id === 'navbar',
                 scale: 2.0,
-                windowWidth: 700,
+                windowWidth: 500,
             }).then(canvas => {
                 screenshotHeader.style.display = 'none';
                 style.remove();
