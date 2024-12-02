@@ -30,7 +30,7 @@
                      class="bg-primary text-primary-content myOverflow flex flex-row"
                      style="height:100%" :style="`width: ${verifiedPercentage}%`">
                     <div class="flex-grow"></div>
-                    <img class="my-auto" style="height: 80%" src="../../public/strava-icon.png">
+                    <img v-if="!hasVerifiedDistanceLessThan50Percent" class="my-auto" style="height: 80%" src="../../public/strava-icon.png">
                     <span>{{ getDistanceText(verifiedDistance) }}</span>
                     <div class="flex-grow"></div>
                 </div>
@@ -38,7 +38,7 @@
                      class="text-neutral-content myOverflow flex flex-row"
                      style="height:100%; background-color:#fc4c02" :style="`width: ${100 - verifiedPercentage}%`">
                     <div class="flex-grow"></div>
-                    <img v-if="hasVerifiedDistanceZero" class="my-auto" style="height: 80%"
+                    <img v-if="hasVerifiedDistanceLessThan50Percent" class="my-auto" style="height: 80%"
                          src="/strava-icon.png">
                     <span>{{ getDistanceText(missingVerifiedDistance) }}</span>
                     <div class="flex-grow"></div>
@@ -97,8 +97,8 @@ export default defineComponent({
         hasVerifiedDistance() {
             return isSome(this.cal!.verifiedDistance);
         },
-        hasVerifiedDistanceZero() {
-            return isSome(this.cal!.verifiedDistance) && getSome(this.cal!.verifiedDistance!) === 0.0;
+        hasVerifiedDistanceLessThan50Percent() {
+            return isSome(this.cal!.verifiedDistance) && this.verifiedPercentage < 50;
         },
         verifiedPercentage() {
             return Math.min((this.verifiedDistance / (this.verifiedDistance + this.missingVerifiedDistance)) * 100, 100);
