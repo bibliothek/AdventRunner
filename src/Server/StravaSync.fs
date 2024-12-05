@@ -2,6 +2,7 @@ module Server.StravaSync
 
 open System
 open System.Threading.Tasks
+open Microsoft.Extensions.Logging
 open Server.Storage
 
 type PeriodSelector =
@@ -57,12 +58,14 @@ let private getTotalDistance owner (period: int) =
     else
         Task.FromResult(Some(0.0))
 
-let private syncVerifiedDistance (storage: UserDataStorage, owner, period) =
+let private syncVerifiedDistance (storage: UserDataStorage, (logger: ILogger), owner, period) =
     task {
         let! totalDistance = getTotalDistance owner period
         let userData = storage.GetUserData owner
+        logger.LogInformation $"Getting distance data for user {owner.name} and period {period}"
 
         if userData.calendars[period].verifiedDistance <> totalDistance then
+            logger.LogInformation $"Updating distance data for user {owner.name} and period {period}"
             let calendars =
                 userData.calendars.Change(
                     period,
@@ -73,9 +76,12 @@ let private syncVerifiedDistance (storage: UserDataStorage, owner, period) =
                 )
 
             storage.UpdateUserData { userData with calendars = calendars } |> ignore
+            logger.LogInformation $"Successfully updated distance data for user {owner.name} and period {period}"
+
+        logger.LogInformation $"Finished getting distance data for user {owner.name} and period {period}"
     }
 
-let sync owner periodSelector (storage: UserDataStorage) =
+let sync owner periodSelector (storage: UserDataStorage) (logger: ILogger) =
     task {
         let userData = storage.GetUserData owner
 
@@ -84,9 +90,10 @@ let sync owner periodSelector (storage: UserDataStorage) =
             | All -> userData.calendars.Keys
             | Period p -> [| p |]
 
+        logger.LogInformation $"Syncing user data for user {userData.owner.name} and period {periodSelector}"
         periods
         |> Seq.iter (fun period ->
-            syncVerifiedDistance (storage, owner, period)
+            syncVerifiedDistance (storage, logger, owner, period)
             |> Async.AwaitTask
             |> Async.RunSynchronously)
     }
