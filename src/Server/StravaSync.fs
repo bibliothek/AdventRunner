@@ -4,6 +4,7 @@ open System
 open System.Threading.Tasks
 open Microsoft.Extensions.Logging
 open Server.Storage
+open Shared
 
 type PeriodSelector =
     | All
@@ -58,11 +59,12 @@ let private getTotalDistance owner (period: int) =
     else
         Task.FromResult(Some(0.0))
 
-let private syncVerifiedDistance (storage: UserDataStorage, (logger: ILogger), owner, period) =
+let private syncVerifiedDistance (storage: UserDataStorage, (logger: ILogger), (owner: Owner),  period) =
     task {
+        logger.LogInformation $"Getting distance data for user {owner.name} and period {period}"
         let! totalDistance = getTotalDistance owner period
         let userData = storage.GetUserData owner
-        logger.LogInformation $"Getting distance data for user {owner.name} and period {period}"
+        logger.LogInformation $"Received distance data for user {owner.name} and period {period}: {totalDistance}"
 
         if userData.calendars[period].verifiedDistance <> totalDistance then
             logger.LogInformation $"Updating distance data for user {owner.name} and period {period}"
