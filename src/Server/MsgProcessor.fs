@@ -10,7 +10,10 @@ let private createSyncQueue storage logger =
         let rec messageLoop () =
             async {
                 let! msg = inbox.Receive()
-                do! sync msg.owner msg.period storage logger |> Async.AwaitTask
+                try
+                    do! sync msg.owner msg.period storage logger |> Async.AwaitTask
+                with
+                | ex -> printfn $"Error processing message. {ex.Message}"
                 return! messageLoop ()
             }
 
