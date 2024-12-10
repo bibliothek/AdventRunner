@@ -21,10 +21,14 @@ let private getDecemberTimestamps (period: int) =
 
     (beginning, ending)
 
-let private getActivities owner (period: int64 * int64) =
+let private getActivities owner (period: int64 * int64) logger =
     task {
-        let! auth0Token = Auth0Client.getManagementAccessTokenAsync
-        let! refreshToken = Auth0Client.getStravaRefreshToken auth0Token owner
+        let! auth0Token = Auth0Client.getManagementAccessTokenAsync logger
+
+        let! refreshToken =
+            match auth0Token with
+            | Some token -> Auth0Client.getStravaRefreshToken token owner
+            | _ -> Task.FromResult None
 
         if refreshToken.IsSome then
             let! stravaAccessToken = StravaClient.getAccessToken refreshToken.Value
@@ -44,12 +48,12 @@ let private getTotalDistanceFromActivities (activities: StravaClient.Activity[])
     |> Array.map (_.distance)
     |> Array.sum
 
-let private getTotalDistance owner (period: int) =
+let private getTotalDistance owner (period: int) logger =
     let timestamps = getDecemberTimestamps period
 
     if fst timestamps < DateTimeOffset.UtcNow.ToUnixTimeSeconds() then
         task {
-            let! activities = getActivities owner timestamps
+            let! activities = getActivities owner timestamps logger
 
             if activities.IsSome then
                 return Some(getTotalDistanceFromActivities activities.Value)
@@ -59,16 +63,17 @@ let private getTotalDistance owner (period: int) =
     else
         Task.FromResult(Some(0.0))
 
-let private syncVerifiedDistance (storage: UserDataStorage, (logger: ILogger), (owner: Owner),  period) =
+let private syncVerifiedDistance (storage: UserDataStorage, (logger: ILogger), (owner: Owner), period) =
     task {
         try
             logger.LogInformation $"Getting distance data for user {owner.name} and period {period}"
-            let! totalDistance = getTotalDistance owner period
+            let! totalDistance = getTotalDistance owner period logger
             let userData = storage.GetUserData owner
             logger.LogInformation $"Received distance data for user {owner.name} and period {period}: {totalDistance}"
 
             if userData.calendars[period].verifiedDistance <> totalDistance then
                 logger.LogInformation $"Updating distance data for user {owner.name} and period {period}"
+
                 let calendars =
                     userData.calendars.Change(
                         period,
@@ -82,8 +87,8 @@ let private syncVerifiedDistance (storage: UserDataStorage, (logger: ILogger), (
                 logger.LogInformation $"Successfully updated distance data for user {owner.name} and period {period}"
 
             logger.LogInformation $"Finished getting distance data for user {owner.name} and period {period}"
-        with
-          | ex -> logger.LogError (ex, $"Error syncing distance. {ex.Message}");
+        with ex ->
+            logger.LogError(ex, $"Error syncing distance. {ex.Message}")
     }
 
 let sync owner periodSelector (storage: UserDataStorage) (logger: ILogger) =
@@ -96,6 +101,7 @@ let sync owner periodSelector (storage: UserDataStorage) (logger: ILogger) =
             | Period p -> [| p |]
 
         logger.LogInformation $"Syncing user data for user {userData.owner.name} and period {periodSelector}"
+
         periods
         |> Seq.iter (fun period ->
             syncVerifiedDistance (storage, logger, owner, period)

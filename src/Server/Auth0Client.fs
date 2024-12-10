@@ -1,5 +1,7 @@
 module Server.Auth0Client
 
+open System
+open Microsoft.Extensions.Logging
 open Shared
 open Flurl.Http
 
@@ -36,22 +38,31 @@ let clientId = System.Environment.GetEnvironmentVariable "AR_Auth0_ClientId"
 
 let clientSecret = System.Environment.GetEnvironmentVariable "AR_Auth0_ClientSecret"
 
-let canVerifyDistance (owner:Owner) =
-    owner.name.Contains("|Strava|")
+let mutable (managementAccessToken: (string * DateTime) option) = None
 
-let getManagementAccessTokenAsync =
+let canVerifyDistance (owner: Owner) = owner.name.Contains("|Strava|")
+
+let getManagementAccessTokenAsync (logger: ILogger) =
     task {
-        let! response =
-            $"{auth0BaseUrl}/oauth/token"
-                .PostJsonAsync(
-                    {| grant_type = "client_credentials"
-                       client_id = clientId
-                       client_secret = clientSecret
-                       audience = auth0Audience |}
-                )
-                .ReceiveJson<TokenResponse>()
+        match managementAccessToken with
+        | Some(token, expiry) when DateTime.UtcNow.AddMinutes(5) < expiry ->
+            logger.LogInformation $"Using cached token with expiry time at {expiry}"
+            return Some(token)
+        | _ ->
+            logger.LogInformation $"Fetching new management S2S token"
+            let! response =
+                $"{auth0BaseUrl}/oauth/token"
+                    .PostJsonAsync(
+                        {| grant_type = "client_credentials"
+                           client_id = clientId
+                           client_secret = clientSecret
+                           audience = auth0Audience |}
+                    )
+                    .ReceiveJson<TokenResponse>()
 
-        return response.access_token
+            managementAccessToken <- Some(response.access_token, (DateTime.UtcNow.AddSeconds(response.expires_in)))
+            logger.LogInformation $"Fetched new management S2S token, expiring in {response.expires_in}"
+            return Some response.access_token
     }
 
 let getStravaRefreshToken (accessToken: string) (owner: Owner) =
