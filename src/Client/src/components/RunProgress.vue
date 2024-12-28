@@ -121,6 +121,10 @@ export default defineComponent({
         },
         getDistanceText(distance: number) {
             const n = Number.isInteger(distance) ? distance : distance.toFixed(1);
+            const totalDistance = getTotal(this.cal!) * this.cal!.settings.distanceFactor;
+            if (n > totalDistance) {
+                return `${totalDistance}+ km`
+            }
             return `${n} km`
         },
         screenshot() {
