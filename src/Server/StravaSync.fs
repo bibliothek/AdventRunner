@@ -3,7 +3,7 @@ module Server.StravaSync
 open System
 open System.Threading.Tasks
 open Microsoft.Extensions.Logging
-open Server.Storage
+open Server.SqliteStorage
 open Shared
 
 type PeriodSelector =
@@ -68,7 +68,7 @@ let private syncVerifiedDistance (storage: UserDataStorage, (logger: ILogger), (
         try
             logger.LogInformation $"Getting distance data for user {owner.name} and period {period}"
             let! totalDistance = getTotalDistance owner period logger
-            let userData = storage.GetUserData owner
+            let userData = storage.GetUserData owner |> Option.get
             logger.LogInformation $"Received distance data for user {owner.name} and period {period}: {totalDistance}"
 
             if userData.calendars[period].verifiedDistance <> totalDistance then
@@ -93,7 +93,7 @@ let private syncVerifiedDistance (storage: UserDataStorage, (logger: ILogger), (
 
 let sync owner periodSelector (storage: UserDataStorage) (logger: ILogger) =
     task {
-        let userData = storage.GetUserData owner
+        let userData = storage.GetUserData owner |> Option.get
 
         let periods =
             match periodSelector with

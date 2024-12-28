@@ -11,5 +11,6 @@ nuget Fake.Core.Target ~> 5
 nuget Fake.IO.FileSystem ~> 5
 nuget Farmer ~> 1
 
-nuget Azure.Storage.Blobs
+nuget Dapper.FSharp
+nuget System.Data.SQLite.Core
 nuget Microsoft.Extensions.DependencyInjection.Abstractions
