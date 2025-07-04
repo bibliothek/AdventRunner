@@ -12,11 +12,7 @@ open Server.StravaSync
 let migrate (storage: UserDataStorage) (userData: UserData) =
     let period = Calendar.currentPeriod ()
 
-    if userData.version <> "2.0" then
-        let userData = Calendar.initUserData userData.owner Settings.initDefault
-
-        Some(storage.AddNewUser userData)
-    elif userData.latestPeriod <> period then
+    if userData.latestPeriod <> period then
         let _, previousCalendar =
             userData.calendars |> Map.toList |> List.sortByDescending fst |> List.head
 

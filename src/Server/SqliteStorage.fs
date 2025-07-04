@@ -93,7 +93,7 @@ let toUser (userEntity: UserEntity) (calendars: Map<int, Calendar>) : UserData =
       displayType = userEntity.DisplayType |> displayTypeFromString
       latestPeriod = userEntity.LatestPeriod
       calendars = calendars
-      version = "2.0" }
+      }
 
 let toCalendar (calendarEntity: CalendarEntity) (doors: CalendarDoor list) : Calendar =
     { settings =
