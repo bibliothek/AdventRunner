@@ -16,7 +16,7 @@ let getHandler (id: string) next (ctx: HttpContext) =
         next ctx
     | true ->
         let userDataStorage = ctx.GetService<UserDataStorage>()
-        let sharedLink = linkStorage.GetSharedLink id
+        let sharedLink = linkStorage.GetSharedLink id |> Option.get
         let userData =
             userDataStorage.GetUserData sharedLink.owner
         let response: SharedLinkResponse = { calendar = userData.calendars.[sharedLink.period]; displayName = userData.displayName; period = sharedLink.period}
@@ -39,7 +39,7 @@ let deleteHandler (id: string) next (ctx: HttpContext) =
     let userDataStorage = ctx.GetService<UserDataStorage>()
     let owner = getUser ctx
 
-    let sharedLink = linkStorage.GetSharedLink id
+    let sharedLink = linkStorage.GetSharedLink id |> Option.get
     let userData = userDataStorage.GetUserData owner
 
     let updatedUserData =
