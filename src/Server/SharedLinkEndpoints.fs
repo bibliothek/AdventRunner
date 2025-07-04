@@ -5,7 +5,7 @@ open Microsoft.AspNetCore.Http
 open Giraffe
 open Server.Auth.EndpointsHelpers
 open Shared
-open Server.Storage
+open Server.SqliteStorage
 
 let getHandler (id: string) next (ctx: HttpContext) =
     let linkStorage = ctx.GetService<SharedLinksStorage>()

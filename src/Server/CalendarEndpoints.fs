@@ -5,7 +5,7 @@ open Giraffe
 open Newtonsoft.Json
 open Server.MsgProcessor
 open Shared
-open Server.Storage
+open Server.SqliteStorage
 open Server.Auth.EndpointsHelpers
 open Server.StravaSync
 

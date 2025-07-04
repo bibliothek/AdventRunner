@@ -3,7 +3,7 @@ module Server.StravaSync
 open System
 open System.Threading.Tasks
 open Microsoft.Extensions.Logging
-open Server.Storage
+open Server.SqliteStorage
 open Shared
 
 type PeriodSelector =

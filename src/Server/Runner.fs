@@ -7,10 +7,11 @@ open Saturn
 open Giraffe
 open Server.Auth.TokenAuthenticationExtensions
 
-open Server.Storage
+open Server.SqliteStorage
 open Server.MsgProcessor
 
 let serviceConfig (serviceCollection: IServiceCollection) =
+    SqliteStorage.init ()
     let jsonSerializer: Json.ISerializer =
         NewtonsoftJson.Serializer(JsonSerializerSettings())
 
