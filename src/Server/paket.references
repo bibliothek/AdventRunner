@@ -1,5 +1,4 @@
 Saturn
-Dapper.FSharp
-System.Data.SQLite.Core
+Azure.Storage.Blobs
 Microsoft.Extensions.DependencyInjection.Abstractions
 Flurl.Http

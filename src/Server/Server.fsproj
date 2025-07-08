@@ -9,7 +9,7 @@
     <None Include="paket.references" />
     <Compile Include="Auth\TokenAuthenticationExtensions.fs" />
     <Compile Include="Auth\EndpointsHelpers.fs" />
-    <Compile Include="SqliteStorage.fs" />
+    <Compile Include="Storage.fs" />
     <Compile Include="Auth0Client.fs" />
     <Compile Include="StravaClient.fs" />
     <Compile Include="StravaSync.fs" />

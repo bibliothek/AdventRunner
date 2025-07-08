@@ -7,16 +7,16 @@ open Saturn
 open Giraffe
 open Server.Auth.TokenAuthenticationExtensions
 
-open Server.SqliteStorage
+open Server.Storage
 open Server.MsgProcessor
 
 let serviceConfig (serviceCollection: IServiceCollection) =
-    SqliteStorage.init ()
     let jsonSerializer: Json.ISerializer =
         NewtonsoftJson.Serializer(JsonSerializerSettings())
 
     serviceCollection
         .AddSingleton<UserDataStorage>(fun provider -> UserDataStorage())
+        .AddSingleton<SharedLinksStorage>(fun provider -> SharedLinksStorage())
         .AddSingleton<SyncQueue>(fun provider -> (provider.GetRequiredService<UserDataStorage>(), provider.GetService<ILogger<SyncQueue>>()) |> SyncQueue)
         .AddSingleton<Json.ISerializer>(fun provider -> jsonSerializer)
 
