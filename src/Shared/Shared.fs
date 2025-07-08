@@ -31,7 +31,6 @@ type DisplayType =
 
 type UserData =
     {
-       version: string
        owner: Owner
        displayName: string option
        displayType: DisplayType
@@ -79,7 +78,6 @@ module Calendar =
     let initUserData owner settings: UserData =
         let period = currentPeriod()
         { owner = owner
-          version = "2.0"
           calendars = Map [(period, (initCalendar settings))]
           latestPeriod = period
           displayName = None

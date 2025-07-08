@@ -5,21 +5,18 @@ open Microsoft.AspNetCore.Http
 open Giraffe
 open Server.Auth.EndpointsHelpers
 open Shared
-open Server.Storage
+open Server.SqliteStorage
 
 let getHandler (id: string) next (ctx: HttpContext) =
-    let linkStorage = ctx.GetService<SharedLinksStorage>()
+    let userDataStorage = ctx.GetService<UserDataStorage>()
+    let userByLink = userDataStorage.GetUserDataBySharedLink id
 
-    match linkStorage.LinkExists id with
-    | false ->
+    match userByLink with
+    | None ->
         ctx.SetStatusCode 404
         next ctx
-    | true ->
-        let userDataStorage = ctx.GetService<UserDataStorage>()
-        let sharedLink = linkStorage.GetSharedLink id
-        let userData =
-            userDataStorage.GetUserData sharedLink.owner
-        let response: SharedLinkResponse = { calendar = userData.calendars.[sharedLink.period]; displayName = userData.displayName; period = sharedLink.period}
+    | Some userData ->
+        let response: SharedLinkResponse = { calendar = userData.calendars.Values |> Seq.head ; displayName = userData.displayName; period = userData.calendars.Keys |> Seq.head}
         json response next ctx
 
 let getUpdatedSharedLinkInUserData userData sharedLinkOption period =
@@ -35,43 +32,33 @@ let getUpdatedSharedLinkInUserData userData sharedLinkOption period =
           calendars = userData.calendars.Add(period, updatedCalendar) }
 
 let deleteHandler (id: string) next (ctx: HttpContext) =
-    let linkStorage = ctx.GetService<SharedLinksStorage>()
     let userDataStorage = ctx.GetService<UserDataStorage>()
-    let owner = getUser ctx
+    let userData = userDataStorage.GetUserDataBySharedLink id
 
-    let sharedLink = linkStorage.GetSharedLink id
-    let userData = userDataStorage.GetUserData owner
+    match userData with
+    | None ->
+        ctx.SetStatusCode 204
+        next ctx
+    | Some user ->
+        let updatedUserData =
+            getUpdatedSharedLinkInUserData user None (user.calendars.Keys |> Seq.head)
 
-    let updatedUserData =
-        getUpdatedSharedLinkInUserData userData None sharedLink.period
-
-    userDataStorage.UpdateUserData updatedUserData
-    |> ignore
-
-    linkStorage.DeleteSharedLink id |> ignore
-    ctx.SetStatusCode 204
-    next ctx
+        userDataStorage.UpdateUserData updatedUserData |> ignore
+        ctx.SetStatusCode 204
+        next ctx
 
 let postHandler next (ctx: HttpContext) =
     task {
-        let linkStorage = ctx.GetService<SharedLinksStorage>()
         let userDataStorage = ctx.GetService<UserDataStorage>()
         let owner = getUser ctx
 
         let! sharedLinkPostRequest = ctx.BindJsonAsync<Shared.SharedLinkPostRequest>()
         let sharedLinkId = (Guid.NewGuid() |> ShortGuid.fromGuid)
 
-        let sharedLink =
-            { id = sharedLinkId
-              owner = owner
-              period = sharedLinkPostRequest.period }
-
         let userData = userDataStorage.GetUserData owner
 
         let updatedUserData =
             getUpdatedSharedLinkInUserData userData (Some sharedLinkId) sharedLinkPostRequest.period
-
-        linkStorage.UpsertSharedLink sharedLink |> ignore
 
         return! json (userDataStorage.UpdateUserData updatedUserData) next ctx
     }

@@ -5,18 +5,14 @@ open Giraffe
 open Newtonsoft.Json
 open Server.MsgProcessor
 open Shared
-open Server.Storage
+open Server.SqliteStorage
 open Server.Auth.EndpointsHelpers
 open Server.StravaSync
 
 let migrate (storage: UserDataStorage) (userData: UserData) =
     let period = Calendar.currentPeriod ()
 
-    if userData.version <> "2.0" then
-        let userData = Calendar.initUserData userData.owner Settings.initDefault
-
-        Some(storage.AddNewUser userData)
-    elif userData.latestPeriod <> period then
+    if userData.latestPeriod <> period then
         let _, previousCalendar =
             userData.calendars |> Map.toList |> List.sortByDescending fst |> List.head
 
@@ -67,16 +63,6 @@ let putHandler next (ctx: HttpContext) =
 let postHandler next (ctx: HttpContext) =
     let owner = getUser ctx
     let storage = ctx.GetService<UserDataStorage>()
-    let linkStorage = ctx.GetService<SharedLinksStorage>()
-    let oldCal = storage.GetUserData owner
-
-    let sharedLinks =
-        oldCal.calendars
-        |> Map.toList
-        |> List.map (fun x -> (x |> snd).settings.sharedLinkId)
-        |> List.choose id
-
-    sharedLinks |> List.iter (fun x -> linkStorage.DeleteSharedLink x |> ignore)
 
     let cal = Calendar.initUserData owner Settings.initDefault
 
