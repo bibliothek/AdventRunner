@@ -5,13 +5,17 @@ open Newtonsoft.Json
 open Shared
 
 let private getStoragePath () =
-    System.Environment.GetEnvironmentVariable "AR_Storage_Path" |> Option.ofObj |> Option.defaultValue ".data"
+    System.Environment.GetEnvironmentVariable "AR_Storage_Path"
+    |> Option.ofObj
+    |> Option.defaultValue ".data"
 
 let private getPath containerName (id: string) =
-    let storagePath = getStoragePath()
+    let storagePath = getStoragePath ()
     let containerPath = Path.Combine(storagePath, containerName)
+
     if not (Directory.Exists containerPath) then
         Directory.CreateDirectory containerPath |> ignore
+
     let fileName = id.Replace('|', '-')
     Path.Combine(containerPath, $"%s{fileName}.json")
 
@@ -20,7 +24,7 @@ let private uploadData containerName id data =
     let serializedData = JsonConvert.SerializeObject data
     File.WriteAllText(path, serializedData)
 
-let private elementExists containerName id =
+let private dataExists containerName id =
     let path = getPath containerName id
     File.Exists path
 
@@ -33,20 +37,16 @@ let private getData<'T> containerName id =
     let serializedData = File.ReadAllText path
     JsonConvert.DeserializeObject<'T> serializedData
 
-let private dataExists containerName id =
-    elementExists containerName id
-
-type UserDataStorage () =
+type UserDataStorage() =
     let containerName = "users"
     let getId owner = owner.name
 
     member __.GetUserData owner =
         getData<UserData> containerName (getId owner)
 
-    member __.UserExists owner =
-        dataExists containerName (getId owner)
+    member __.UserExists owner = dataExists containerName (getId owner)
 
-    member __.UpdateUserData (updatedUserData: UserData) =
+    member __.UpdateUserData(updatedUserData: UserData) =
         uploadData containerName (getId updatedUserData.owner) updatedUserData
         updatedUserData
 
@@ -54,7 +54,7 @@ type UserDataStorage () =
         uploadData containerName (getId userData.owner) userData
         userData
 
-type SharedLinksStorage () =
+type SharedLinksStorage() =
     let containerName = "shared-links"
     let getId sharedLink = sharedLink.id
 
@@ -62,11 +62,9 @@ type SharedLinksStorage () =
         uploadData containerName (getId sharedLink) sharedLink
         sharedLink
 
-    member __.LinkExists sharedLinkId =
-        dataExists containerName sharedLinkId
+    member __.LinkExists sharedLinkId = dataExists containerName sharedLinkId
 
     member __.GetSharedLink sharedLinkId =
         getData<SharedLink> containerName sharedLinkId
 
-    member __.DeleteSharedLink sharedLinkId =
-        delete containerName sharedLinkId
+    member __.DeleteSharedLink sharedLinkId = delete containerName sharedLinkId
