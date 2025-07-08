@@ -55,7 +55,7 @@ let postHandler next (ctx: HttpContext) =
         let! sharedLinkPostRequest = ctx.BindJsonAsync<Shared.SharedLinkPostRequest>()
         let sharedLinkId = (Guid.NewGuid() |> ShortGuid.fromGuid)
 
-        let userData = userDataStorage.GetUserData owner
+        let userData = userDataStorage.GetUserData owner |> Option.get
 
         let updatedUserData =
             getUpdatedSharedLinkInUserData userData (Some sharedLinkId) sharedLinkPostRequest.period

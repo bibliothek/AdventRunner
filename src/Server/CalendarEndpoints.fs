@@ -36,12 +36,13 @@ let getHandler next (ctx: HttpContext) =
     let owner = getUser ctx
     let storage = ctx.GetService<UserDataStorage>()
 
+    let cal = storage.GetUserData owner
     let userData =
-        match (storage.UserExists owner) with
-        | true ->
-            let cal = storage.GetUserData owner
-            migrate storage cal |> Option.defaultValue cal
-        | false -> storage.AddNewUser(Calendar.initUserData owner Settings.initDefault)
+        match cal with
+        | Some user->
+            migrate storage user |> Option.defaultValue user
+        | None ->
+            storage.AddNewUser(Calendar.initUserData owner Settings.initDefault)
 
     if owner |> Auth0Client.canVerifyDistance then
         let queue = ctx.GetService<SyncQueue>()

@@ -195,7 +195,7 @@ type UserDataStorage() =
             |> Seq.toList
 
         match data with
-        | [] -> raise (InvalidOperationException("Sequence contains no elements"))
+        | [] -> None
         | (userEntity, _) :: _ ->
             let calendarEntities =
                 data
@@ -206,7 +206,7 @@ type UserDataStorage() =
             let calendars =
                 getDoorsForCalendar calendarEntities (getId owner) conn.Value
 
-            toUser userEntity calendars
+            Some (toUser userEntity calendars)
 
     member __.GetUserDataBySharedLink linkId =
         let sql =
@@ -228,10 +228,6 @@ type UserDataStorage() =
                 getDoorsForCalendar [| calendar |] user.Name conn.Value
 
             Some(toUser user calendars)
-
-    member __.UserExists owner =
-        let sql = "SELECT 1 FROM Users WHERE Name = @Name"
-        conn.Value.ExecuteScalar<bool>(sql, {| Name = getId owner |})
 
     member private __.UpdateCalendars (connection: DbConnection) ownerName calendars =
         if not (calendars |> Map.isEmpty) then
