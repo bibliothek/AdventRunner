@@ -1,47 +1,40 @@
 ﻿module Server.Storage
 
 open System.IO
-open System.Text
-open Azure.Storage.Blobs
 open Newtonsoft.Json
 open Shared
 
-let private getContainerClient containerName =
-        let connectionString = System.Environment.GetEnvironmentVariable "AR_StorageAccount_ConnectionString"
-        let blobServiceClient = BlobServiceClient connectionString
-        blobServiceClient.GetBlobContainerClient containerName
+let private getStoragePath () =
+    System.Environment.GetEnvironmentVariable "AR_Storage_Path" |> Option.ofObj |> Option.defaultValue ".data"
 
-let private getBlobClient containerName id =
-        let containerClient = getContainerClient containerName
-        containerClient.GetBlobClient (sprintf "%s.json" id)
+let private getPath containerName (id: string) =
+    let storagePath = getStoragePath()
+    let containerPath = Path.Combine(storagePath, containerName)
+    if not (Directory.Exists containerPath) then
+        Directory.CreateDirectory containerPath |> ignore
+    let fileName = id.Replace('|', '-')
+    Path.Combine(containerPath, $"%s{fileName}.json")
 
 let private uploadData containerName id data =
-        let serializedCalendar = JsonConvert.SerializeObject data
-        let blobClient = getBlobClient containerName id
-        use stream = new MemoryStream (Encoding.UTF8.GetBytes serializedCalendar)
-        blobClient.Upload(stream, true) |> ignore
+    let path = getPath containerName id
+    let serializedData = JsonConvert.SerializeObject data
+    File.WriteAllText(path, serializedData)
 
 let private elementExists containerName id =
-        let blobClient = getBlobClient containerName id
-        blobClient.Exists().Value
+    let path = getPath containerName id
+    File.Exists path
 
 let private delete containerName id =
-    let blobClient = getBlobClient containerName id
-    blobClient.Delete()
+    let path = getPath containerName id
+    File.Delete path
 
 let private getData<'T> containerName id =
-        let blobClient = getBlobClient containerName id
-        use stream = new MemoryStream()
-        blobClient.DownloadTo stream |> ignore
-        stream.Position <- 0L
-        use reader = new StreamReader(stream, Encoding.UTF8)
-        let serializedCalendar = reader.ReadToEnd()
-        let data = JsonConvert.DeserializeObject<'T> serializedCalendar
-        data
+    let path = getPath containerName id
+    let serializedData = File.ReadAllText path
+    JsonConvert.DeserializeObject<'T> serializedData
 
 let private dataExists containerName id =
-    let blobClient = getBlobClient containerName id
-    blobClient.Exists().Value
+    elementExists containerName id
 
 type UserDataStorage () =
     let containerName = "users"
