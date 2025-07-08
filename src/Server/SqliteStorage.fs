@@ -173,8 +173,6 @@ type UserDataStorage() =
             c
         )
 
-    member private __.Connection = conn.Value
-
     member private __.GetCalendarByPeriod (connection: DbConnection) ownerName period =
         let calendarSql = "SELECT * FROM Calendars WHERE OwnerName = @OwnerName AND Period = @Period"
 
@@ -195,27 +193,27 @@ type UserDataStorage() =
         let userSql = "SELECT * FROM Users WHERE Name = @Name"
 
         let userEntity =
-            __.Connection.QueryFirst<UserEntity>(userSql, {| Name = getId owner |})
+            conn.Value.QueryFirst<UserEntity>(userSql, {| Name = getId owner |})
 
-        let calendars = __.GetCalendars __.Connection (getId owner)
+        let calendars = __.GetCalendars conn.Value (getId owner)
         toUser userEntity calendars
 
     member __.GetUserDataBySharedLink linkId =
         let calendarSql = "SELECT * FROM Calendars WHERE SharedLinkId = @SharedLinkId LIMIT 1"
 
-        let calendarEntity = __.Connection.Query<CalendarEntity>(calendarSql, {| SharedLinkId = linkId |}) |> Seq.toList
+        let calendarEntity = conn.Value.Query<CalendarEntity>(calendarSql, {| SharedLinkId = linkId |}) |> Seq.toList
         match calendarEntity with
         | [] -> None
         | head :: _ ->
             let userSql = "SELECT * FROM Users WHERE Name = @Name"
             let userEntity =
-                __.Connection.QueryFirst<UserEntity>(userSql, {| Name = head.OwnerName |})
-            let calendars = __.GetCalendarByPeriod __.Connection head.OwnerName head.Period
+                conn.Value.QueryFirst<UserEntity>(userSql, {| Name = head.OwnerName |})
+            let calendars = __.GetCalendarByPeriod conn.Value head.OwnerName head.Period
             Some(toUser userEntity calendars)
 
     member __.UserExists owner =
         let sql = "SELECT 1 FROM Users WHERE Name = @Name"
-        __.Connection.ExecuteScalar<bool>(sql, {| Name = getId owner |})
+        conn.Value.ExecuteScalar<bool>(sql, {| Name = getId owner |})
 
     member private __.UpdateCalendars (connection: DbConnection) ownerName calendars =
         for KeyValue(period, calendar) in calendars do
@@ -240,8 +238,8 @@ type UserDataStorage() =
         let userSql =
             "INSERT OR REPLACE INTO Users (Name, DisplayName, DisplayType, LatestPeriod) VALUES (@Name, @DisplayName, @DisplayType, @LatestPeriod)"
 
-        __.Connection.Execute(userSql, userEntity) |> ignore
-        __.UpdateCalendars __.Connection (getId updatedUserData.owner) updatedUserData.calendars
+        conn.Value.Execute(userSql, userEntity) |> ignore
+        __.UpdateCalendars conn.Value (getId updatedUserData.owner) updatedUserData.calendars
         updatedUserData
 
     member __.AddNewUser userData = __.UpdateUserData userData
