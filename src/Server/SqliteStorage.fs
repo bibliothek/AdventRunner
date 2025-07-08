@@ -141,10 +141,10 @@ let private createTables (connection: SQLiteConnection) =
 let init () =
     if not (System.IO.File.Exists(dbPath)) then
         SQLiteConnection.CreateFile(dbPath)
-
-    use connection = createDbConnection ()
-    connection.Open()
-    createTables connection
+        use connection = createDbConnection ()
+        connection.Open()
+        createTables connection
+        connection.Close()
 
 type UserDataStorage() =
     let getId owner = owner.name
@@ -167,6 +167,11 @@ type UserDataStorage() =
             calendarEntity.Period, calendar)
         |> Map.ofSeq
 
+    member private __.Connection =
+        let connection = createDbConnection ()
+        connection.Open()
+        connection
+
     member private __.GetCalendarByPeriod (connection: DbConnection) ownerName period =
         let calendarSql = "SELECT * FROM Calendars WHERE OwnerName = @OwnerName AND Period = @Period"
 
@@ -184,36 +189,30 @@ type UserDataStorage() =
         getDoorsForCalendar calendarEntities ownerName connection
 
     member __.GetUserData owner =
-        use connection = createDbConnection ()
-        connection.Open()
         let userSql = "SELECT * FROM Users WHERE Name = @Name"
 
         let userEntity =
-            connection.QueryFirst<UserEntity>(userSql, {| Name = getId owner |})
+            __.Connection.QueryFirst<UserEntity>(userSql, {| Name = getId owner |})
 
-        let calendars = __.GetCalendars connection (getId owner)
+        let calendars = __.GetCalendars __.Connection (getId owner)
         toUser userEntity calendars
 
     member __.GetUserDataBySharedLink linkId =
-        use connection = createDbConnection ()
-        connection.Open()
         let calendarSql = "SELECT * FROM Calendars WHERE SharedLinkId = @SharedLinkId LIMIT 1"
 
-        let calendarEntity = connection.Query<CalendarEntity>(calendarSql, {| SharedLinkId = linkId |}) |> Seq.toList
+        let calendarEntity = __.Connection.Query<CalendarEntity>(calendarSql, {| SharedLinkId = linkId |}) |> Seq.toList
         match calendarEntity with
         | [] -> None
         | head :: _ ->
             let userSql = "SELECT * FROM Users WHERE Name = @Name"
             let userEntity =
-                connection.QueryFirst<UserEntity>(userSql, {| Name = head.OwnerName |})
-            let calendars = __.GetCalendarByPeriod connection head.OwnerName head.Period
+                __.Connection.QueryFirst<UserEntity>(userSql, {| Name = head.OwnerName |})
+            let calendars = __.GetCalendarByPeriod __.Connection head.OwnerName head.Period
             Some(toUser userEntity calendars)
 
     member __.UserExists owner =
-        use connection = createDbConnection ()
-        connection.Open()
         let sql = "SELECT 1 FROM Users WHERE Name = @Name"
-        connection.ExecuteScalar<bool>(sql, {| Name = getId owner |})
+        __.Connection.ExecuteScalar<bool>(sql, {| Name = getId owner |})
 
     member private __.UpdateCalendars (connection: DbConnection) ownerName calendars =
         for KeyValue(period, calendar) in calendars do
@@ -233,15 +232,13 @@ type UserDataStorage() =
                 connection.Execute(doorSql, doorEntity) |> ignore
 
     member __.UpdateUserData(updatedUserData: UserData) =
-        use connection = createDbConnection ()
-        connection.Open()
         let userEntity = fromUser updatedUserData
 
         let userSql =
             "INSERT OR REPLACE INTO Users (Name, DisplayName, DisplayType, LatestPeriod) VALUES (@Name, @DisplayName, @DisplayType, @LatestPeriod)"
 
-        connection.Execute(userSql, userEntity) |> ignore
-        __.UpdateCalendars connection (getId updatedUserData.owner) updatedUserData.calendars
+        __.Connection.Execute(userSql, userEntity) |> ignore
+        __.UpdateCalendars __.Connection (getId updatedUserData.owner) updatedUserData.calendars
         updatedUserData
 
     member __.AddNewUser userData = __.UpdateUserData userData
