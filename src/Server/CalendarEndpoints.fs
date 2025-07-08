@@ -63,16 +63,6 @@ let putHandler next (ctx: HttpContext) =
 let postHandler next (ctx: HttpContext) =
     let owner = getUser ctx
     let storage = ctx.GetService<UserDataStorage>()
-    let linkStorage = ctx.GetService<SharedLinksStorage>()
-    let oldCal = storage.GetUserData owner
-
-    let sharedLinks =
-        oldCal.calendars
-        |> Map.toList
-        |> List.map (fun x -> (x |> snd).settings.sharedLinkId)
-        |> List.choose id
-
-    sharedLinks |> List.iter (fun x -> linkStorage.DeleteSharedLink x |> ignore)
 
     let cal = Calendar.initUserData owner Settings.initDefault
 

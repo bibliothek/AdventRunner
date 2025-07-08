@@ -17,7 +17,6 @@ let serviceConfig (serviceCollection: IServiceCollection) =
 
     serviceCollection
         .AddSingleton<UserDataStorage>(fun provider -> UserDataStorage())
-        .AddSingleton<SharedLinksStorage>(fun provider -> SharedLinksStorage())
         .AddSingleton<SyncQueue>(fun provider -> (provider.GetRequiredService<UserDataStorage>(), provider.GetService<ILogger<SyncQueue>>()) |> SyncQueue)
         .AddSingleton<Json.ISerializer>(fun provider -> jsonSerializer)
 
