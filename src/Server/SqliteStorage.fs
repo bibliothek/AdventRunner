@@ -167,10 +167,13 @@ type UserDataStorage() =
             calendarEntity.Period, calendar)
         |> Map.ofSeq
 
-    member private __.Connection =
-        let connection = createDbConnection ()
-        connection.Open()
-        connection
+    let conn = lazy(
+            let c = createDbConnection ()
+            c.Open()
+            c
+        )
+
+    member private __.Connection = conn.Value
 
     member private __.GetCalendarByPeriod (connection: DbConnection) ownerName period =
         let calendarSql = "SELECT * FROM Calendars WHERE OwnerName = @OwnerName AND Period = @Period"
