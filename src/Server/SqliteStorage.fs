@@ -150,22 +150,30 @@ type UserDataStorage() =
     let getId owner = owner.name
 
     let getDoorsForCalendar (calendarEntities: CalendarEntity array) ownerName (connection: DbConnection) =
-        calendarEntities
-        |> Seq.map (fun calendarEntity ->
-            let doorSql =
-                "SELECT * FROM Doors WHERE OwnerName = @OwnerName AND Period = @Period"
-
-            let doorEntities =
+        let periods = calendarEntities |> Seq.map (fun c -> c.Period) |> Seq.toArray
+        if periods.Length = 0 then
+            Map.empty
+        else
+            let doorSql = "SELECT * FROM Doors WHERE OwnerName = @OwnerName AND Period IN @Periods"
+            let allDoorEntities =
                 connection.Query<DoorEntity>(
                     doorSql,
-                    {| OwnerName = ownerName
-                       Period = calendarEntity.Period |}
+                    {| OwnerName = ownerName; Periods = periods |}
                 )
+                |> Seq.groupBy (fun d -> d.Period)
+                |> Map.ofSeq
 
-            let doors = doorEntities |> Seq.map toDoor |> Seq.toList
-            let calendar = toCalendar calendarEntity doors
-            calendarEntity.Period, calendar)
-        |> Map.ofSeq
+            calendarEntities
+            |> Seq.map (fun calendarEntity ->
+                let doorEntities =
+                    allDoorEntities
+                    |> Map.tryFind calendarEntity.Period
+                    |> Option.defaultValue Seq.empty
+
+                let doors = doorEntities |> Seq.map toDoor |> Seq.toList
+                let calendar = toCalendar calendarEntity doors
+                calendarEntity.Period, calendar)
+            |> Map.ofSeq
 
     let conn = lazy(
             let c = createDbConnection ()
@@ -173,64 +181,81 @@ type UserDataStorage() =
             c
         )
 
-    member private __.GetCalendarByPeriod (connection: DbConnection) ownerName period =
-        let calendarSql = "SELECT * FROM Calendars WHERE OwnerName = @OwnerName AND Period = @Period"
-
-        let calendarEntities =
-            connection.Query<CalendarEntity>(calendarSql, {| OwnerName = ownerName ; Period = period |}) |> Seq.toArray
-
-        getDoorsForCalendar calendarEntities ownerName connection
-
-    member private __.GetCalendars (connection: DbConnection) ownerName =
-        let calendarSql = "SELECT * FROM Calendars WHERE OwnerName = @OwnerName"
-
-        let calendarEntities =
-            connection.Query<CalendarEntity>(calendarSql, {| OwnerName = ownerName |}) |> Seq.toArray
-
-        getDoorsForCalendar calendarEntities ownerName connection
-
     member __.GetUserData owner =
-        let userSql = "SELECT * FROM Users WHERE Name = @Name"
+        let sql =
+            "SELECT u.*, c.* FROM Users u LEFT JOIN Calendars c ON u.Name = c.OwnerName WHERE u.Name = @Name"
 
-        let userEntity =
-            conn.Value.QueryFirst<UserEntity>(userSql, {| Name = getId owner |})
+        let data =
+            conn.Value.Query<UserEntity, CalendarEntity, UserEntity * CalendarEntity>(
+                sql,
+                (fun user calendar -> user, calendar),
+                {| Name = getId owner |},
+                splitOn = "OwnerName"
+            )
+            |> Seq.toList
 
-        let calendars = __.GetCalendars conn.Value (getId owner)
-        toUser userEntity calendars
+        match data with
+        | [] -> raise (InvalidOperationException("Sequence contains no elements"))
+        | (userEntity, _) :: _ ->
+            let calendarEntities =
+                data
+                |> List.choose (fun (_, calendar) ->
+                    if obj.ReferenceEquals(calendar, null) then None else Some calendar)
+                |> List.toArray
+
+            let calendars =
+                getDoorsForCalendar calendarEntities (getId owner) conn.Value
+
+            toUser userEntity calendars
 
     member __.GetUserDataBySharedLink linkId =
-        let calendarSql = "SELECT * FROM Calendars WHERE SharedLinkId = @SharedLinkId LIMIT 1"
+        let sql =
+            "SELECT c.*, u.* FROM Calendars c JOIN Users u ON u.Name = c.OwnerName WHERE c.SharedLinkId = @SharedLinkId LIMIT 1"
 
-        let calendarEntity = conn.Value.Query<CalendarEntity>(calendarSql, {| SharedLinkId = linkId |}) |> Seq.toList
-        match calendarEntity with
+        let data =
+            conn.Value.Query<CalendarEntity, UserEntity, CalendarEntity * UserEntity>(
+                sql,
+                (fun calendar user -> calendar, user),
+                {| SharedLinkId = linkId |},
+                splitOn = "Name"
+            )
+            |> Seq.toList
+
+        match data with
         | [] -> None
-        | head :: _ ->
-            let userSql = "SELECT * FROM Users WHERE Name = @Name"
-            let userEntity =
-                conn.Value.QueryFirst<UserEntity>(userSql, {| Name = head.OwnerName |})
-            let calendars = __.GetCalendarByPeriod conn.Value head.OwnerName head.Period
-            Some(toUser userEntity calendars)
+        | (calendar, user) :: _ ->
+            let calendars =
+                getDoorsForCalendar [| calendar |] user.Name conn.Value
+
+            Some(toUser user calendars)
 
     member __.UserExists owner =
         let sql = "SELECT 1 FROM Users WHERE Name = @Name"
         conn.Value.ExecuteScalar<bool>(sql, {| Name = getId owner |})
 
     member private __.UpdateCalendars (connection: DbConnection) ownerName calendars =
-        for KeyValue(period, calendar) in calendars do
-            let calendarEntity = fromCalendar ownerName period calendar
+        if not (calendars |> Map.isEmpty) then
+            let calendarEntities =
+                calendars
+                |> Map.toList
+                |> List.map (fun (period, calendar) -> fromCalendar ownerName period calendar)
 
             let calendarSql =
                 "INSERT OR REPLACE INTO Calendars (OwnerName, Period, DistanceFactor, SharedLinkId, VerifiedDistance) VALUES (@OwnerName, @Period, @DistanceFactor, @SharedLinkId, @VerifiedDistance)"
 
-            connection.Execute(calendarSql, calendarEntity) |> ignore
+            connection.Execute(calendarSql, calendarEntities) |> ignore
 
-            for door in calendar.doors do
-                let doorEntity = fromDoor ownerName period door
+            let doorEntities =
+                calendars
+                |> Map.toList
+                |> List.collect (fun (period, calendar) ->
+                    calendar.doors |> List.map (fun door -> fromDoor ownerName period door))
 
+            if not (doorEntities |> List.isEmpty) then
                 let doorSql =
                     "INSERT OR REPLACE INTO Doors (OwnerName, Period, Day, Distance, State) VALUES (@OwnerName, @Period, @Day, @Distance, @State)"
 
-                connection.Execute(doorSql, doorEntity) |> ignore
+                connection.Execute(doorSql, doorEntities) |> ignore
 
     member __.UpdateUserData(updatedUserData: UserData) =
         let userEntity = fromUser updatedUserData
