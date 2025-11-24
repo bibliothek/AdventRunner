@@ -24,6 +24,7 @@ type Calendar =
     { settings: Settings
       doors: CalendarDoor list
       verifiedDistance: float option
+      hasSeenCompletionPopup: bool
     }
 
 type DisplayType =
@@ -74,6 +75,7 @@ module Calendar =
         { doors = initDoors settings
           settings = settings
           verifiedDistance = None
+          hasSeenCompletionPopup = false
           }
 
     let initUserData owner settings: UserData =

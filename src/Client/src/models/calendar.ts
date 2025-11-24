@@ -1,4 +1,4 @@
-import {FEnum, FOption, None} from "./fsharp-helpers";
+import { FEnum, FOption, None } from "./fsharp-helpers";
 
 export type Calendar = {
     version: string;
@@ -6,6 +6,7 @@ export type Calendar = {
     doors: Door[];
     owner: Owner;
     verifiedDistance: FOption<number> | undefined;
+    hasSeenCompletionPopup: boolean;
 };
 
 export enum DisplayType {
@@ -31,7 +32,8 @@ export function emptyCalendar(): Calendar {
         settings: { distanceFactor: 1 },
         doors: [],
         owner: { name: "" },
-        verifiedDistance: None<number>()
+        verifiedDistance: None<number>(),
+        hasSeenCompletionPopup: false
     };
 }
 
