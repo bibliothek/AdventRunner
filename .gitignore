@@ -16,3 +16,4 @@ release.sh
 *.DotSettings.user
 *.db
 .data/
+.claude/
