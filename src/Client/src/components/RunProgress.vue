@@ -47,11 +47,22 @@
         </div>
         <div v-if="!isSharedCalendarView" id="share-btn" class="h-8 mt-2 flex flex-row">
             <div class="flex-grow"></div>
+            <button v-if="isCompleted" class="btn btn-secondary mr-2" @click="showCelebration">
+                🎉 Celebrate
+            </button>
             <button class="btn btn-primary" @click="screenshot">
                 Share progress
             </button>
             <div class="flex-grow"></div>
         </div>
+
+        <!-- Completion Popup -->
+        <CompletionPopup
+            :show="showCompletionPopup"
+            :totalDistance="totalDistance"
+            :hasVerifiedDistance="hasVerifiedDistance"
+            @close="closeCompletionPopup"
+        />
     </div>
 </template>
 <style lang="postcss">
@@ -65,6 +76,7 @@ import {Calendar, DoorStateCase} from "../models/calendar"
 import {getSome, isSome} from "../models/fsharp-helpers";
 import html2canvas from "html2canvas";
 import {sharedCalendarRoute} from "../router/router";
+import CompletionPopup from "./CompletionPopup.vue";
 
 let getTotal = (cal: Calendar) => {
     return cal.doors.reduce((val, el) => val + el.distance, 0)
@@ -81,8 +93,16 @@ let getWidthPropertyForState = (cal: Calendar, state: DoorStateCase) => {
 
 export default defineComponent({
     name: "RunProgressComponent",
+    components: {
+        CompletionPopup
+    },
     props: {
         cal: Object as () => Calendar
+    },
+    data() {
+        return {
+            showCompletionPopup: false
+        }
     },
     computed: {
         doneWidth() {
@@ -113,6 +133,23 @@ export default defineComponent({
         isSharedCalendarView() {
             return this.$route.name === sharedCalendarRoute;
         },
+        totalDistance() {
+            return getTotal(this.cal!) * this.cal!.settings.distanceFactor;
+        },
+        isCompleted() {
+            return getByState(this.cal!, "Done") == getTotal(this.cal!);
+        },
+        hasShownCompletion() {
+            return this.cal!.hasSeenCompletionPopup;
+        }
+    },
+    watch: {
+        isCompleted(newValue) {
+            // Show popup once when completed, unless it's a shared calendar view
+            if (newValue && !this.hasShownCompletion && !this.isSharedCalendarView) {
+                this.showCompletionPopup = true;
+            }
+        }
     },
     methods: {
         getKmByState(state: DoorStateCase) {
@@ -148,6 +185,14 @@ export default defineComponent({
                 link.download = 'adventrunner-progress.png';
                 link.click();
             });
+        },
+        async closeCompletionPopup() {
+            this.showCompletionPopup = false;
+            this.cal!.hasSeenCompletionPopup = true;
+            await this.$store.dispatch('SET_CALENDAR');
+        },
+        showCelebration() {
+            this.showCompletionPopup = true;
         }
     }
 })
