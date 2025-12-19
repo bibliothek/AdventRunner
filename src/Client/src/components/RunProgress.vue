@@ -61,6 +61,7 @@
             :show="showCompletionPopup"
             :totalDistance="totalDistance"
             :hasVerifiedDistance="hasVerifiedDistance"
+            :verifiedDistance="verifiedDistance"
             :takingScreenshot="takingScreenshot"
             @close="closeCompletionPopup"
             @share="shareCompletion"
@@ -190,8 +191,10 @@ export default defineComponent({
             });
         },
         async screenshotCompletion() {
+            // Disable animations for screenshot
             this.takingScreenshot = true;
 
+            // Wait a bit for DOM to update
             await new Promise(resolve => setTimeout(resolve, 100));
 
             const element = document.getElementById('completion-dialog') as HTMLElement;
