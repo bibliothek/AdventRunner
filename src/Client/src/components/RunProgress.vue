@@ -61,7 +61,9 @@
             :show="showCompletionPopup"
             :totalDistance="totalDistance"
             :hasVerifiedDistance="hasVerifiedDistance"
+            :takingScreenshot="takingScreenshot"
             @close="closeCompletionPopup"
+            @share="shareCompletion"
         />
     </div>
 </template>
@@ -101,7 +103,8 @@ export default defineComponent({
     },
     data() {
         return {
-            showCompletionPopup: false
+            showCompletionPopup: false,
+            takingScreenshot: false
         }
     },
     computed: {
@@ -186,6 +189,37 @@ export default defineComponent({
                 link.click();
             });
         },
+        async screenshotCompletion() {
+            this.takingScreenshot = true;
+
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            const element = document.getElementById('completion-dialog') as HTMLElement;
+            html2canvas(element, {
+                ignoreElements: (el) => el.id === 'completion-action-btns',
+                scale: 2.0,
+                windowWidth: 600,
+            }).then(canvas => {
+                // Crop the canvas to remove any white edge artifacts
+                const croppedCanvas = document.createElement('canvas');
+                const ctx = croppedCanvas.getContext('2d');
+
+                // Reduce width by a few pixels to remove the white line
+                const cropAmount = 2; // pixels at scale 2.0
+                croppedCanvas.width = canvas.width - cropAmount;
+                croppedCanvas.height = canvas.height;
+
+                ctx?.drawImage(canvas, 0, 0);
+
+                const link = document.createElement('a');
+                link.href = croppedCanvas.toDataURL('image/png');
+                link.download = 'adventrunner-progress.png';
+                link.click();
+
+                // Restore dialog after screenshot
+                this.takingScreenshot = false;
+            });
+        },
         async closeCompletionPopup() {
             this.showCompletionPopup = false;
             this.cal!.hasSeenCompletionPopup = true;
@@ -193,6 +227,10 @@ export default defineComponent({
         },
         showCelebration() {
             this.showCompletionPopup = true;
+        },
+        async shareCompletion() {
+            await this.screenshotCompletion();
+            await this.closeCompletionPopup();
         }
     }
 })

@@ -8,9 +8,10 @@
                 <!-- Dialog -->
                 <div class="relative z-10 max-w-2xl w-full mx-4">
                     <Transition name="pop">
-                        <div v-if="show" class="bg-gradient-to-br from-primary to-secondary rounded-3xl shadow-2xl overflow-hidden transform">
+                        <div id="completion-dialog" v-if="show" class="bg-gradient-to-br from-primary to-secondary rounded-3xl shadow-2xl overflow-hidden transform" :class="{ 'no-animations': takingScreenshot }">
                             <!-- Close button -->
                             <button
+                                v-if="!takingScreenshot"
                                 @click="$emit('close')"
                                 class="absolute top-4 right-4 text-primary-content hover:text-white transition-colors z-10 text-2xl font-bold w-10 h-10 flex items-center justify-center rounded-full hover:bg-white hover:bg-opacity-20"
                             >
@@ -20,7 +21,7 @@
                             <!-- Content -->
                             <div class="p-12 text-center text-primary-content">
                                 <!-- Trophy Animation -->
-                                <div class="mb-6 animate-bounce-slow">
+                                <div class="mb-6 animate-bounce-slow trophy-container">
                                     <div class="text-9xl inline-block animate-wiggle">🏆</div>
                                 </div>
 
@@ -59,7 +60,7 @@
                                 </div>
 
                                 <!-- Action Buttons -->
-                                <div class="flex gap-4 justify-center animate-slide-up animation-delay-400">
+                                <div id="completion-action-btns" class="flex gap-4 justify-center animate-slide-up animation-delay-400">
                                     <button
                                         @click="$emit('share')"
                                         class="btn btn-lg bg-white text-primary hover:bg-opacity-90 border-none shadow-lg text-xl px-12"
@@ -72,6 +73,11 @@
                                     >
                                         Close
                                     </button>
+                                </div>
+
+                                <!-- Website Reference -->
+                                <div class="mt-8 text-primary-content text-opacity-70 text-base animate-slide-up animation-delay-500">
+                                    adventrunner.com
                                 </div>
                             </div>
                         </div>
@@ -99,6 +105,10 @@ export default defineComponent({
         hasVerifiedDistance: {
             type: Boolean,
             default: false
+        },
+        takingScreenshot: {
+            type: Boolean,
+            default: false
         }
     },
     emits: ['close', 'share'],
@@ -116,6 +126,28 @@ export default defineComponent({
 </script>
 
 <style scoped>
+/* Disable all animations when taking screenshot */
+.no-animations {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: 1px solid transparent !important;
+}
+
+.no-animations * {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+}
+
+.no-animations *:not(.trophy-container) {
+    transform: none !important;
+}
+
+/* Adjust trophy position when taking screenshot */
+.no-animations .trophy-container {
+    transform: translateY(-20px) !important;
+}
+
 /* Fade transition for backdrop */
 .fade-enter-active, .fade-leave-active {
     transition: opacity 0.3s ease;
