@@ -61,7 +61,7 @@
             :show="showCompletionPopup"
             :totalDistance="totalDistance"
             :hasVerifiedDistance="hasVerifiedDistance"
-            :verifiedDistance="verifiedDistance"
+            :verifiedDistance="verifiedDistanceOption"
             :takingScreenshot="takingScreenshot"
             @close="closeCompletionPopup"
             @share="shareCompletion"
@@ -130,6 +130,14 @@ export default defineComponent({
         verifiedDistance() {
             const distance = getSome(this.cal!.verifiedDistance!);
             return (distance / 1000);
+        },
+
+        verifiedDistanceOption() {
+            if(this.hasVerifiedDistance)
+            {
+                return this.verifiedDistance;
+            }
+            return undefined;
         },
         missingVerifiedDistance() {
             return Math.max(getTotal(this.cal!) * this.cal!.settings.distanceFactor - this.verifiedDistance, 0);
