@@ -47,11 +47,25 @@
         </div>
         <div v-if="!isSharedCalendarView" id="share-btn" class="h-8 mt-2 flex flex-row">
             <div class="flex-grow"></div>
+            <button v-if="isCompleted" class="btn btn-secondary mr-2" @click="showCelebration">
+                🎉 Celebrate
+            </button>
             <button class="btn btn-primary" @click="screenshot">
                 Share progress
             </button>
             <div class="flex-grow"></div>
         </div>
+
+        <!-- Completion Popup -->
+        <CompletionPopup
+            :show="showCompletionPopup"
+            :totalDistance="totalDistance"
+            :hasVerifiedDistance="hasVerifiedDistance"
+            :verifiedDistance="verifiedDistanceOption"
+            :takingScreenshot="takingScreenshot"
+            @close="closeCompletionPopup"
+            @share="shareCompletion"
+        />
     </div>
 </template>
 <style lang="postcss">
@@ -65,6 +79,7 @@ import {Calendar, DoorStateCase} from "../models/calendar"
 import {getSome, isSome} from "../models/fsharp-helpers";
 import html2canvas from "html2canvas";
 import {sharedCalendarRoute} from "../router/router";
+import CompletionPopup from "./CompletionPopup.vue";
 
 let getTotal = (cal: Calendar) => {
     return cal.doors.reduce((val, el) => val + el.distance, 0)
@@ -81,8 +96,17 @@ let getWidthPropertyForState = (cal: Calendar, state: DoorStateCase) => {
 
 export default defineComponent({
     name: "RunProgressComponent",
+    components: {
+        CompletionPopup
+    },
     props: {
         cal: Object as () => Calendar
+    },
+    data() {
+        return {
+            showCompletionPopup: false,
+            takingScreenshot: false
+        }
     },
     computed: {
         doneWidth() {
@@ -107,12 +131,37 @@ export default defineComponent({
             const distance = getSome(this.cal!.verifiedDistance!);
             return (distance / 1000);
         },
+
+        verifiedDistanceOption() {
+            if(this.hasVerifiedDistance)
+            {
+                return this.verifiedDistance;
+            }
+            return undefined;
+        },
         missingVerifiedDistance() {
             return Math.max(getTotal(this.cal!) * this.cal!.settings.distanceFactor - this.verifiedDistance, 0);
         },
         isSharedCalendarView() {
             return this.$route.name === sharedCalendarRoute;
         },
+        totalDistance() {
+            return getTotal(this.cal!) * this.cal!.settings.distanceFactor;
+        },
+        isCompleted() {
+            return getByState(this.cal!, "Done") == getTotal(this.cal!);
+        },
+        hasShownCompletion() {
+            return this.cal!.hasSeenCompletionPopup;
+        }
+    },
+    watch: {
+        isCompleted(newValue) {
+            // Show popup once when completed, unless it's a shared calendar view
+            if (newValue && !this.hasShownCompletion && !this.isSharedCalendarView) {
+                this.showCompletionPopup = true;
+            }
+        }
     },
     methods: {
         getKmByState(state: DoorStateCase) {
@@ -148,6 +197,60 @@ export default defineComponent({
                 link.download = 'adventrunner-progress.png';
                 link.click();
             });
+        },
+        async screenshotCompletion() {
+            // Disable animations for screenshot
+            this.takingScreenshot = true;
+
+            // Wait a bit for DOM to update
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            const element = document.getElementById('completion-dialog') as HTMLElement;
+            html2canvas(element, {
+                scale: 4.0,
+                windowWidth: 600,
+            }).then(canvas => {
+                // Crop the canvas to remove any white edge artifacts
+                const croppedCanvas = document.createElement('canvas');
+                const ctx = croppedCanvas.getContext('2d');
+
+                // Crop pixels from all sides to remove white lines
+                const cropTop = 4; // pixels to crop from top
+                const cropBottom = 4; // pixels to crop from bottom
+                const cropLeft = 2; // pixels to crop from left
+                const cropRight = 2; // pixels to crop from right
+
+                croppedCanvas.width = canvas.width - cropLeft - cropRight;
+                croppedCanvas.height = canvas.height - cropTop - cropBottom;
+
+                ctx?.drawImage(
+                    canvas,
+                    cropLeft, cropTop, // source x, y
+                    croppedCanvas.width, croppedCanvas.height, // source width, height
+                    0, 0, // destination x, y
+                    croppedCanvas.width, croppedCanvas.height // destination width, height
+                );
+
+                const link = document.createElement('a');
+                link.href = croppedCanvas.toDataURL('image/png');
+                link.download = 'adventrunner-completion.png';
+                link.click();
+
+                // Restore dialog after screenshot
+                this.takingScreenshot = false;
+            });
+        },
+        async closeCompletionPopup() {
+            this.showCompletionPopup = false;
+            this.cal!.hasSeenCompletionPopup = true;
+            await this.$store.dispatch('SET_CALENDAR');
+        },
+        showCelebration() {
+            this.showCompletionPopup = true;
+        },
+        async shareCompletion() {
+            await this.screenshotCompletion();
+            await this.closeCompletionPopup();
         }
     }
 })
