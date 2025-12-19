@@ -2,7 +2,7 @@
 
     <div class="flex flex-col">
 
-            <RunProgress :cal="cal"></RunProgress>
+            <RunProgress :cal="cal" :year="year"></RunProgress>
 
     <div class="flex justify-center">
 

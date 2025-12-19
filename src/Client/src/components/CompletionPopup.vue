@@ -28,7 +28,7 @@
                     </h1>
 
                     <div class="text-lg md:text-xl font-semibold mb-6 animate-slide-up animation-delay-100">
-                        You've completed your Adventrunner challenge!
+                        You've completed your {{ year }} Adventrunner challenge!
                     </div>
 
                     <!-- Stats -->
@@ -101,7 +101,7 @@
             </h1>
 
             <div class="text-lg md:text-xl font-semibold mb-6 leading-normal">
-                You've completed your Adventrunner challenge!
+                You've completed your {{ year }} Adventrunner challenge!
             </div>
 
             <!-- Stats -->
@@ -167,6 +167,10 @@ export default defineComponent({
         takingScreenshot: {
             type: Boolean,
             default: false
+        },
+        year: {
+            type: Number,
+            required: true
         }
     },
     emits: ['close', 'share'],

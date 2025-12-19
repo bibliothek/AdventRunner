@@ -5,7 +5,7 @@
                 <div class="text-2xl font-semibold text-content">{{ displayName }}</div>
                 <div class="text-md font-light">{{ sharedLinkResponse.period }}</div>
             </div>
-            <DoorCalendar :cal="sharedLinkResponse.calendar" :readonly="true"></DoorCalendar>
+            <DoorCalendar :cal="sharedLinkResponse.calendar" :year="sharedLinkResponse.period" :readonly="true"></DoorCalendar>
         </div>
         <div class="h-96 flex items-center" v-else>
             <div class="flex flex-col justify-center items-center">

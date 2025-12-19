@@ -2,7 +2,7 @@
 
     <div class="flex flex-row justify-center">
         <div class="flex flex-col">
-            <RunProgress :cal="cal"></RunProgress>
+            <RunProgress :cal="cal" :year="year"></RunProgress>
             <div class="flex flex-row flex-wrap max-w-6xl justify-center">
                 <div class="w-auto" v-for="door in cal.doors" :key="door.day">
                     <div v-if="door.state.Case === 'Closed'" @click="$emit('markedOpen',door)" :class="getCursorClass()">
@@ -42,6 +42,7 @@ export default defineComponent({
     props: {
         cal: { type: Object as () => Calendar, required: true },
         readonly: { type: Boolean, required: true },
+        year: { type: Number, required: true },
     },
     methods: {
         distanceFor(door: Door) {

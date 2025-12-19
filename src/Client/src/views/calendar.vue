@@ -1,7 +1,7 @@
 <template>
     <MonthlyCalendar v-if="useMonthlyCalender()" :year="year" :cal="cal" :readonly="false" @markedDone="markDone" @markedClosed="markClosed"
         @markedOpen="markOpen"></MonthlyCalendar>
-    <DoorCalendar v-else :cal="cal" :readonly="false" @markedDone="markDone" @markedClosed="markClosed"
+    <DoorCalendar v-else :cal="cal" :year="year" :readonly="false" @markedDone="markDone" @markedClosed="markClosed"
         @markedOpen="markOpen"></DoorCalendar>
 </template>
 

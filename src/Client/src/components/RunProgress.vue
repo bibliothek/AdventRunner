@@ -63,6 +63,7 @@
             :hasVerifiedDistance="hasVerifiedDistance"
             :verifiedDistance="verifiedDistanceOption"
             :takingScreenshot="takingScreenshot"
+            :year="year"
             @close="closeCompletionPopup"
             @share="shareCompletion"
         />
@@ -100,7 +101,8 @@ export default defineComponent({
         CompletionPopup
     },
     props: {
-        cal: Object as () => Calendar
+        cal: Object as () => Calendar,
+        year: { type: Number, required: true }
     },
     data() {
         return {
