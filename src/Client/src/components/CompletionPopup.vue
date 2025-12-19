@@ -1,91 +1,135 @@
 <template>
-    <Teleport to="body">
-        <Transition name="fade">
-            <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center">
-                <!-- Backdrop -->
-                <div class="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm" @click="$emit('close')"></div>
+    <!-- Normal Dialog (with animations) -->
+    <div v-if="show && !takingScreenshot" class="fixed inset-0 z-50 flex items-center justify-center">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm" @click="$emit('close')"></div>
 
-                <!-- Dialog -->
-                <div class="relative z-10 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-                    <Transition name="pop">
-                        <div id="completion-dialog" v-if="show" class="bg-gradient-to-br from-primary to-secondary rounded-3xl shadow-2xl overflow-hidden transform" :class="{ 'no-animations': takingScreenshot }">
-                            <!-- Close button -->
-                            <button
-                                v-if="!takingScreenshot"
-                                @click="$emit('close')"
-                                class="absolute top-4 right-4 text-primary-content hover:text-white transition-colors z-10 text-2xl font-bold w-10 h-10 flex items-center justify-center rounded-full hover:bg-white hover:bg-opacity-20"
-                            >
-                                ×
-                            </button>
+        <!-- Dialog -->
+        <div class="relative z-10 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div id="completion-dialog" class="bg-gradient-to-br from-primary to-secondary rounded-3xl shadow-2xl overflow-hidden transform">
+                <!-- Close button -->
+                <button
+                    @click="$emit('close')"
+                    class="absolute top-4 right-4 text-primary-content hover:text-white transition-colors z-10 text-2xl font-bold w-10 h-10 flex items-center justify-center rounded-full hover:bg-white hover:bg-opacity-20"
+                >
+                    ×
+                </button>
 
-                            <!-- Content -->
-                            <div class="p-6 md:p-8 text-center text-primary-content">
-                                <!-- Trophy Animation -->
-                                <div class="mb-4 animate-bounce-slow trophy-container">
-                                    <div class="text-6xl md:text-7xl inline-block animate-wiggle">🏆</div>
-                                </div>
+                <!-- Content -->
+                <div class="p-6 md:p-8 text-center text-primary-content">
+                    <!-- Trophy Animation -->
+                    <div class="mb-4 animate-bounce-slow trophy-container">
+                        <div class="text-6xl md:text-7xl inline-block animate-wiggle">🏆</div>
+                    </div>
 
-                                <!-- Main Message -->
-                                <h1 class="text-3xl md:text-4xl font-bold mb-3 animate-slide-up">
-                                    Congratulations!
-                                </h1>
+                    <!-- Main Message -->
+                    <h1 class="text-3xl md:text-4xl font-bold mb-3 animate-slide-up">
+                        Congratulations!
+                    </h1>
 
-                                <div class="text-lg md:text-xl font-semibold mb-6 animate-slide-up animation-delay-100">
-                                    You've completed your Adventrunner challenge!
-                                </div>
+                    <div class="text-lg md:text-xl font-semibold mb-6 animate-slide-up animation-delay-100">
+                        You've completed your Adventrunner challenge!
+                    </div>
 
-                                <!-- Stats -->
-                                <div class="bg-white bg-opacity-20 backdrop-blur-md rounded-2xl p-4 md:p-6 mb-6 animate-slide-up animation-delay-200">
-                                    <div class="text-3xl md:text-4xl font-bold mb-2">
-                                        {{ formatDistance(totalDistance) }}
-                                    </div>
-                                    <div class="text-base md:text-lg opacity-90">
-                                        Total Distance Completed
-                                    </div>
+                    <!-- Stats -->
+                    <div class="bg-white bg-opacity-20 backdrop-blur-md rounded-2xl p-4 md:p-6 mb-6 animate-slide-up animation-delay-200">
+                        <div class="text-3xl md:text-4xl font-bold mb-2">
+                            {{ formatDistance(totalDistance) }}
+                        </div>
+                        <div class="text-base md:text-lg opacity-90">
+                            Total Distance Completed
+                        </div>
 
-                                    <div v-if="hasVerifiedDistance" class="mt-4 pt-4 border-t border-white border-opacity-30">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <img src="/strava-icon.png" alt="Strava" class="h-6 w-6">
-                                            <span class="text-base font-semibold">Verified on Strava!</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Celebration Message -->
-                                <div class="text-base md:text-lg mb-6 animate-slide-up animation-delay-300">
-                                    <div class="mb-2">🚀 Look at you go! 🚀</div>
-                                    <div class="text-sm md:text-base opacity-90">
-                                        You just turned an advent calendar into your personal victory lap.
-                                    </div>
-                                </div>
-
-                                <!-- Action Buttons -->
-                                <div id="completion-action-btns" class="flex gap-3 justify-center animate-slide-up animation-delay-400">
-                                    <button
-                                        @click="$emit('share')"
-                                        class="btn btn-md bg-white text-primary hover:bg-opacity-90 border-none shadow-lg text-base px-8"
-                                    >
-                                        Share
-                                    </button>
-                                    <button
-                                        @click="$emit('close')"
-                                        class="btn btn-md bg-white bg-opacity-80 text-primary hover:bg-opacity-90 border-none shadow-lg text-base px-8"
-                                    >
-                                        Close
-                                    </button>
-                                </div>
-
-                                <!-- Website Reference -->
-                                <div class="mt-6 text-primary-content text-opacity-70 text-sm animate-slide-up animation-delay-500">
-                                    adventrunner.com
-                                </div>
+                        <div v-if="hasVerifiedDistance" class="mt-4 pt-4 border-t border-white border-opacity-30">
+                            <div class="flex items-center justify-center gap-2">
+                                <img src="/strava-icon.png" alt="Strava" class="h-6 w-6">
+                                <span class="text-base font-semibold">Verified on Strava!</span>
                             </div>
                         </div>
-                    </Transition>
+                    </div>
+
+                    <!-- Celebration Message -->
+                    <div class="text-base md:text-lg mb-6 animate-slide-up animation-delay-300">
+                        <div class="mb-2">🚀 Look at you go! 🚀</div>
+                        <div class="text-sm md:text-base opacity-90">
+                            You just turned an advent calendar into your personal victory lap.
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div id="completion-action-btns" class="flex gap-3 justify-center animate-slide-up animation-delay-400">
+                        <button
+                            @click="$emit('share')"
+                            class="btn btn-md bg-white text-primary hover:bg-opacity-90 border-none shadow-lg text-base px-8"
+                        >
+                            Share
+                        </button>
+                        <button
+                            @click="$emit('close')"
+                            class="btn btn-md bg-white bg-opacity-80 text-primary hover:bg-opacity-90 border-none shadow-lg text-base px-8"
+                        >
+                            Close
+                        </button>
+                    </div>
+
+                    <!-- Website Reference -->
+                    <div class="mt-6 text-primary-content text-opacity-70 text-sm animate-slide-up animation-delay-500">
+                        adventrunner.com
+                    </div>
                 </div>
             </div>
-        </Transition>
-    </Teleport>
+        </div>
+    </div>
+
+    <!-- Screenshot Dialog (no animations, static styling) -->
+    <div v-if="takingScreenshot" id="completion-dialog" class="bg-gradient-to-br from-primary to-secondary m-0 p-0 block">
+        <!-- Content -->
+        <div class="px-6 md:px-8 py-6 md:py-8 text-center text-primary-content block m-0">
+            <!-- Trophy (no animation) -->
+            <div class="mb-4 leading-none">
+                <div class="text-6xl md:text-7xl inline-block leading-none">🏆</div>
+            </div>
+
+            <!-- Main Message -->
+            <h1 class="text-3xl md:text-4xl font-bold mb-3 leading-tight">
+                Congratulations!
+            </h1>
+
+            <div class="text-lg md:text-xl font-semibold mb-6 leading-normal">
+                You've completed your Adventrunner challenge!
+            </div>
+
+            <!-- Stats -->
+            <div class="bg-white bg-opacity-20 rounded-2xl p-4 md:p-6 mb-6">
+                <div class="text-3xl md:text-4xl font-bold mb-2">
+                    {{ formatDistance(totalDistance) }}
+                </div>
+                <div class="text-base md:text-lg opacity-90">
+                    Total Distance Completed
+                </div>
+
+                <div v-if="hasVerifiedDistance" class="mt-4 pt-4 border-t border-white border-opacity-30">
+                    <div class="flex items-center justify-center gap-2">
+                        <img src="/strava-icon.png" alt="Strava" class="h-6 w-6">
+                        <span class="text-base font-semibold">Verified on Strava!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Celebration Message -->
+            <div class="text-base md:text-lg mb-6">
+                <div class="mb-2">🚀 Look at you go! 🚀</div>
+                <div class="text-sm md:text-base opacity-90">
+                    You just turned an advent calendar into your personal victory lap.
+                </div>
+            </div>
+
+            <!-- Website Reference -->
+            <div class="mt-6 text-primary-content text-opacity-70 text-sm">
+                adventrunner.com
+            </div>
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
@@ -130,26 +174,16 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* Disable rounded corners and shadow when taking screenshot */
-.no-animations {
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    outline: 1px solid transparent !important;
+/* Remove any gaps in screenshot dialog */
+#completion-dialog {
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+    border: 0;
 }
 
-.no-animations * {
-    animation: none !important;
-    transition: none !important;
-    opacity: 1 !important;
-}
-
-.no-animations *:not(.trophy-container) {
-    transform: none !important;
-}
-
-/* Adjust trophy position when taking screenshot */
-.no-animations .trophy-container {
-    transform: translateY(-20px) !important;
+#completion-dialog > * {
+    margin: 0;
 }
 
 /* Fade transition for backdrop */
@@ -255,5 +289,9 @@ export default defineComponent({
 
 .animation-delay-400 {
     animation-delay: 0.4s;
+}
+
+.animation-delay-500 {
+    animation-delay: 0.5s;
 }
 </style>

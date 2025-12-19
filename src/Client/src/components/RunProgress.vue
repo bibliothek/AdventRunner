@@ -207,16 +207,26 @@ export default defineComponent({
                 const croppedCanvas = document.createElement('canvas');
                 const ctx = croppedCanvas.getContext('2d');
 
-                // Reduce width by a few pixels to remove the white line
-                const cropAmount = 2; // pixels at scale 2.0
-                croppedCanvas.width = canvas.width - cropAmount;
-                croppedCanvas.height = canvas.height;
+                // Crop pixels from all sides to remove white lines
+                const cropTop = 4; // pixels to crop from top
+                const cropBottom = 4; // pixels to crop from bottom
+                const cropLeft = 2; // pixels to crop from left
+                const cropRight = 2; // pixels to crop from right
 
-                ctx?.drawImage(canvas, 0, 0);
+                croppedCanvas.width = canvas.width - cropLeft - cropRight;
+                croppedCanvas.height = canvas.height - cropTop - cropBottom;
+
+                ctx?.drawImage(
+                    canvas,
+                    cropLeft, cropTop, // source x, y
+                    croppedCanvas.width, croppedCanvas.height, // source width, height
+                    0, 0, // destination x, y
+                    croppedCanvas.width, croppedCanvas.height // destination width, height
+                );
 
                 const link = document.createElement('a');
                 link.href = croppedCanvas.toDataURL('image/png');
-                link.download = 'adventrunner-progress.png';
+                link.download = 'adventrunner-completion.png';
                 link.click();
 
                 // Restore dialog after screenshot
