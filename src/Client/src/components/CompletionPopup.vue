@@ -41,9 +41,14 @@
                         </div>
 
                         <div v-if="hasVerifiedDistance" class="mt-4 pt-4 border-t border-white border-opacity-30">
-                            <div class="flex items-center justify-center gap-2">
-                                <img src="/strava-icon.png" alt="Strava" class="h-6 w-6">
-                                <span class="text-base font-semibold">Verified on Strava!</span>
+                            <div style="text-align: center; line-height: 0;">
+                                <div style="display: inline-block; position: relative; top: 0;">
+                                    <img src="/strava-icon.png" alt="Strava" style="display: inline-block; height: 20px; width: 20px; margin: 0; vertical-align: baseline; position: relative; top: 10px;">
+                                    <span class="text-base font-semibold" style="display: inline-block; margin-left: 6px; line-height: 20px; vertical-align: baseline;">Verified on Strava!</span>
+                                </div>
+                                <div class="text-sm opacity-90" style="margin-top: 8px; line-height: normal;">
+                                    {{ formatDistance(verifiedDistance) }} tracked
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -109,9 +114,14 @@
                 </div>
 
                 <div v-if="hasVerifiedDistance" class="mt-4 pt-4 border-t border-white border-opacity-30">
-                    <div class="flex items-center justify-center gap-2">
-                        <img src="/strava-icon.png" alt="Strava" class="h-6 w-6">
-                        <span class="text-base font-semibold">Verified on Strava!</span>
+                    <div style="text-align: center; line-height: 0;">
+                        <div style="display: inline-block; position: relative; top: 0;">
+                            <img src="/strava-icon.png" alt="Strava" style="display: inline-block; height: 20px; width: 20px; margin: 0; vertical-align: baseline; position: relative; top: 10px;">
+                            <span class="text-base font-semibold" style="display: inline-block; margin-left: 6px; line-height: 20px; vertical-align: baseline;">Verified on Strava!</span>
+                        </div>
+                        <div class="text-sm opacity-90" style="margin-top: 8px; line-height: normal;">
+                            {{ formatDistance(verifiedDistance) }} tracked
+                        </div>
                     </div>
                 </div>
             </div>

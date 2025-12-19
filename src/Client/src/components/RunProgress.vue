@@ -199,8 +199,7 @@ export default defineComponent({
 
             const element = document.getElementById('completion-dialog') as HTMLElement;
             html2canvas(element, {
-                ignoreElements: (el) => el.id === 'completion-action-btns',
-                scale: 2.0,
+                scale: 4.0,
                 windowWidth: 600,
             }).then(canvas => {
                 // Crop the canvas to remove any white edge artifacts
