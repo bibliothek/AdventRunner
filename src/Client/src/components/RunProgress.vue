@@ -30,7 +30,8 @@
                      class="bg-primary text-primary-content myOverflow flex flex-row"
                      style="height:100%" :style="`width: ${verifiedPercentage}%`">
                     <div class="flex-grow"></div>
-                    <img v-if="!hasVerifiedDistanceLessThan50Percent" class="my-auto" style="height: 80%" src="../../public/strava-icon.png">
+                    <img v-if="!hasVerifiedDistanceLessThan50Percent" class="my-auto" style="height: 80%"
+                         src="../../public/strava-icon.png">
                     <span>{{ getDistanceText(verifiedDistance) }}</span>
                     <div class="flex-grow"></div>
                 </div>
@@ -75,12 +76,13 @@
 }
 </style>
 <script lang="ts">
-import {defineComponent} from "vue";
-import {Calendar, DoorStateCase} from "../models/calendar"
-import {getSome, isSome} from "../models/fsharp-helpers";
+import { defineComponent } from "vue";
+import { Calendar, DoorStateCase } from "../models/calendar"
+import { getSome, isSome } from "../models/fsharp-helpers";
 import html2canvas from "html2canvas";
-import {sharedCalendarRoute} from "../router/router";
+import { sharedCalendarRoute } from "../router/router";
 import CompletionPopup from "./CompletionPopup.vue";
+import * as actionTypes from '../store/action-types';
 
 let getTotal = (cal: Calendar) => {
     return cal.doors.reduce((val, el) => val + el.distance, 0)
@@ -102,7 +104,7 @@ export default defineComponent({
     },
     props: {
         cal: Object as () => Calendar,
-        year: { type: Number, required: true }
+        year: {type: Number, required: true}
     },
     data() {
         return {
@@ -135,8 +137,7 @@ export default defineComponent({
         },
 
         verifiedDistanceOption() {
-            if(this.hasVerifiedDistance)
-            {
+            if (this.hasVerifiedDistance) {
                 return this.verifiedDistance;
             }
             return undefined;
@@ -151,7 +152,8 @@ export default defineComponent({
             return getTotal(this.cal!) * this.cal!.settings.distanceFactor;
         },
         isCompleted() {
-            return getByState(this.cal!, "Done") == getTotal(this.cal!);
+            return getByState(this.cal!, "Done") == getTotal(this.cal!)
+                || this.hasVerifiedDistance && this.missingVerifiedDistance === 0;
         },
         hasShownCompletion() {
             return this.cal!.hasSeenCompletionPopup;
@@ -163,6 +165,11 @@ export default defineComponent({
             if (newValue && !this.hasShownCompletion && !this.isSharedCalendarView) {
                 this.showCompletionPopup = true;
             }
+        }
+    },
+    mounted() {
+        if (!this.hasShownCompletion && !this.isSharedCalendarView && this.isCompleted) {
+            this.showCompletionPopup = true;
         }
     },
     methods: {
@@ -244,8 +251,9 @@ export default defineComponent({
         },
         async closeCompletionPopup() {
             this.showCompletionPopup = false;
-            this.cal!.hasSeenCompletionPopup = true;
-            await this.$store.dispatch('SET_CALENDAR');
+            if(!this.cal?.hasSeenCompletionPopup) {
+                await this.$store.dispatch(actionTypes.SET_COMPLETION_SHOWN);
+            }
         },
         showCelebration() {
             this.showCompletionPopup = true;

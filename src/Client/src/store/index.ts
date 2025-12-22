@@ -61,6 +61,9 @@ const mutations = {
         state.userData.calendars[state.displayPeriod]!.settings.distanceFactor =
             Number(scaleFactor);
     },
+    [mutationTypes.SET_COMPLETION_SHOWN](state: State) {
+        state.userData.calendars[state.displayPeriod]!.hasSeenCompletionPopup = true;
+    },
     [mutationTypes.SET_AUTH_HEADERS](state: State, config: any) {
         state.axiosConfig = config;
     },
@@ -131,6 +134,12 @@ const actions = {
         scaleFactor: number
     ) {
         context.commit(mutationTypes.SET_SCALE_FACTOR, scaleFactor);
+        await context.dispatch(actionTypes.SET_CALENDAR);
+    },
+    async [actionTypes.SET_COMPLETION_SHOWN](
+        context: ActionContext<State, State>
+    ) {
+        context.commit(mutationTypes.SET_COMPLETION_SHOWN);
         await context.dispatch(actionTypes.SET_CALENDAR);
     },
     async [actionTypes.SET_DISPLAY_TYPE](
