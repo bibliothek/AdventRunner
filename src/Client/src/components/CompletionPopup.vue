@@ -55,9 +55,9 @@
 
                     <!-- Celebration Message -->
                     <div class="text-base md:text-lg mb-6 animate-slide-up animation-delay-300">
-                        <div class="mb-2">🚀 Look at you go! 🚀</div>
+                        <div class="mb-2">{{ celebrationMessage.headline }}</div>
                         <div class="text-sm md:text-base opacity-90">
-                            You just turned an advent calendar into your personal victory lap.
+                            {{ celebrationMessage.subtext }}
                         </div>
                     </div>
 
@@ -128,9 +128,9 @@
 
             <!-- Celebration Message -->
             <div class="text-base md:text-lg mb-6">
-                <div class="mb-2">🚀 Look at you go! 🚀</div>
+                <div class="mb-2">{{ celebrationMessage.headline }}</div>
                 <div class="text-sm md:text-base opacity-90">
-                    You just turned an advent calendar into your personal victory lap.
+                    {{ celebrationMessage.subtext }}
                 </div>
             </div>
 
@@ -143,7 +143,28 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { computed, defineComponent } from 'vue';
+
+interface CelebrationMessage {
+    headline: string;
+    subtext: string;
+}
+
+// Default celebration message, used for year 2025 and earlier.
+const defaultCelebrationMessage: CelebrationMessage = {
+    headline: '🚀 Look at you go! 🚀',
+    subtext: 'You just turned an advent calendar into your personal victory lap.'
+};
+
+// Year-specific celebration messages for 2026 through 2030.
+// TODO: Fill in the actual messages for each year.
+const celebrationMessagesByYear: Record<number, CelebrationMessage> = {
+    2026: defaultCelebrationMessage,
+    2027: defaultCelebrationMessage,
+    2028: defaultCelebrationMessage,
+    2029: defaultCelebrationMessage,
+    2030: defaultCelebrationMessage
+};
 
 export default defineComponent({
     name: 'CompletionPopup',
@@ -174,14 +195,19 @@ export default defineComponent({
         }
     },
     emits: ['close', 'share'],
-    setup() {
+    setup(props) {
         const formatDistance = (distance: number) => {
             const n = Number.isInteger(distance) ? distance : distance.toFixed(1);
             return `${n} km`;
         };
 
+        const celebrationMessage = computed<CelebrationMessage>(
+            () => celebrationMessagesByYear[props.year] ?? defaultCelebrationMessage
+        );
+
         return {
-            formatDistance
+            formatDistance,
+            celebrationMessage
         };
     }
 });
