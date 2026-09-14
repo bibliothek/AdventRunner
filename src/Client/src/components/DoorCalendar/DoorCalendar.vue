@@ -1,26 +1,38 @@
 <template>
+    <div class="w-full max-w-5xl mx-auto">
+        <RunProgress :cal="cal" :year="year"></RunProgress>
 
-    <div class="flex flex-row justify-center">
-        <div class="flex flex-col">
-            <RunProgress :cal="cal" :year="year"></RunProgress>
-            <div class="flex flex-row flex-wrap max-w-6xl justify-center">
-                <div class="w-auto" v-for="door in cal.doors" :key="door.day">
-                    <div v-if="door.state.Case === 'Closed'" @click="$emit('markedOpen',door)" :class="getCursorClass()">
-                        <ClosedDoor :day="door.day" :showButtonIndicator="!readonly" />
-                    </div>
-                    <div v-if="door.state.Case === 'Open'" @click="$emit('markedDone',door)" :class="getCursorClass()">
-                        <OpenDoor :day="door.day" :isDone="false" :distance="distanceFor(door)"
-                            :showButtonIndicator="!readonly" />
-                    </div>
-                    <div @click="$emit('markedClosed',door)" :class="getCursorClass()">
-                        <OpenDoor v-if="door.state.Case === 'Done'" :day="door.day" :isDone="true"
-                            :showButtonIndicator="!readonly" :distance="distanceFor(door)" />
-                    </div>
-                </div>
-            </div>
+        <div class="grid grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-5">
+            <component
+                :is="readonly ? 'div' : 'button'"
+                v-for="door in cal.doors"
+                :key="door.day"
+                :type="readonly ? undefined : 'button'"
+                :aria-label="ariaLabelFor(door)"
+                class="block w-full appearance-none bg-transparent border-0 p-0 rounded-2xl md:rounded-3xl
+                       focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                :class="readonly ? 'cursor-default' : 'cursor-pointer'"
+                @click="doorClicked(door)"
+            >
+                <ClosedDoor
+                    v-if="door.state.Case === 'Closed'"
+                    :day="door.day"
+                    :showButtonIndicator="!readonly"
+                />
+                <OpenDoor
+                    v-else
+                    :day="door.day"
+                    :isDone="door.state.Case === 'Done'"
+                    :distance="distanceFor(door)"
+                    :showButtonIndicator="!readonly"
+                />
+            </component>
         </div>
-    </div>
 
+        <p v-if="!readonly" id="door-hint" class="mt-4 md:mt-6 text-center text-xs md:text-sm text-ink-400">
+            Tap a door to open it, tap again once you've run the distance.
+        </p>
+    </div>
 </template>
 <script lang="ts">
 
@@ -46,13 +58,35 @@ export default defineComponent({
     },
     methods: {
         distanceFor(door: Door) {
-            return door.distance * this.cal.settings.distanceFactor;
+            return Math.round(door.distance * this.cal.settings.distanceFactor * 10) / 10;
         },
-        getCursorClass() {
-            if(this.readonly) {
-                return "cursor-default";
+        ariaLabelFor(door: Door) {
+            switch (door.state.Case) {
+                case "Closed":
+                    return `Open door ${door.day}`;
+                case "Open":
+                    return `Door ${door.day}, ${this.distanceFor(door)} km to run. Mark as done`;
+                case "Done":
+                    return `Door ${door.day}, ${this.distanceFor(door)} km done. Close again`;
+                default:
+                    return `Door ${door.day}`;
             }
-            return "cursor-pointer";
+        },
+        doorClicked(door: Door) {
+            if (this.readonly) {
+                return;
+            }
+            switch (door.state.Case) {
+                case "Closed":
+                    this.$emit('markedOpen', door);
+                    return;
+                case "Open":
+                    this.$emit('markedDone', door);
+                    return;
+                case "Done":
+                    this.$emit('markedClosed', door);
+                    return;
+            }
         }
     }
 });

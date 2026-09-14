@@ -1,8 +1,57 @@
 module.exports = {
-    purge: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
-    darkMode: false, // or 'media' or 'class'
+    content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
+    darkMode: "media",
     theme: {
-        extend: {},
+        extend: {
+            fontFamily: {
+                sans: [
+                    "Outfit",
+                    "ui-sans-serif",
+                    "system-ui",
+                    "-apple-system",
+                    "Segoe UI",
+                    "Roboto",
+                    "Helvetica Neue",
+                    "Arial",
+                    "sans-serif",
+                ],
+            },
+            colors: {
+                ink: {
+                    50: "#f5f7fa",
+                    100: "#e9edf3",
+                    400: "#6b768c",
+                    600: "#3f4a5e",
+                    700: "#333c4d",
+                    800: "#28303d",
+                    900: "#1c222c",
+                },
+                strava: "#fc4c02",
+            },
+            boxShadow: {
+                door: "0 8px 20px -10px rgba(28, 34, 44, 0.45)",
+                "door-lift": "0 18px 32px -14px rgba(28, 34, 44, 0.55)",
+                soft: "0 20px 45px -28px rgba(28, 34, 44, 0.5)",
+            },
+            keyframes: {
+                "fade-up": {
+                    "0%": { opacity: "0", transform: "translateY(14px)" },
+                    "100%": { opacity: "1", transform: "translateY(0)" },
+                },
+                float: {
+                    "0%, 100%": { transform: "translateY(0)" },
+                    "50%": { transform: "translateY(-8px)" },
+                },
+                "snow-drift": {
+                    "0%": { transform: "translateY(-10%)" },
+                    "100%": { transform: "translateY(110%)" },
+                },
+            },
+            animation: {
+                "fade-up": "fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both",
+                float: "float 5s ease-in-out infinite",
+            },
+        },
     },
     variants: {
         extend: {},
