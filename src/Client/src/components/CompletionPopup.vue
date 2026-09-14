@@ -157,13 +157,27 @@ const defaultCelebrationMessage: CelebrationMessage = {
 };
 
 // Year-specific celebration messages for 2026 through 2030.
-// TODO: Fill in the actual messages for each year.
 const celebrationMessagesByYear: Record<number, CelebrationMessage> = {
-    2026: defaultCelebrationMessage,
-    2027: defaultCelebrationMessage,
-    2028: defaultCelebrationMessage,
-    2029: defaultCelebrationMessage,
-    2030: defaultCelebrationMessage
+    2026: {
+        headline: '🎁 Wrapped it up! 🎁',
+        subtext: 'Neatly, completely, and with a very nice bow on top.'
+    },
+    2027: {
+        headline: '🪟 Last window opened! 🪟',
+        subtext: 'Behind it: proof that you don\'t quit in December.'
+    },
+    2028: {
+        headline: '🎄 Tree\'s up, box is ticked! 🎄',
+        subtext: 'You\'re a decorated runner. Time to decorate the tree.'
+    },
+    2029: {
+        headline: '⛄ Built different! ⛄',
+        subtext: 'Snowmen stand still. You did the exact opposite.'
+    },
+    2030: {
+        headline: '🔔 Ring the bells! 🔔',
+        subtext: 'That was the sound of an advent calendar getting completed.'
+    }
 };
 
 export default defineComponent({
