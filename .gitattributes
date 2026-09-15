@@ -1,1 +1,7 @@
 * text=auto eol=lf
+
+# Paket regenerates this file on every restore and always writes CRLF, even on
+# macOS/Linux. Checking it out as LF (per the blanket rule above) therefore left
+# it permanently "modified" in git status. Check it out as CRLF to match the
+# generator; `text` still normalizes the committed blob to LF.
+.paket/Paket.Restore.targets text eol=crlf
