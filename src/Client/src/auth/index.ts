@@ -12,6 +12,21 @@ import { NavigationGuardWithThis } from "vue-router";
 
 let client: Auth0Client;
 
+// error/error_description are intentionally left in the URL so a failed login
+// stays visible and debuggable
+const authCallbackParams = ["code", "state"];
+
+function isAuthRedirect() {
+    const params = new URLSearchParams(window.location.search);
+    return params.has("code") && params.has("state");
+}
+
+function removeAuthCallbackParams() {
+    const url = new URL(window.location.href);
+    authCallbackParams.forEach((p) => url.searchParams.delete(p));
+    window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
+}
+
 interface Auth0PluginState {
     loading: boolean;
     isAuthenticated: boolean;
@@ -124,12 +139,11 @@ async function init(options: Auth0PluginOptions): Promise<Plugin> {
         redirect_uri: options.redirectUri,
     });
 
+    const returningFromLogin = isAuthRedirect();
+
     try {
         // If the user is returning to the app after authentication
-        if (
-            window.location.search.includes("code=") &&
-            window.location.search.includes("state=")
-        ) {
+        if (returningFromLogin) {
             // handle the redirect and retrieve tokens
             const { appState } = await client.handleRedirectCallback();
 
@@ -140,6 +154,13 @@ async function init(options: Auth0PluginOptions): Promise<Plugin> {
     } catch (e) {
         state.error = e;
     } finally {
+        if (returningFromLogin) {
+            // The code has been exchanged (or has failed) - either way it is
+            // single use, so don't leave it sitting in the address bar, the
+            // browser history or outgoing Referer headers.
+            removeAuthCallbackParams();
+        }
+
         // Initialize our internal authentication state
         state.isAuthenticated = await client.isAuthenticated();
         state.loading = false;

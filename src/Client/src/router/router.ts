@@ -17,7 +17,10 @@ const routes = [
 ];
 
 const router = createRouter({
-    history: createWebHashHistory(),
+    // Pass an explicit base: without one, vue-router builds it from
+    // location.pathname + location.search, which would bake the Auth0
+    // ?code=&state= callback params into every subsequent navigation.
+    history: createWebHashHistory("/"),
     routes,
 });
 

@@ -18,10 +18,10 @@ async function init() {
 
     const AuthPlugin = await Auth0.init({
         onRedirectCallback: (appState) => {
-            router.push(
+            router.replace(
                 appState && appState.targetUrl
                     ? appState.targetUrl
-                    : window.location.pathname,
+                    : '/calendar',
             )
         },
         clientId: 'mQrnkRPrBYmNqKy84eHjWu8od7orUR9F',
