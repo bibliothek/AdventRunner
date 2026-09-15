@@ -5,8 +5,8 @@ AdventRunner is an Advent calendar application (December 1-24) that gamifies run
 
 ## Technology Stack
 
-### Backend (.NET 8.0 / F#)
-- **Framework**: ASP.NET Core 8.0
+### Backend (.NET 10.0 / F#)
+- **Framework**: ASP.NET Core 10.0
 - **Language**: F# (Functional-first)
 - **Web Framework**: Saturn (F# web framework built on Giraffe)
 - **HTTP Library**: Flurl.Http
@@ -26,7 +26,7 @@ AdventRunner is an Advent calendar application (December 1-24) that gamifies run
 - **Icons**: Font Awesome
 
 ### Infrastructure
-- **Target Framework**: .NET 8.0
+- **Target Framework**: .NET 10.0
 - **Containerization**: Docker (multi-stage builds)
 - **Storage**: File-based JSON storage (configurable via AR_Storage_Path)
 - **Deployment**: Azure-ready (references to Farmer for IaC)
@@ -235,13 +235,13 @@ InstallClient => Bundle
 
 ### Docker Multi-Stage Build
 **Stage 1 (build)**:
-- Based on `mcr.microsoft.com/dotnet/sdk:8.0`
+- Based on `mcr.microsoft.com/dotnet/sdk:10.0`
 - Installs Node.js 18.x and yarn
 - Restores dotnet tools
 - Runs `dotnet run -- Bundle`
 
 **Stage 2 (runtime)**:
-- Based on `mcr.microsoft.com/dotnet/aspnet:8.0`
+- Based on `mcr.microsoft.com/dotnet/aspnet:10.0`
 - Copies artifacts from /workspace/deploy
 - Exposes port 8085
 - Runs `Server.dll`
@@ -326,7 +326,7 @@ InstallClient => Bundle
 ## Development Workflow
 
 ### Prerequisites
-- .NET 8.0 SDK
+- .NET 10.0 SDK
 - Node.js and Yarn
 - Run: `dotnet tool restore`
 
