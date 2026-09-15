@@ -9,6 +9,15 @@
                 <span class="text-primary text-xl sm:text-2xl font-bold tracking-tight truncate">Adventrunner</span>
             </a>
         </div>
+        <div class="flex-none flex items-center gap-1" v-if="!loading && !isAuthenticated">
+            <!-- Outline rather than solid: on the welcome page a second solid
+                 primary button would compete with the hero CTA. -->
+            <button class="btn btn-outline btn-primary btn-sm sm:btn-md normal-case font-semibold gap-2"
+                @click="login">
+                <font-awesome-icon icon="fa-solid fa-arrow-right-to-bracket" />
+                Log in
+            </button>
+        </div>
         <div class="flex-none flex items-center gap-1" v-if="isAuthenticated">
             <div class="dropdown dropdown-end" v-if="!isSharedCalendarView">
                 <label tabindex="0" class="btn btn-ghost btn-sm sm:btn-md normal-case font-semibold tnum">
@@ -57,6 +66,9 @@ export default {
     },
     inject: ["Auth"],
     methods: {
+        login() {
+            this.Auth.loginWithRedirect();
+        },
         logout() {
             document.activeElement.blur();
             this.Auth.logout();

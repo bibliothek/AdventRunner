@@ -112,17 +112,25 @@ export default {
           </p>
 
           <div v-if="!loading" class="mt-7 animate-fade-up animation-delay-150">
-            <div v-if="!isAuthenticated" class="flex flex-col sm:flex-row gap-3 sm:justify-center lg:justify-start">
-              <button class="btn btn-primary btn-lg w-full sm:w-auto gap-2 shadow-door" @click="login">
-                Start your calendar
-                <font-awesome-icon icon="fa-solid fa-arrow-right" />
-              </button>
-              <button
-                class="btn btn-lg w-full sm:w-auto bg-white text-ink-600 border border-ink-100 hover:bg-ink-50 hover:border-ink-100 shadow-door"
-                @click="scrollToHowItWorks"
-              >
-                How it works
-              </button>
+            <div v-if="!isAuthenticated">
+              <div class="flex flex-col sm:flex-row gap-3 sm:justify-center lg:justify-start">
+                <button class="btn btn-primary btn-lg w-full sm:w-auto gap-2 shadow-door" @click="login">
+                  Start your calendar
+                  <font-awesome-icon icon="fa-solid fa-arrow-right" />
+                </button>
+                <button
+                  class="btn btn-lg w-full sm:w-auto bg-white text-ink-600 border border-ink-100 hover:bg-ink-50 hover:border-ink-100 shadow-door"
+                  @click="scrollToHowItWorks"
+                >
+                  How it works
+                </button>
+              </div>
+              <!-- Both hero CTAs go through the same Auth0 login, but a
+                   returning user needs to see that spelled out somewhere. -->
+              <p class="mt-4 text-sm text-ink-400">
+                Already have an account?
+                <button class="link link-primary font-semibold" @click="login">Log in</button>
+              </p>
             </div>
             <div v-else class="flex flex-col sm:flex-row gap-3 sm:justify-center lg:justify-start">
               <button class="btn btn-primary btn-lg w-full sm:w-auto gap-2 shadow-door" @click="goToCalendar">
