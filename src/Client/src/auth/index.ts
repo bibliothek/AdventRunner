@@ -21,6 +21,17 @@ function isAuthRedirect() {
     return params.has("code") && params.has("state");
 }
 
+async function isTokenAvailable() {
+    try {
+        await client.getTokenSilently();
+        return true;
+    } catch {
+        // login_required, missing_refresh_token, consent_required, ... - all of
+        // them mean the same thing to us: the user has to log in again.
+        return false;
+    }
+}
+
 function removeAuthCallbackParams() {
     const url = new URL(window.location.href);
     authCallbackParams.forEach((p) => url.searchParams.delete(p));
@@ -137,6 +148,8 @@ async function init(options: Auth0PluginOptions): Promise<Plugin> {
         client_id: options.clientId,
         audience: options.audience,
         redirect_uri: options.redirectUri,
+        useRefreshTokens: true,
+        cacheLocation: "localstorage",
     });
 
     const returningFromLogin = isAuthRedirect();
@@ -162,7 +175,7 @@ async function init(options: Auth0PluginOptions): Promise<Plugin> {
         }
 
         // Initialize our internal authentication state
-        state.isAuthenticated = await client.isAuthenticated();
+        state.isAuthenticated = await isTokenAvailable();
         state.loading = false;
         state.user = await client.getUser();
     }
