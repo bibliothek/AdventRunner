@@ -1,34 +1,47 @@
 <template>
-    <div class="
-      m-2
-      pt-1
-      md:m-4
-      w-14
-      h-14
-      md:w-40
-      md:h-40
-      rounded-box
-      text-center text-gray-500
-    " :class="getCardStyle()">
-        <div class="hidden md:block md:text-4xl md:pt-8" :class="getTextStyle()">{{ day }}</div>
-        <div class="text-sm md:text-2xl pt-2 font-bold md:pt-2" :class="getTextStyle()">
-            {{ distance }} km
+    <div class="door" :class="[isDone ? 'door-done' : 'door-open', { 'door-interactive': showButtonIndicator }]">
+        <span class="door-panel door-frame" aria-hidden="true"></span>
+        <!-- Below sm the tile is barely 60-80px, too tight for a corner badge
+             next to a two-digit distance, so the day sits in the flow instead. -->
+        <span
+            class="mb-0.5 sm:mb-0 sm:absolute sm:top-2.5 sm:left-3 md:top-3 md:left-4
+                   door-day text-[10px] sm:text-sm md:text-base"
+            :class="isDone ? 'text-white/70' : 'text-primary/60'"
+        >
+            {{ day }}
+        </span>
+
+        <span
+            v-if="isDone"
+            class="absolute top-1.5 right-1.5 sm:top-2.5 sm:right-2.5 md:top-3 md:right-3 flex items-center justify-center
+                   w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full bg-white/25"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                class="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 stroke-white">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </span>
+
+        <div class="door-distance text-[15px] sm:text-2xl md:text-3xl">
+            {{ distance }}<span class="text-[0.6em] font-semibold ml-0.5">km</span>
         </div>
-        <div class="md:hidden pt-0 text-xs" v-if="isDone">🎉</div>
-        <div class="md:hidden pt-0.5 text-xs flex flex-row" v-else>
-            <div class="flex-grow"></div>
-            <img class="w-3" src="/runner.png" alt="Done" />
-            <div class="flex-grow"></div>
+
+        <div v-if="isDone" class="mt-1 sm:mt-2 md:mt-3">
+            <span class="sm:hidden text-[11px] leading-none">🎉</span>
+            <span class="hidden sm:inline text-xs md:text-sm font-semibold text-white/90">Done 🎉</span>
         </div>
-        <div class="hidden md:block">
-            <div class="font-bold text-primary-focus pt-2" v-if="!isDone && showButtonIndicator">
-                Done
+        <div v-else class="mt-1 sm:mt-2 md:mt-3 flex items-center justify-center">
+            <img class="w-3 sm:hidden opacity-80" src="/runner.png" alt="" />
+            <span v-if="showButtonIndicator" class="hidden sm:flex items-center gap-1.5 text-xs md:text-sm font-semibold text-primary-focus">
+                Mark done
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    class="inline-block w-6 h-6 ml-2 stroke-current">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    class="w-4 h-4 stroke-current">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
                 </svg>
-            </div>
-            <div class="font text-primary-content pt-2" v-if="isDone">Done🎉</div>
+            </span>
+            <span v-else class="hidden sm:inline text-[10px] md:text-xs font-medium uppercase tracking-widest text-primary/50">
+                To run
+            </span>
         </div>
     </div>
 </template>
@@ -44,21 +57,6 @@ export default defineComponent({
         isDone: Boolean,
         showButtonIndicator: Boolean,
     },
-    methods: {
-        getCardStyle(): string {
-            if (this.isDone!) {
-                return "bg-primary shadow-md";
-            }
-            return "bg-gray-100 shadow-xl";
-        },
-
-        getTextStyle(): string {
-            if (this.isDone) {
-                return "text-neutral-content";
-            }
-            return "text-primary";
-        }
-    }
 });
 
 </script>

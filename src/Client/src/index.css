@@ -2,3 +2,210 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Outfit, self-hosted from /public/fonts rather than the Google Fonts CDN, so
+   the app makes no third-party requests. One variable file per subset covers
+   every weight the UI uses (300-800). SIL OFL 1.1 - see fonts/OFL.txt. */
+@font-face {
+    font-family: "Outfit";
+    font-style: normal;
+    font-weight: 300 800;
+    font-display: swap;
+    src: url("/fonts/outfit-latin.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+        U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+        U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: "Outfit";
+    font-style: normal;
+    font-weight: 300 800;
+    font-display: swap;
+    src: url("/fonts/outfit-latin-ext.woff2") format("woff2");
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+        U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+        U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@layer base {
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        @apply antialiased;
+        /* Keeps the app clear of the iOS home indicator / notch. */
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* Tabular numerals keep the door numbers and distances optically aligned. */
+    .tnum {
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+@layer components {
+    /* ---------------------------------------------------------------
+       Doors
+       Shared between the calendar grid and the landing page hero so the
+       two never drift apart.
+       --------------------------------------------------------------- */
+    .door {
+        @apply relative flex flex-col items-center justify-center
+               w-full aspect-square overflow-hidden select-none
+               rounded-2xl md:rounded-3xl
+               text-center shadow-door;
+        transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+                    box-shadow 180ms ease,
+                    filter 180ms ease;
+    }
+
+    .door-interactive {
+        @apply cursor-pointer;
+    }
+
+    .door-interactive:hover {
+        @apply shadow-door-lift;
+        transform: translateY(-3px);
+    }
+
+    .door-interactive:active {
+        transform: translateY(-1px) scale(0.975);
+    }
+
+    .door-interactive:focus-visible {
+        @apply outline-none ring-4 ring-primary/50 ring-offset-2 ring-offset-white;
+    }
+
+    /* The panels are real elements, not ::before/::after. html2canvas - which
+       renders the "share progress" image - derives pseudo-element boxes itself
+       instead of measuring them, and got the panel geometry badly wrong; real
+       nodes go through getBoundingClientRect and come out exact. */
+    .door > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .door > .door-panel {
+        @apply absolute pointer-events-none;
+        z-index: 0;
+        top: 6%;
+        height: 88%;
+        border-radius: 5px;
+    }
+
+    /* The 1.5px halves leave a crisp 3px seam at every tile size. */
+    .door > .door-panel-l,
+    .door > .door-panel-r {
+        width: calc(45% - 1.5px);
+        transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .door > .door-panel-l {
+        left: 5%;
+        background-image: linear-gradient(160deg, #414e66, #303a4b);
+    }
+
+    .door > .door-panel-r {
+        left: calc(50% + 1.5px);
+        background-image: linear-gradient(160deg, #38435a, #28303f);
+    }
+
+    /* The panels part on hover - the whole point of picking shutters. */
+    .door-interactive:hover > .door-panel-l {
+        transform: translateX(-7%);
+    }
+
+    .door-interactive:hover > .door-panel-r {
+        transform: translateX(7%);
+    }
+
+    /* Open and done share one inner frame: empty for a run still to do,
+       filled in once it is done. */
+    .door > .door-frame {
+        left: 5%;
+        width: 90%;
+        border-radius: 6px;
+    }
+
+    /* Closed: two shutter panels with a seam down the middle. */
+    .door-closed {
+        @apply text-neutral-content;
+        background-color: #1c2430;
+    }
+
+    /* Open: the shutters are gone, leaving the empty frame behind. */
+    .door-open {
+        @apply bg-ink-50 text-primary;
+    }
+
+    .door-open > .door-frame {
+        border: 2px solid rgba(102, 204, 138, 0.5);
+    }
+
+    /* Done: the frame filled in. */
+    .door-done {
+        @apply text-primary-content;
+        background-color: #4bb974;
+    }
+
+    .door-done > .door-frame {
+        background-image: linear-gradient(160deg, #86d9a5, #66cc8a);
+    }
+
+    .door-day {
+        @apply font-semibold leading-none tnum;
+    }
+
+    .door-closed .door-day {
+        @apply font-bold;
+    }
+
+    .door-distance {
+        @apply font-bold leading-none tnum;
+    }
+
+    /* Small pill used for legends, badges and eyebrow labels. */
+    .pill {
+        @apply inline-flex items-center gap-1.5 rounded-full
+               px-3 py-1 text-xs font-semibold whitespace-nowrap;
+    }
+
+    .card-surface {
+        @apply bg-white rounded-3xl shadow-soft;
+    }
+}
+
+@layer utilities {
+    .animation-delay-75 {
+        animation-delay: 75ms;
+    }
+    .animation-delay-150 {
+        animation-delay: 150ms;
+    }
+    .animation-delay-300 {
+        animation-delay: 300ms;
+    }
+    .animation-delay-450 {
+        animation-delay: 450ms;
+    }
+    .animation-delay-600 {
+        animation-delay: 600ms;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+    }
+}
+
+/* Buttons read better sentence-cased in Outfit than in daisyUI's default caps. */
+.btn {
+    text-transform: none;
+    letter-spacing: normal;
+}

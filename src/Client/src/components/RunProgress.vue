@@ -1,60 +1,86 @@
 <template>
-    <div class="m-8">
-        <div style="display: none" id="screenshot-title" class="h-8 mb-12 flex flex-row">
-            <div class="flex-grow"></div>
+    <div class="my-4 md:my-8">
+        <div style="display: none" id="screenshot-title" class="mb-8 text-center">
             <h1 class="text-5xl text-primary font-bold">adventrunner.com</h1>
-            <div class="flex-grow"></div>
         </div>
-        <div class="h-8">
-            <div
-                class="text-xs rounded-lg overflow-hidden font-semibold text-center leading-8 mx-auto h-full max-w-2xl flex flex-row"
-            >
-                <div :title="getKmByState('Done')" class="bg-primary text-primary-content myOverflow"
-                     :style="doneWidth">
-                    <span>{{ getKmByState("Done") }}</span>
+
+        <div class="rounded-3xl border border-ink-100 bg-ink-50 p-4 md:p-6">
+            <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 mb-3 md:mb-4">
+                <div>
+                    <div class="text-[11px] md:text-xs font-semibold uppercase tracking-widest text-ink-400">
+                        Distance run
+                    </div>
+                    <div class="text-2xl md:text-4xl font-bold text-ink-700 tnum leading-tight">
+                        {{ getKmByState("Done") }}
+                        <span class="text-base md:text-xl font-medium text-ink-400">
+                            of {{ getDistanceText(totalDistance) }}
+                        </span>
+                    </div>
                 </div>
-                <div :title="getKmByState('Open')" class=" bg-warning text-waring myOverflow"
-                     :style="openWidth">
-                    <span>{{ getKmByState("Open") }}</span>
-                </div>
-                <div :title="getKmByState('Closed')" class=" bg-neutral text-neutral-content myOverflow"
-                     :style="closedWidth">
-                    <span>{{ getKmByState("Closed") }}</span>
+                <div class="text-3xl md:text-4xl font-bold text-primary tnum leading-none">
+                    {{ donePercentage }}%
                 </div>
             </div>
-        </div>
-        <div class="h-8 mt-2" v-if="hasVerifiedDistance">
-            <div
-                class="text-xs rounded-lg overflow-hidden font-semibold text-center leading-8 mx-auto h-full max-w-2xl flex flex-row">
-                <div :title="`${getDistanceText(verifiedDistance)} on Strava`"
-                     class="bg-primary text-primary-content myOverflow flex flex-row"
-                     style="height:100%" :style="`width: ${verifiedPercentage}%`">
-                    <div class="flex-grow"></div>
-                    <img v-if="!hasVerifiedDistanceLessThan50Percent" class="my-auto" style="height: 80%"
-                         src="../../public/strava-icon.png">
-                    <span>{{ getDistanceText(verifiedDistance) }}</span>
-                    <div class="flex-grow"></div>
-                </div>
-                <div :title="getDistanceText(missingVerifiedDistance)"
-                     class="text-neutral-content myOverflow flex flex-row"
-                     style="height:100%; background-color:#fc4c02" :style="`width: ${100 - verifiedPercentage}%`">
-                    <div class="flex-grow"></div>
-                    <img v-if="hasVerifiedDistanceLessThan50Percent" class="my-auto" style="height: 80%"
-                         src="/strava-icon.png">
-                    <span>{{ getDistanceText(missingVerifiedDistance) }}</span>
-                    <div class="flex-grow"></div>
+
+            <div class="h-7 md:h-8">
+                <div
+                    class="text-xs rounded-full overflow-hidden font-semibold text-center leading-7 md:leading-8 h-full flex flex-row bg-ink-100"
+                >
+                    <div :title="getKmByState('Done')" class="bg-primary text-primary-content myOverflow"
+                         :style="doneWidth">
+                        <span>{{ getKmByState("Done") }}</span>
+                    </div>
+                    <div :title="getKmByState('Open')" class="bg-warning text-neutral myOverflow"
+                         :style="openWidth">
+                        <span>{{ getKmByState("Open") }}</span>
+                    </div>
+                    <div :title="getKmByState('Closed')" class="bg-neutral text-neutral-content myOverflow"
+                         :style="closedWidth">
+                        <span>{{ getKmByState("Closed") }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div v-if="!isSharedCalendarView" id="share-btn" class="h-8 mt-2 flex flex-row">
-            <div class="flex-grow"></div>
-            <button v-if="isCompleted" class="btn btn-secondary mr-2" @click="showCelebration">
-                🎉 Celebrate
-            </button>
-            <button class="btn btn-primary" @click="screenshot">
-                Share progress
-            </button>
-            <div class="flex-grow"></div>
+
+            <div class="mt-3" v-if="hasVerifiedDistance">
+                <div class="flex items-center gap-1.5 mb-1.5 text-[11px] md:text-xs font-semibold uppercase tracking-widest text-strava">
+                    <span class="flex h-4 w-4 items-center justify-center rounded bg-strava">
+                        <img class="w-2.5" src="/strava-icon.png" alt="" />
+                    </span>
+                    Verified on Strava
+                </div>
+                <div class="h-7 md:h-8">
+                    <div
+                        class="text-xs rounded-full overflow-hidden font-semibold text-center leading-7 md:leading-8 h-full flex flex-row">
+                        <div :title="`${getDistanceText(verifiedDistance)} on Strava`"
+                             class="bg-primary text-primary-content myOverflow flex flex-row items-center justify-center gap-1"
+                             style="height:100%" :style="`width: ${verifiedPercentage}%`">
+                            <img v-if="!hasVerifiedDistanceLessThan50Percent" style="height: 60%"
+                                 src="/strava-icon.png" alt="">
+                            <span>{{ getDistanceText(verifiedDistance) }}</span>
+                        </div>
+                        <div :title="getDistanceText(missingVerifiedDistance)"
+                             class="text-neutral-content myOverflow flex flex-row items-center justify-center gap-1"
+                             style="height:100%; background-color:#fc4c02" :style="`width: ${100 - verifiedPercentage}%`">
+                            <img v-if="hasVerifiedDistanceLessThan50Percent" style="height: 60%"
+                                 src="/strava-icon.png" alt="">
+                            <span>{{ getDistanceText(missingVerifiedDistance) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="!isSharedCalendarView" id="share-btn" class="mt-4 flex flex-col sm:flex-row gap-2 sm:justify-center">
+                <button v-if="isCompleted" class="btn btn-secondary w-full sm:w-auto" @click="showCelebration">
+                    🎉 Celebrate
+                </button>
+                <button class="btn btn-primary w-full sm:w-auto gap-2" @click="screenshot">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-5 h-5 stroke-current">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 4v12m0-12l-4 4m4-4l4 4" />
+                    </svg>
+                    Share progress
+                </button>
+            </div>
         </div>
 
         <!-- Completion Popup -->
@@ -93,7 +119,8 @@ let getByState = (cal: Calendar, state: DoorStateCase) => {
 }
 
 let getWidthPropertyForState = (cal: Calendar, state: DoorStateCase) => {
-    const percent = (getByState(cal as Calendar, state) / getTotal(cal as Calendar)) * 100;
+    const total = getTotal(cal as Calendar);
+    const percent = total === 0 ? 0 : (getByState(cal as Calendar, state) / total) * 100;
     return `width: ${percent}%`;
 }
 
@@ -121,6 +148,13 @@ export default defineComponent({
         },
         closedWidth() {
             return getWidthPropertyForState(this.cal!, "Closed");
+        },
+        donePercentage() {
+            const total = getTotal(this.cal!);
+            if (total === 0) {
+                return 0;
+            }
+            return Math.round((getByState(this.cal!, "Done") / total) * 100);
         },
         hasVerifiedDistance() {
             return isSome(this.cal!.verifiedDistance);
@@ -195,7 +229,7 @@ export default defineComponent({
 
             screenshotHeader.style.display = '';
             html2canvas(element, {
-                ignoreElements: (el) => el.id === 'share-btn' || el.id === 'navbar',
+                ignoreElements: (el) => el.id === 'share-btn' || el.id === 'navbar' || el.id === 'door-hint',
                 scale: 2.0,
                 windowWidth: 500,
             }).then(canvas => {
