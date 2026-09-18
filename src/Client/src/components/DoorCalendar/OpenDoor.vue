@@ -22,20 +22,11 @@
             </svg>
         </span>
 
-        <!-- The distance is the one thing this tile has to get across, so below
-             sm the unit drops onto its own line: "11.5km" on one line caps the
-             number at ~21px on a phone, stacked it fits 28px in the same tile.
-             The mobile size tracks the tile - a quarter of the viewport, minus
-             the page padding and gaps - and stops growing at the sm size, so
-             there is no jump at the breakpoint. -->
         <div class="door-distance flex flex-col sm:flex-row items-center justify-center
                     text-[clamp(1.375rem,7.5vw,1.75rem)] sm:text-2xl md:text-3xl">
             {{ distance }}<span class="font-semibold text-[10px] tracking-wide sm:ml-0.5 sm:text-[0.6em] sm:tracking-normal">km</span>
         </div>
 
-        <!-- Everything below is breathing room the phone-sized tile does not
-             have: the filled frame and the check badge already say "done", and
-             the empty frame says "to run". -->
         <div v-if="isDone" class="hidden sm:block mt-2 md:mt-3">
             <span class="text-xs md:text-sm font-semibold text-white/90">Done 🎉</span>
         </div>
