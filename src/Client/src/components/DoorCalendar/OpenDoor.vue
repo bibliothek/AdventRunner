@@ -22,24 +22,23 @@
             </svg>
         </span>
 
-        <div class="door-distance text-[15px] sm:text-2xl md:text-3xl">
-            {{ distance }}<span class="text-[0.6em] font-semibold ml-0.5">km</span>
+        <div class="door-distance flex flex-col sm:flex-row items-center justify-center
+                    text-[clamp(1.375rem,7.5vw,1.75rem)] sm:text-2xl md:text-3xl">
+            {{ distance }}<span class="font-semibold text-[10px] tracking-wide sm:ml-0.5 sm:text-[0.6em] sm:tracking-normal">km</span>
         </div>
 
-        <div v-if="isDone" class="mt-1 sm:mt-2 md:mt-3">
-            <span class="sm:hidden text-[11px] leading-none">🎉</span>
-            <span class="hidden sm:inline text-xs md:text-sm font-semibold text-white/90">Done 🎉</span>
+        <div v-if="isDone" class="hidden sm:block mt-2 md:mt-3">
+            <span class="text-xs md:text-sm font-semibold text-white/90">Done 🎉</span>
         </div>
-        <div v-else class="mt-1 sm:mt-2 md:mt-3 flex items-center justify-center">
-            <img class="w-3 sm:hidden opacity-80" src="/runner.png" alt="" />
-            <span v-if="showButtonIndicator" class="hidden sm:flex items-center gap-1.5 text-xs md:text-sm font-semibold text-primary-focus">
+        <div v-else class="hidden sm:flex mt-2 md:mt-3 items-center justify-center">
+            <span v-if="showButtonIndicator" class="flex items-center gap-1.5 text-xs md:text-sm font-semibold text-primary-focus">
                 Mark done
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                     class="w-4 h-4 stroke-current">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
                 </svg>
             </span>
-            <span v-else class="hidden sm:inline text-[10px] md:text-xs font-medium uppercase tracking-widest text-primary/50">
+            <span v-else class="text-[10px] md:text-xs font-medium uppercase tracking-widest text-primary/50">
                 To run
             </span>
         </div>
