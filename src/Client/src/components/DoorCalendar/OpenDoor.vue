@@ -22,9 +22,9 @@
             </svg>
         </span>
 
-        <div class="door-distance flex flex-col sm:flex-row items-center justify-center
-                    text-[clamp(1.375rem,7.5vw,1.75rem)] sm:text-2xl md:text-3xl">
-            {{ distance }}<span class="font-semibold text-[10px] tracking-wide sm:ml-0.5 sm:text-[0.6em] sm:tracking-normal">km</span>
+        <div class="door-distance flex flex-col items-center justify-center
+                    text-[clamp(1.375rem,7.5vw,1.75rem)] sm:text-3xl md:text-4xl">
+            {{ distance }}<span class="font-semibold text-[10px] tracking-wide sm:text-xs md:text-sm">km</span>
         </div>
 
         <div v-if="isDone" class="hidden sm:block mt-2 md:mt-3">
