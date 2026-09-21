@@ -26,22 +26,6 @@
                     text-[clamp(1.375rem,7.5vw,1.75rem)] sm:text-3xl md:text-4xl">
             {{ distance }}<span class="font-semibold text-[10px] tracking-wide sm:text-xs md:text-sm">km</span>
         </div>
-
-        <div v-if="isDone" class="hidden sm:block mt-2 md:mt-3">
-            <span class="text-xs md:text-sm font-semibold text-white/90">Done 🎉</span>
-        </div>
-        <div v-else class="hidden sm:flex mt-2 md:mt-3 items-center justify-center">
-            <span v-if="showButtonIndicator" class="flex items-center gap-1.5 text-xs md:text-sm font-semibold text-primary-focus">
-                Mark done
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    class="w-4 h-4 stroke-current">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
-                </svg>
-            </span>
-            <span v-else class="text-[10px] md:text-xs font-medium uppercase tracking-widest text-primary/50">
-                To run
-            </span>
-        </div>
     </div>
 </template>
 <script lang="ts">
