@@ -22,9 +22,11 @@ jobs:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag mthaller/adventrunner:${{ github.sha }}
+        run: docker build . --file Dockerfile --tag mthaller/adventrunner:${{ github.sha }} --tag mthaller/adventrunner:latest
       - name: Publish image
-        run: docker push mthaller/adventrunner:${{ github.sha }}
+        run: |
+          docker push mthaller/adventrunner:${{ github.sha }}
+          docker push mthaller/adventrunner:latest
         if: github.ref == 'refs/heads/master'
       - uses: azure/webapps-deploy@v2
         if: github.ref == 'refs/heads/master'
