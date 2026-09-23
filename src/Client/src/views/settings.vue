@@ -1,57 +1,58 @@
 ﻿<template>
-    <div>
-        <div class="card max-w-xl border-2 border-base-300">
-            <div class="card-body">
+    <div class="my-4 md:my-8 max-w-xl">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-ink-800 mb-4 sm:mb-6">Settings</h1>
+        <div class="rounded-3xl border border-ink-100 bg-ink-50 p-4 sm:p-6 flex flex-col gap-6">
 
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Display name</span>
-                    </label>
-                    <div class="flex items-center">
-                        <input type="text" @keydown="displayNameKeyDown" placeholder="Your name"
-                            class="input w-4/5 max-w-xs input-bordered" v-model="displayName" />
-                        <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin m-4"
-                            v-if="displayNameIcon === DisplayNameIcon.Processing" />
-                        <font-awesome-icon icon="far fa-check-square" class="m-4 text-success"
-                            v-if="displayNameIcon === DisplayNameIcon.Done" />
+            <div class="form-control">
+                <label class="label pt-0" for="settings-display-name">
+                    <span class="text-xs font-semibold uppercase tracking-widest text-ink-400">Display name</span>
+                </label>
+                <div class="flex items-center gap-3">
+                    <input id="settings-display-name" type="text" @keydown="displayNameKeyDown" placeholder="Your name"
+                        class="input input-bordered border-ink-100 rounded-xl bg-white w-full max-w-xs" v-model="displayName" />
+                    <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin text-ink-400"
+                        v-if="displayNameIcon === DisplayNameIcon.Processing" />
+                    <font-awesome-icon icon="far fa-check-square" class="text-primary"
+                        v-if="displayNameIcon === DisplayNameIcon.Done" />
+                </div>
+            </div>
+            <div class="form-control">
+                <label class="label pt-0" for="settings-distance">
+                    <span class="text-xs font-semibold uppercase tracking-widest text-ink-400">Distance</span>
+                </label>
+                <select id="settings-distance" class="select select-bordered border-ink-100 rounded-xl bg-white w-full max-w-xs"
+                    v-model="selectedFactor">
+                    <option value="1">Normal</option>
+                    <option value="0.5">Half it</option>
+                    <option value="2">Double it</option>
+                </select>
+            </div>
+            <div class="form-control">
+                <label class="label pt-0" for="settings-display-mode">
+                    <span class="text-xs font-semibold uppercase tracking-widest text-ink-400">Display mode</span>
+                </label>
+                <select id="settings-display-mode" class="select select-bordered border-ink-100 rounded-xl bg-white w-full max-w-xs"
+                    v-model="displayType">
+                    <option value="1">Doors</option>
+                    <option value="0">Calendar</option>
+                </select>
+            </div>
+            <div class="form-control">
+                <label class="label pt-0 cursor-pointer justify-start gap-4">
+                    <span class="text-xs font-semibold uppercase tracking-widest text-ink-400">Shareable link</span>
+                    <input type="checkbox" class="toggle toggle-primary" v-model="hasShareableLink" />
+                </label>
+                <div class="flex items-center gap-1 rounded-xl border border-ink-100 bg-white pl-3 pr-1 py-1"
+                    v-if="hasShareableLink">
+                    <a class="link link-hover text-ink-600 block truncate min-w-0 flex-1" :href="sharedLinkValue">{{
+                        sharedLinkValue }}</a>
+                    <div class="tooltip" :data-tip="copyToClipboardTooltip" v-on:mouseenter="resetClipboardTooltip">
+                        <button class="btn btn-ghost btn-sm" aria-label="Copy link" @click="copyLinkToClipboard">
+                            <font-awesome-icon icon="fas fa-copy" />
+                        </button>
                     </div>
                 </div>
-                <div class="form-control mt-8">
-                    <label class="label">
-                        <span class="label-text">Distance</span>
-                    </label>
-                    <select class="select select-bordered w-4/5 max-w-xs" v-model="selectedFactor">
-                        <option value="1">Normal</option>
-                        <option value="0.5">Half it</option>
-                        <option value="2">Double it</option>
-                    </select>
-                </div>
-                <div class="form-control mt-8">
-                    <label class="label">
-                        <span class="label-text">Display Mode</span>
-                    </label>
-                    <select class="select select-bordered w-4/5 max-w-xs" v-model="displayType">
-                        <option value="1">Doors</option>
-                        <option value="0">Calendar</option>
-                    </select>
-                </div>
-                <div class="form-control mt-8">
-                    <label class="label">
-                        <span class="label-text">Shareable link</span>
-                    </label>
-                    <input type="checkbox" class="toggle" v-model="hasShareableLink" />
-                    <div class="flex items-center border-2 bg-gray-50 rounded my-2 px-2" v-if="hasShareableLink">
-                        <div class="w-4/5 flex-grow">
-                            <a class="link link-hover block truncate" :href="sharedLinkValue">{{ sharedLinkValue }}</a>
-                        </div>
-                        <div class="tooltip" :data-tip="copyToClipboardTooltip" v-on:mouseenter="resetClipboardTooltip">
-                            <button class="btn btn-ghost" @click="copyLinkToClipboard">
-                                <font-awesome-icon icon="fas fa-copy" />
-                            </button>
-                        </div>
-                    </div>
-                    <div class="" v-else>Create link for sharing</div>
-                </div>
+                <p class="text-sm text-ink-400" v-else>Turn on to get a link others can use to view your calendar.</p>
             </div>
         </div>
     </div>

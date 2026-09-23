@@ -209,3 +209,11 @@
     text-transform: none;
     letter-spacing: normal;
 }
+
+/* Touch devices keep :hover applied to the last tapped element, which left
+   ghost buttons (logo, navbar dropdowns) looking pressed after navigating. */
+@media (hover: none) {
+    .btn-ghost:hover:not(.btn-active) {
+        background-color: transparent;
+    }
+}
