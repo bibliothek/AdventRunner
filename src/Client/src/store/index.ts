@@ -176,18 +176,6 @@ const actions = {
             context.state.axiosConfig
         );
     },
-    async [actionTypes.RESET_CALENDAR](context: ActionContext<State, State>) {
-        const response = await axios.post<UserData>(
-            "/api/calendars",
-            context.state.userData,
-            context.state.axiosConfig
-        );
-        context.commit(mutationTypes.SET_USER_DATA, response.data);
-        context.commit(
-            mutationTypes.SET_DISPLAY_PERIOD,
-            response.data.latestPeriod
-        );
-    },
     [actionTypes.SET_DISPLAY_PERIOD](
         context: ActionContext<State, State>,
         period: number
