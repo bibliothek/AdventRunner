@@ -28,13 +28,10 @@ jobs:
           docker push mthaller/adventrunner:${{ github.sha }}
         if: github.ref == 'refs/heads/master'
 
-  # Bumps the adventrunner tag in matha-web's images.yml; its update.sh cron then
-  # rolls it out. Only for master, so other runs just build/publish.
   deploy:
     needs: build
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    # Queue bumps so an older build can't land after a newer one.
     concurrency: matha-web-bump
 
     steps:
@@ -56,7 +53,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "Deploy adventrunner ${SHA::7}" \
             -m "From ${{ github.server_url }}/${{ github.repository }}/commit/${SHA}"
-          # Other apps' pipelines push the same file; rebase and retry on a race.
           for i in 1 2 3 4 5; do
             git push && exit 0
             sleep $((i * 2))
