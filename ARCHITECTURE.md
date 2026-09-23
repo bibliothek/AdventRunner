@@ -29,7 +29,7 @@ AdventRunner is an Advent calendar application (December 1-24) that gamifies run
 - **Target Framework**: .NET 10.0
 - **Containerization**: Docker (multi-stage builds)
 - **Storage**: File-based JSON storage (configurable via AR_Storage_Path)
-- **Deployment**: Azure-ready (references to Farmer for IaC)
+- **Deployment**: Docker image published to Docker Hub by GitHub Actions
 
 ## Solution Structure
 

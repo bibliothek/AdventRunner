@@ -28,9 +28,3 @@ jobs:
           docker push mthaller/adventrunner:${{ github.sha }}
           docker push mthaller/adventrunner:latest
         if: github.ref == 'refs/heads/master'
-      - uses: azure/webapps-deploy@v2
-        if: github.ref == 'refs/heads/master'
-        with:
-          app-name: 'adventrunner'
-          publish-profile: ${{ secrets.AZUREWEBAPPPUBLISHPROFILE }}
-          images: 'mthaller/adventrunner:${{ github.sha }}'
