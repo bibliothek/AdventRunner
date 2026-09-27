@@ -2,6 +2,7 @@ module Server.Runner
 
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Logging
+open Microsoft.Extensions.Logging.Console
 open Newtonsoft.Json
 open Saturn
 open Giraffe
@@ -20,6 +21,12 @@ let serviceConfig (serviceCollection: IServiceCollection) =
         .AddSingleton<SyncQueue>(fun provider -> (provider.GetRequiredService<UserDataStorage>(), provider.GetService<ILogger<SyncQueue>>()) |> SyncQueue)
         .AddSingleton<Json.ISerializer>(fun provider -> jsonSerializer)
 
+let loggingConfig (builder: ILoggingBuilder) =
+    builder.AddSimpleConsole(fun (options: SimpleConsoleFormatterOptions) ->
+        options.TimestampFormat <- "yyyy-MM-ddTHH:mm:ss.fffZ "
+        options.UseUtcTimestamp <- true)
+    |> ignore
+
 let webApp =
     choose
         [ WebhookEndpoints.handlers
@@ -36,6 +43,7 @@ let app =
         use_static "public"
         use_gzip
         service_config serviceConfig
+        logging loggingConfig
     }
 
 run app
