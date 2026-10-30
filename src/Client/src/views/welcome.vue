@@ -220,11 +220,8 @@ export default {
         <div aria-hidden="true"
              class="pointer-events-none absolute -top-20 -left-16 h-64 w-64 rounded-full bg-white/10 blur-2xl"></div>
         <h2 class="relative text-3xl sm:text-4xl font-extrabold text-primary-content tracking-tight">
-          December is waiting behind door number one
+          Simply having a wonderful Christmas run
         </h2>
-        <p class="relative mt-3 text-primary-content/85 max-w-lg mx-auto">
-          Set up your calendar in under a minute. It’s free, and door 1 opens whenever you’re ready.
-        </p>
         <div class="relative mt-7" v-if="!loading">
           <button
             v-if="!isAuthenticated"
