@@ -15,27 +15,9 @@ const heroDoors = [
   { day: 9, state: 'closed' },
 ];
 
-const steps = [
-  {
-    icon: 'fa-solid fa-door-open',
-    title: 'Open today’s door',
-    text: 'Every day in December hides a distance. One tap and it’s revealed.',
-  },
-  {
-    icon: 'fa-solid fa-person-running',
-    title: 'Run the distance',
-    text: 'Anywhere from a quick 1 km to a proper long one. No two Decembers are alike.',
-  },
-  {
-    icon: 'fa-solid fa-check',
-    title: 'Tick it off',
-    text: 'Tap the door again and watch the bar fill up all the way to the 24th.',
-  },
-];
-
 export default {
   data() {
-    return { heroDoors, steps };
+    return { heroDoors };
   },
   inject: ["Auth"],
   methods: {
@@ -47,11 +29,6 @@ export default {
     },
     goToCalendar() {
       this.$router.push("calendar")
-    },
-    // The app runs on hash history, so an "#how-it-works" href would be read as
-    // a route. Scroll manually instead.
-    scrollToHowItWorks() {
-      this.$refs.howItWorks?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     },
   },
 
@@ -99,12 +76,6 @@ export default {
                 <button class="btn btn-primary btn-lg w-full sm:w-auto gap-2 shadow-door" @click="login">
                   Start your calendar
                   <font-awesome-icon icon="fa-solid fa-arrow-right" />
-                </button>
-                <button
-                  class="btn btn-lg w-full sm:w-auto bg-white text-ink-600 border border-ink-100 hover:bg-ink-50 hover:border-ink-100 shadow-door"
-                  @click="scrollToHowItWorks"
-                >
-                  How it works
                 </button>
               </div>
               <!-- Both hero CTAs go through the same Auth0 login, but a
@@ -184,32 +155,6 @@ export default {
               <div class="h-full rounded-full bg-primary" style="width: 23%"></div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- -------------------------------------------------- How it works -->
-    <section id="how-it-works" ref="howItWorks" class="pt-16 sm:pt-20 scroll-mt-4">
-      <div class="text-center max-w-2xl mx-auto">
-        <span class="pill bg-primary/10 text-primary">How it works</span>
-        <h2 class="mt-4 text-3xl sm:text-4xl font-bold tracking-tight text-ink-800">
-          Three taps a day, all December long
-        </h2>
-      </div>
-
-      <div class="mt-10 grid gap-4 sm:gap-6 md:grid-cols-3">
-        <div
-          v-for="(step, i) in steps"
-          :key="step.title"
-          class="relative rounded-3xl border border-ink-100 bg-ink-50 p-6 pt-8"
-        >
-          <span
-            class="absolute -top-4 left-6 flex h-9 w-9 items-center justify-center rounded-xl
-                   bg-primary text-primary-content font-bold shadow-door tnum"
-          >{{ i + 1 }}</span>
-          <font-awesome-icon :icon="step.icon" class="text-2xl text-primary" />
-          <h3 class="mt-3 text-lg font-bold text-ink-800">{{ step.title }}</h3>
-          <p class="mt-1.5 text-sm text-ink-400 leading-relaxed">{{ step.text }}</p>
         </div>
       </div>
     </section>
