@@ -33,27 +33,9 @@ const steps = [
   },
 ];
 
-const features = [
-  {
-    icon: 'fa-solid fa-share-nodes',
-    title: 'Share your month',
-    text: 'Export your calendar as an image or hand out a live link friends can follow.',
-  },
-  {
-    icon: 'fa-solid fa-sliders',
-    title: 'Your distances',
-    text: 'Halve them, double them, or take them as they come. The challenge is yours to size.',
-  },
-  {
-    icon: 'fa-solid fa-table-cells-large',
-    title: 'Two ways to look',
-    text: 'Use the classic doors or switch to a month grid for the calendar.',
-  },
-];
-
 export default {
   data() {
-    return { heroDoors, steps, features };
+    return { heroDoors, steps };
   },
   inject: ["Auth"],
   methods: {
@@ -228,30 +210,6 @@ export default {
           <font-awesome-icon :icon="step.icon" class="text-2xl text-primary" />
           <h3 class="mt-3 text-lg font-bold text-ink-800">{{ step.title }}</h3>
           <p class="mt-1.5 text-sm text-ink-400 leading-relaxed">{{ step.text }}</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ----------------------------------------------------- Features -->
-    <section class="pt-16 sm:pt-20">
-      <div class="text-center max-w-2xl mx-auto">
-        <span class="pill bg-secondary/10 text-secondary">Along the way</span>
-        <h2 class="mt-4 text-3xl sm:text-4xl font-bold tracking-tight text-ink-800">
-          Built for people who like finishing things
-        </h2>
-      </div>
-
-      <div class="mt-10 grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        <div
-          v-for="feature in features"
-          :key="feature.title"
-          class="rounded-3xl border border-ink-100 p-5 transition-shadow hover:shadow-soft"
-        >
-          <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <font-awesome-icon :icon="feature.icon" class="text-lg" />
-          </span>
-          <h3 class="mt-3 font-bold text-ink-800">{{ feature.title }}</h3>
-          <p class="mt-1.5 text-sm text-ink-400 leading-relaxed">{{ feature.text }}</p>
         </div>
       </div>
     </section>
