@@ -235,7 +235,7 @@ export const store = createStore({
     state,
     mutations,
     actions,
-    plugins: [createLogger()],
+    plugins: import.meta.env.DEV ? [createLogger()] : [],
     getters: {
         displayCalendar: (state: State) => {
             return state.userData.calendars[state.displayPeriod];
