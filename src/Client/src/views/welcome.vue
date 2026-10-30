@@ -159,32 +159,14 @@ export default {
       </div>
     </section>
 
-    <!-- ---------------------------------------------------- Final CTA -->
-    <section class="mt-16 sm:mt-20 -mx-3 sm:-mx-6">
+    <!-- ----------------------------------------------- Closing banner -->
+    <section class="-mx-3 sm:-mx-6">
       <div class="relative overflow-hidden bg-gradient-to-br from-primary to-[#3fb377] px-6 py-12 sm:px-12 sm:py-16 text-center">
         <div aria-hidden="true"
              class="pointer-events-none absolute -top-20 -left-16 h-64 w-64 rounded-full bg-white/10 blur-2xl"></div>
         <h2 class="relative text-3xl sm:text-4xl font-extrabold text-primary-content tracking-tight">
           Simply having a wonderful Christmas run.
         </h2>
-        <div class="relative mt-7" v-if="!loading">
-          <button
-            v-if="!isAuthenticated"
-            class="btn btn-lg bg-white text-primary hover:bg-white/90 border-none shadow-soft gap-2"
-            @click="login"
-          >
-            Log in and start running
-            <font-awesome-icon icon="fa-solid fa-arrow-right" />
-          </button>
-          <button
-            v-else
-            class="btn btn-lg bg-white text-primary hover:bg-white/90 border-none shadow-soft gap-2"
-            @click="goToCalendar"
-          >
-            Open your calendar
-            <font-awesome-icon icon="fa-solid fa-arrow-right" />
-          </button>
-        </div>
       </div>
     </section>
 
