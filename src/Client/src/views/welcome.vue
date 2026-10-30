@@ -80,7 +80,7 @@ export default {
         <!-- Copy -->
         <div class="text-center lg:text-left animate-fade-up">
           <span class="pill bg-white text-ink-600 shadow-door text-[10px] sm:text-xs whitespace-normal">
-            🎄 24 doors · 24 runs · one December
+            🎄 24 doors · 24 runs
           </span>
 
           <h1 class="mt-5 text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-ink-800 leading-[1.05]">
